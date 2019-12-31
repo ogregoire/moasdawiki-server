@@ -1,0 +1,109 @@
+{{parent:Index}}
+= Syntax
+
+Eine Tabelle hat folgende Syntax:
+@@
+{|Formatierungsparameter
+| Spalte 1 in Zeile 1 | Spalte 2 in Zeile 1 |-
+| Spalte 1 in Zeile 2 | Spalte 2 in Zeile 2 |-
+|}
+@@
+
+Eine Tabelle beginnt mit den beiden Zeichen @@%%{|%%@@. Dahinter können optional ''Formatierungsparameter'' angegeben werden, ansonsten jedoch kein weiterer Text.
+
+Die Zellen der Tabelle werden mit einem senkrechten Strich @@%%|%%@@ gekennzeichnet. Die Zeichenkombination @@%%|-%%@@ beendet eine Tabellenzeile. Nachfolgende Zellen werden in einer neuen Zeile dargestellt.
+
+Das Ende der Tabelle wird mit @@%%|}%%@@ gekennzeichnet.
+
+Nachfolgend werden die einzelnen Bestandteile der Syntax genauer beschrieben.
+
+= Formatierungsparameter
+
+Am Anfang der Tabelle können optional Formatierungsparameter angegeben werden, die das Aussehen der Tabelle steuern. Dabei handelt es sich um CSS-Klassen, die auch um benutzerdefinierte Klassen ergänzt werden können (siehe [[../HtmlHeader]]). Werden gleichzeitig mehrere CSS-Klassen angegeben, müssen diese mit Leerzeichen getrennt werden. Nachfolgend einige Beispiele:
+
+{|fullwidth
+|| Beispiel || Wiki-Text |-
+|{|
+| Einfache | Tabelle |-
+|}
+|@@%%{|
+| Einfache | Tabelle |-
+|}%%@@
+|-
+|{|center
+| Zentriert | ausgerichtet |-
+|}
+|@@%%{|center
+| Zentriert | ausgerichtet |-
+|}%%@@
+|-
+|{|right
+| Rechts | ausgerichtet |-
+|}
+|@@%%{|right
+| Rechts | ausgerichtet |-
+|}%%@@
+|-
+|{|noborder
+| Ohne | Rahmen |-
+|}
+|@@%%{|noborder
+| Ohne | Rahmen |-
+|}%%@@
+|-
+|{|fullwidth
+| Gesamte | Breite |-
+|}
+|@@%%{|fullwidth
+| Gesamte | Breite |-
+|}%%@@
+|-
+|}
+
+= Zellen hervorheben
+
+Einzelne Zellen können auch hervorgehoben werden, indem als ##linke## Zellenbegrenzung ein doppelter senkrechter Strich @@||@@ angegeben wird:
+
+{|fullwidth
+|| Beispiel || Wiki-Text |-
+|{|
+| || Spalte 1 || Spalte 2 |-
+|| Zeile 1 | Feld A | Feld B |-
+|| Zeile 2 | Feld C | Feld D |-
+|}
+|@@%%{|
+| || Spalte 1 || Spalte 2 |-
+|| Zeile 1 | Feld A | Feld B |-
+|| Zeile 2 | Feld C | Feld D |-
+|}%%@@
+|-
+|}
+
+Soll eine Zelle keinen Text beinhalten, ist ein Leerzeichen anzugeben, damit die linke und rechte Zellenbegrenzung nicht zusammenfallen und als Hervorhebung interpretiert werden.
+
+= Schachteln von Tabellen
+
+Tabellen können beliebig geschachtelt werden, wie folgendes Beispiel zeigt.
+
+{|fullwidth
+|| Beispiel || Wiki-Text |-
+|{|
+| Eine
+|{|
+| geschachtelte |-
+| Tabelle |-
+|}
+|-
+| in der | Tabelle |-
+|}
+|@@%%{|
+| Eine
+|{|
+| geschachtelte |-
+| Tabelle |-
+|}
+|-
+| in der | Tabelle |-
+|}%%@@
+|-
+|}

@@ -1,0 +1,51 @@
+{{parent:Index}}
+
+Wiki-Befehle werden in geschweiften Klammern @@%%{{ }}%%@@ angegeben. Auf dieser Seite sind alle Wiki-Befehle mit ihren Parametern aufgelistet.
+
+{|
+|| Befehl || Parameter || Beschreibung des Befehls |-
+| @@%%{{toc}}%%@@ | | Inhaltsverzeichnis ausgeben (Table of Contents) |-
+| @@%%{{parent:Seitenname}}%%@@ | | eine Vaterseite definieren |-
+| @@%%{{includepage:Seitenname}}%%@@ | | eine Wikiseite einfügen |-
+| @@%%{{image:roterpunkt.png}}%%@@ | width, height, title, align | eine Grafik anzeigen ([[Grafiken | Details]]) |-
+| @@%%{{version}}%%@@ | | Version von ''MoasdaWiki'' ausgeben |-
+| @@%%{{datetime}}%%@@ | date, time | aktuelle Uhrzeit und Datum ausgeben |-
+| @@%%{{pagename}}%%@@ | showPath, showFolder, link, globalContext | den Namen der Wikiseite ausgeben |-
+| @@%%{{pagetimestamp}}%%@@ | globalContext | den Zeitpunkt der letzten Änderung der Wikiseite ausgeben |-
+| @@%%{{listviewhistory}}%%@@ | length, showPath, showFolder, showinline, separator, outputOnEmpty | Liste der zuletzt angesehenen Wikiseiten ausgeben |-
+| @@%%{{listedithistory}}%%@@ | length, showPath, showFolder, showinline, separator, outputOnEmpty | Liste der zuletzt geänderten Wikiseiten ausgeben |-
+| @@%%{{listparents}}%%@@ | showPath, showFolder, showinline, separator, outputOnEmpty, globalContext | Liste der Vaterseiten ausgeben |-
+| @@%%{{listchildren}}%%@@ | showPath, showFolder, showinline, separator, outputOnEmpty, globalContext | Liste der Kindseiten ausgeben |-
+| @@%%{{listpages}}%%@@ | showPath, showFolder, showinline, separator, outputOnEmpty, globalContext | Liste aller Seiten im Repository ausgeben |-
+| @@%%{{listwantedpages}}%%@@ | showPath, showFolder, showinline, separator, outputOnEmpty, globalContext | Liste aller fehlenden Seiten ausgeben |-
+| @@%%{{listunlinkedpages}}%%@@ | hideParents, hideChildren, showPath, showFolder, showinline, separator, outputOnEmpty, globalContext | Liste aller unverlinkten Seiten im Repository ausgeben |-
+| @@%%{{search}}%%@@ | | Eingabefeld für die Volltextsuche ausgeben |-
+| @@%%{{vspace}}%%@@ | | vertikalen Abstand einfügen |-
+| @@%%{{br}}%%@@ | | Zeilenumbruch einfügen |-
+| @@%%{{%%{{%%}}%%}}%%@@ | | die Zeichen {{%%}} ausgeben |-
+| @@%%{{color:red}}...{{/color}}%%@@ |  | Text farbig hervorheben |-
+| @@%%{{style:class1 class2}}...{{/style}}%%@@ | | Text über CSS-Klassen formatieren |-
+| @@%%{{html}}...{{/html}}%%@@ | | Formatierung in HTML-Syntax vornehmen |-
+|}
+
+Die angegebenen Parameter sind alle optional. Sie müssen durch das Zeichen @@|@@ vom Befehl und voneinander abgetrennt sein. Nachfolgend werden die einzelnen Parameter erläutert.
+
+{|
+|| Parameter || Beschreibung |-
+| width | Breite der Grafik in Pixel |-
+| height | Höhe der Grafik in Pixel |-
+| title | Titel der Grafik, wird angezeigt wenn sich die Maus darüber befindet |-
+| align | Ausrichtung der Grafik auf der Seite |-
+| date | nur das Datum ausgeben |-
+| time | nur die Uhrzeit ausgeben |-
+| showPath | den gesamten Pfad (Order und Name) der Wikiseite ausgeben |-
+| showFolder | nur den Ordner der Wikiseite ausgeben |-
+| link | alle Bestandteile des Pfads verlinken |-
+| length | nur die ersten "length" Einträge der Liste ausgeben |-
+| showinline | die Listeneinträge in einer Zeile ausgeben anstatt als Aufzählungspunkte |-
+| separator | dieses Trennzeichen zwischen Listeneinträgen ausgeben (nur bei "showinline") |-
+| outputOnEmpty | Text der ausgegeben werden soll, wenn die Liste leer ist |-
+| globalContext | der Befehl soll sich auf die umgebende Wikiseite beziehen und nicht auf die Wikiseite, die den Befehl enthält |-
+| hideParents | Vater-Seiten ebenfalls als verlinkt behandeln und von der Liste entfernen |-
+| hideChildren | Kind-Seiten ebenfalls als verlinkt behandeln und von der Liste entfernen |-
+|}

@@ -1,0 +1,87 @@
+{{parent:Index}}
+{{toc}}
+
+= Syntax
+
+Ein Link hat folgende Syntax.
+@@
+[[Ziel]]
+[[Ziel | Alternativtext]]
+@@
+
+Bei der Angabe des Linkziels werden mehrere Linkarten unterschieden. Optional kann ein Alternativtext angegeben werden. Im Folgenden werden die beiden Bestandteile detailliert beschrieben.
+
+= Linkarten
+
+''MoasdaWiki'' kennt vier Linkarten:
+{|
+|| Linkart || Beispiel || Beschreibung |-
+| ''Wikiseite'' | @@%%[[Index]]%%@@ | Link auf eine Wikiseite im Repository |-
+| ''Serverfunktion'' | @@%%[[wiki:newpage]]%%@@ | Link auf eine spezielle Funktion des Wiki-Servers |-
+| ''externer Link'' | @@%%[[http://moasdawiki.net/]]%%@@ | Link auf eine Internetseite oder E-Mail-Adresse |-
+| ''Dateilink'' | @@%%[[file:dateiname.zip]]%%@@ | Link auf eine beliebige Datei im Repository |-
+|}
+
+== Linkart ##Wikiseite##
+
+Um einen Link auf eine Wikiseite zu setzen, ist der Seitenname einfach in doppelten eckigen Klammern anzugeben. Befindet sich die Zielseite in einem anderen Ordner, muss zusätzlich der Pfad der Zielseite angegeben werden. Dies kann relativ zur Wikiseite, die den Link enthält, erfolgen oder absolut. Darüber hinaus ist es möglich, an eine bestimmte Stelle (Anker) in einer Wikiseite zu springen. Folgende Varianten sind möglich:
+
+{|
+|| Beispiel || Wiki-Text || Beschreibung |-
+| [[Index]] | @@%%[[Index]]%%@@ | relativer Link auf eine Wikiseite |-
+| [[/wiki/syntax/Index]] | @@%%[[/wiki/syntax/Index]]%%@@ | absoluter Link auf eine Wikiseite |-
+| [[/wiki/syntax/]] | @@%%[[/wiki/syntax/]]%%@@ | absoluter Link auf das Inhaltsverzeichnis eines Ordners |-
+| [[unbekannter Link]] | @@%%[[unbekannter Link]]%%@@ | Link auf eine nicht vorhandene Seite, öffnet den Editor |-
+| [[Index#ankername]] | @@%%[[Index#ankername]]%%@@ | Link auf einen Anker in einer Wikiseite |-
+| [[#ankername]] | @@%%[[#ankername]]%%@@ | Link auf einen Anker in dieser Seite |-
+|}
+
+{{#ankername}}
+Um auf einen Anker verlinken zu können, muss dieser erst gesetzt werden. Das erfolgt durch folgende Syntax:
+@@
+{{#ankername}}
+@@
+Das Rautensymbol @@#@@ muss stets angegeben werden, der Ankername dahinter kann beliebig gewählt werden.
+
+== Linkart ##Serverfunktion##
+
+Linkziele mit dem Präfix @@wiki:@@ verweisen auf interne Serverfunktionen. Folgende Funktionen sind verfügbar:
+{|
+|| Beispiel || Wiki-Text || Beschreibung |-
+| [[wiki:startpage]] | @@%%[[wiki:startpage]]%%@@ | Link auf die Startseite, diese kann in [[/config]] angepasst werden |-
+| [[wiki:editpage]] | @@%%[[wiki:editpage]]%%@@ | Link auf den Editor, um die Seite zu verändern |-
+| [[wiki:newpage]] | @@%%[[wiki:newpage]]%%@@ | Link auf den Editor, um eine neue Seite zu erstellen |-
+| [[wiki:shutdown]] | @@%%[[wiki:shutdown]]%%@@ | Herunterfahren des Wikiservers |-
+|}
+
+== Linkart ##externer Link##
+
+Ein externer Link verweist auf eine Internetseite oder eine E-Mail-Adresse. Beispiele:
+{|
+|| Beispiel || Wiki-Text || Beschreibung |-
+| [[http://moasdawiki.net/]] | @@%%[[http://moasdawiki.net/]]%%@@ | Link auf eine Internetseite |-
+| [[support@moasdawiki.net]] | @@%%[[support@moasdawiki.net]]%%@@ | Link auf eine E-Mail-Adresse |-
+|}
+
+Links auf eine Internetseite werden daran erkannt, dass sie mit einer Protokollbezeichnung wie @@http:@@ oder @@ftp:@@ beginnen.
+
+== Linkart ##Dateilink##
+
+Die Syntax ist wie folgt:
+{|
+|| Beispiel || Wiki-Text || Beschreibung |-
+| [[file:dateiname.zip]] | @@%%[[file:dateiname.zip]]%%@@ | Link auf eine Datei relativ zur Wikiseite |-
+| [[file:/pfad/dateiname.zip]] | @@%%[[file:/pfad/dateiname.zip]]%%@@ | Absoluter Link auf eine Datei |-
+|}
+
+Aus Sicherheitsgründen lehnen Browser Direktlinks wie etwa @@file://dateiname.zip@@ auf das lokale Dateisystem ab. ''MoasdaWiki'' stellt daher eine Möglichkeit bereit, neben Wikiseiten beliebige andere Dateien im Repository abzulegen und über den Wikiserver herunterzuladen. Der Zugriff wird allerdings auf das Repository beschränkt, um keine sensiblen Daten unkontrolliert über das Netzwerk bereitzustellen.
+
+= Angabe eines Alternativtextes
+
+Standardmäßig wird das Linkziel als Text angezeigt. Soll stattdessen ein anderer Text oder eine Grafik angezeigt werden, kann dazu ein Alternativtext angegeben werden. Hierzu können alle Formatierungen die innerhalb eines Absatzes erlaubt sind verwendet werden. Einige Beispiele:
+{|
+|| Beispiel || Wiki-Text |-
+| [[Index | Anleitung zur Syntax]] | @@%%[[Index | Anleitung zur Syntax]]%%@@ |-
+| [[Index | {{image:roterpunkt.png}}]] | @@%%[[Index | {{image:roterpunkt.png}}]]%%@@ |-
+| [[Index | auf ##den## {{image:roterpunkt.png}} gebracht]] | @@%%[[Index | auf ##den## {{image:roterpunkt.png}} gebracht]]%%@@ |-
+|}

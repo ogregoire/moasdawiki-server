@@ -1,0 +1,94 @@
+= Kontakte anlegen
+
+''MoasdaWiki'' enthält ein Plugin zur Unterstützung einer eigenen Kontaktsammlung.
+
+Features
+* einheitliche Darstellung von Kontaktseiten
+* Ausblenden veralteter Angaben, ohne diese löschen zu müssen
+* nächste Geburtstage
+* Jahresübersicht aller Geburtstage
+{{vspace}}
+
+{|fullwidth
+|<kontakt>
+  <name>Mustermann</name>
+  <vorname>Max</vorname>
+  <geburtstag>01.01.1950</geburtstag>
+  <email>max@mustermann.de</email>
+  <skype>maxi</skype>
+  <adresse>
+    <straße>Lindenallee 1</straße>
+    <plz>12345</plz>
+    <ort>Hausen</ort>
+    <telefon>0123/456789</telefon>
+  </adresse>
+  <adresse gültigbis="31.12.2012">
+    <ort>Berlin</ort>
+  </adresse>
+</kontakt>
+|@@%%<kontakt>%%
+{{html}}&nbsp;&nbsp;{{/html}}%%<name>Mustermann</name>%%
+{{html}}&nbsp;&nbsp;{{/html}}%%<vorname>Max</vorname>%%
+{{html}}&nbsp;&nbsp;{{/html}}%%<geburtstag>01.01.1950</geburtstag>%%
+{{html}}&nbsp;&nbsp;{{/html}}%%<email>max@mustermann.de</email>%%
+{{html}}&nbsp;&nbsp;{{/html}}%%<skype>maxi</skype>%%
+{{html}}&nbsp;&nbsp;{{/html}}%%<adresse>%%
+{{html}}&nbsp;&nbsp;&nbsp;&nbsp;{{/html}}%%<straße>Lindenallee 1</straße>%%
+{{html}}&nbsp;&nbsp;&nbsp;&nbsp;{{/html}}%%<plz>12345</plz>%%
+{{html}}&nbsp;&nbsp;&nbsp;&nbsp;{{/html}}%%<ort>Hausen</ort>%%
+{{html}}&nbsp;&nbsp;&nbsp;&nbsp;{{/html}}%%<telefon>0123/456789</telefon>%%
+{{html}}&nbsp;&nbsp;{{/html}}%%</adresse>%%
+{{html}}&nbsp;&nbsp;{{/html}}%%<adresse gültigbis="31.12.2012">%%
+{{html}}&nbsp;&nbsp;&nbsp;&nbsp;{{/html}}%%<ort>Berlin</ort>%%
+{{html}}&nbsp;&nbsp;{{/html}}%%</adresse>%%
+%%</kontakt>%%@@
+|-
+|}
+
+Manche Tags können mehrfach angegeben werden, beispielsweise wenn ein Kontakt mehrere E-Mail-Adressen oder Telefonnummern hat. Wird bei einem Tag das Attribut @@gültigbis@@ angegeben, wird es nicht angezeigt, unabhängig vom Wert des Attributs.
+
+Kontakte können auf beliebigen Wikiseiten angegeben werden. Es empfiehlt sich pro Wikiseite nur einen Kontakt anzugeben.
+
+Eine vollständige Liste aller möglichen Angaben ist in [[../Kontaktvorlage]].
+
+= Termine anlegen
+
+Aufgaben mit Terminen können auf beliebigen Wikiseiten angelegt werden. Dazu wird folgende Syntax verwendet:
+
+{|fullwidth
+|[ ] offene Aufgabe
+[!] wichtige Aufgabe
+[x] erledigte Aufgabe
+[ ] 01.04.2019 | Aufgabe mit Datum
+[ ] 01.04.2019 20:00-22:00 | Aufgabe mit Datum und Uhrzeit
+|@@%%[ ] offene Aufgabe
+[!] wichtige Aufgabe
+[x] erledigte Aufgabe
+[ ] 01.04.2019 | Aufgabe mit Datum
+[ ] 01.04.2019 20:00-22:00 | Aufgabe mit Datum und Uhrzeit%%@@
+|-
+|}
+
+Die ''Terminangabe'' ist optional und wird mit einem senkrechten Strich von der Aufgabenbeschreibung abgetrennt. Die Terminangabe kann beliebigen Text enthalten. Wenn jedoch eine Terminliste erstellt werden soll (siehe nachfolgenden Abschnitt), muss das hier angegebene Format eingehalten werden.
+
+= Geburtstags- und Terminlisten
+
+{|fullwidth
+|Aktuelle Geburtstage und Termine
+<terminliste />
+|@@%%Aktuelle Geburtstage und Termine
+<terminliste />%%@@
+|-
+|Aktuelle Geburtstage und Termine der nächsten 30 Tage
+<terminliste tagedanach="0" tagedavor="30" />
+|@@%%Aktuelle Geburtstage und Termine der nächsten 30 Tage
+<terminliste tagedanach="0" tagedavor="30" />%%@@
+|-
+|Geburtstage und Termine im Jahr 2019
+<terminliste jahr="2019" />
+|@@%%Geburtstage und Termine im Jahr 2019
+<terminliste jahr="2019" />%%@@
+|-
+|}
+
+Aufgelistet werden die Namen aller Wikiseiten zusammen mit dem aktuellen Geburtstag und dem Alter sowie alle Termine auf beliebigen Wikiseiten. Optional können die Parameter @@tagedanach@@ (Anzahl Tage nach einem Termin) und @@tagedavor@@ (Anzahl Tage vor einem Termin) angegeben werden, die als Standardwerte 3 bzw. 10 Tage haben.

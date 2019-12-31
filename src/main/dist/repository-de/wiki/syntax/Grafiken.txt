@@ -1,0 +1,68 @@
+{{parent:Index}}
+
+= Syntax
+
+@@
+{{image:Grafikdatei}}
+{{image:pfad/Grafikdatei}}
+{{image:http://domain/pfad/Grafikdatei}}
+{{image:Grafikdatei | Parameter1=Wert1 | Parameter2=Wert2 | ...}}
+@@
+
+= Angabe der Grafikdatei
+
+Eine Grafikdatei kann wie folgt in einer Wikiseite angezeigt werden.
+{|
+|| Beispiel || Wiki-Text |-
+| {{image:roterpunkt.png}} | @@%%{{image:roterpunkt.png}}%%@@ |-
+|}
+
+Bei der Angabe der Grafikdatei sind folgende URLs möglich
+* relativer Pfad zur Wikiseite, z.B. @@roterpunkt.png@@
+* absoluter Pfad, z.B. @@/wiki/syntax/roterpunkt.png@@
+* Internet-Pfad, z.B. @@http://moasdawiki.net/wiki/roterpunkt.png@@
+
+Dabei können alle gängigen Grafikformate wie @@.jpg@@, @@.gif@@ und @@.png@@ verwendet werden.
+
+= Mögliche Parameter
+
+Über Parameter kann die Größe und Position der Grafik verändert werden. Dazu einige Beispiele:
+{|
+|| Beispiel || Wiki-Text || Beschreibung |-
+| {{image:roterpunkt.png | width=30}}
+| @@%%{{image:roterpunkt.png | width=30}}%%@@
+| Breite 30 Pixel, Höhe wird proportional gesetzt
+|-
+| {{image:roterpunkt.png | width=30 | height=20}}
+| @@%%{{image:roterpunkt.png | width=30 | height=20}}%%@@
+| Breite 30 Pixel, Höhe 20 Pixel
+|-
+| {{image:roterpunkt.png | title="Titel der Grafik"}}
+| @@%%{{image:roterpunkt.png | title="Titel der Grafik"}}%%@@
+| Text anzeigen, wenn der Mauspfeil darauf zeigt
+|-
+| {{image:roterpunkt.png | align=left | width=30}} Text
+fließt
+herum
+| @@%%{{image:roterpunkt.png | align=left | width=30}} Text
+fließt
+herum%%@@
+| Grafik linksbündig mit Textumfluss
+|-
+| {{image:roterpunkt.png | align=right | width=30}} Text
+fließt
+herum
+| @@%%{{image:roterpunkt.png | align=right | width=30}} Text
+fließt
+herum%%@@
+| Grafik rechtsbündig mit Textumfluss
+|-
+| {{image:roterpunkt.png | align=top | width=8}} Text
+| @@%%{{image:roterpunkt.png | align=top | width=8}} Text%%@@
+| Grafik bündig mit oberen Textrand
+|-
+| {{image:roterpunkt.png | align=bottom | width=8}} Text
+| @@%%{{image:roterpunkt.png | align=bottom | width=8}} Text%%@@
+| Grafik bündig mit unteren Textrand
+|-
+|}

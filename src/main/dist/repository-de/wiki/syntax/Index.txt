@@ -1,0 +1,304 @@
+{{toc}}
+
+= Formatierung von Text
+
+{|fullwidth
+|= Überschrift 1
+|@@= Überschrift 1@@
+|-
+|== Überschrift 2
+|@@== Überschrift 2@@
+|-
+|=== Überschrift 3
+|@@=== Überschrift 3@@
+|-
+|* Aufzählung
+** Unterpunkt 1
+** Unterpunkt 2
+# Nummerierung
+## Unterpunkt 1
+## Unterpunkt 2
+|@@%%* Aufzählung
+** Unterpunkt 1
+** Unterpunkt 2
+# Nummerierung
+## Unterpunkt 1
+## Unterpunkt 2%%@@
+|-
+|Dieser Text ist ''fett'', ##kursiv##, __unterstrichen__, ~~durchgestrichen~~ und ''##__~~kombiniert~~__##''.
+|@@%%Dieser Text ist ''fett'', ##kursiv##,
+__unterstrichen__, ~~durchgestrichen~~
+und ''##__~~kombiniert~~__##''.%%@@
+|-
+|°°kleiner Text°°
+|@@%%°°kleiner Text°°%%@@
+|-
+|@@dicktengleiche Schrift (Monospace)@@
+|@@%%@@dicktengleiche Schrift (Monospace)@@%%@@
+|-
+|{{center}}zentrierter Text
+|@@%%{{center}}zentrierter Text%%@@
+|-
+|Nicht eingerückter Text
+
+ Einfach eingerückter Text
+
+  Doppelt eingerückter Text
+|@@Nicht eingerückter Text@@
+
+@@{{html}}&nbsp;{{/html}}Einfach eingerückter Text@@
+
+@@{{html}}&nbsp;&nbsp;{{/html}}Doppelt eingerückter Text@@
+|-
+|Text über
+mehrere Zeilen wird
+so dargestellt.
+
+Text mit manuellem{{br}}Zeilenumbruch.
+|@@%%Text über
+mehrere Zeilen wird
+so dargestellt.
+
+Text mit manuellem{{br}}Zeilenumbruch.%%@@
+|-
+|Vertikalen Abstand
+{{vspace}}
+einfügen.
+|@@%%Vertikalen Abstand
+{{vspace}}
+einfügen.%%@@
+|-
+|%%Das Wiki daran hindern, einen [[Text]] zu {{br}} ''interpretieren''.%%
+|@@{{%%}}%%Das Wiki daran hindern, einen [[Text]] zu
+{{br}} ''interpretieren''.%%{{%%}}@@
+|-
+|{{html}}HTML-Code <sup>direkt</sup> ausgeben.{{/html}}
+|@@%%{{html}}HTML-Code <sup>direkt</sup> ausgeben.{{/html}}%%@@
+|-
+|{{color:red}}roter Text{{/color}}
+{{color:green}}grüner Text{{/color}}
+{{color:#0000ff}}blauer Text{{/color}}
+|@@%%{{color:red}}roter Text{{/color}}
+{{color:green}}grüner Text{{/color}}
+{{color:#0000ff}}blauer Text{{/color}}%%@@
+|-
+|@@
+Programmcode kann auch angegeben werden.
+  Einzüge
+    bleiben
+  erhalten.
+@@
+
+@@|xml
+<wurzel attr1="wert1">
+  <atag />
+  <!-- XML mit Syntaxhervorhebung -->
+</wurzel>
+@@
+
+Syntaxhervorhebung derzeit verfügbar für: XML, HTML, Java, Properties
+|@@%%@@%%
+Programmcode kann auch angegeben werden.
+{{html}}&nbsp;&nbsp;{{/html}}Einzüge
+{{html}}&nbsp;&nbsp;&nbsp;&nbsp;{{/html}}bleiben
+{{html}}&nbsp;&nbsp;{{/html}}erhalten.
+%%@@%%@@
+
+@@%%@@|xml%%
+%%<wurzel attr1="wert1">%%
+{{html}}&nbsp;&nbsp;{{/html}}%%<atag />%%
+{{html}}&nbsp;&nbsp;{{/html}}%%<!-- XML mit Syntaxhervorhebung -->%%
+%%</wurzel>%%
+%%@@%%@@
+
+Syntaxhervorhebung derzeit verfügbar für: XML, HTML, Java, Properties
+|-
+|}
+
+= Links
+
+{|fullwidth
+|[[Index]]
+|@@%%[[Index]]%%@@
+|-
+|[[Index | alternativer Text]]
+|@@%%[[Index | alternativer Text]]%%@@
+|-
+|[[unbekannter Link]]
+|@@%%[[unbekannter Link]]%%@@
+|-
+|Externer Link: [[http://www.domain.com/]]
+|@@%%Externer Link: [[http://www.domain.com/]]%%@@
+|-
+|E-Mail-Link: [[support@moasdawiki.net]]
+|@@%%E-Mail-Link: [[support@moasdawiki.net]]%%@@
+|-
+|Link auf eine beliebige Datei im Repository: [[file:dateiname.zip]]
+|@@%%Link auf eine beliebige Datei im Repository: [[file:dateiname.zip]]%%@@
+|-
+|[[wiki:startpage]]
+[[wiki:editpage]]
+[[wiki:newpage]]
+[[wiki:shutdown]]
+|@@%%[[wiki:startpage]]
+[[wiki:editpage]]
+[[wiki:newpage]]
+[[wiki:shutdown]]%%@@
+|-
+|{{#ankername}}
+Link zum [[#ankername]].
+Mit Seitenangabe: [[Index#ankername]].
+|@@%%{{#ankername}}
+Link zum [[#ankername]].
+Mit Seitenangabe: [[Index#ankername]].%%@@
+|}
+
+Zu den Links gibt es eine [[Links | detailliertere Syntaxbeschreibung]].
+
+= Tabellen
+
+{|fullwidth
+|{|
+| ||Spalte 1||Spalte 2|-
+||Zeile 1|Feld A|Feld B|-
+||Zeile 2|Feld C|Feld D
+|}
+|@@%%{|
+| ||Spalte 1||Spalte 2|-
+||Zeile 1|Feld A|Feld B|-
+||Zeile 2|Feld C|Feld D
+|}%%@@
+|}
+
+Zu den Tabellen gibt es eine [[Tabellen | detailliertere Syntaxbeschreibung]].
+
+= Spezielle Wiki-Befehle
+
+{|fullwidth
+|
+----
+|@@%%----%%@@
+|-
+|{{image:roterpunkt.png}}
+|@@%%{{image:roterpunkt.png}}%%@@
+
+##Zum Einbinden von Grafiken gibt es eine [[Grafiken | detailliertere Syntaxbeschreibung]].##
+|-
+|[ ] offene Aufgabe
+[!] wichtige Aufgabe
+[x] erledigte Aufgabe
+[ ] 28.02.2016 | Aufgabe mit Termin
+[ ] 28.02.2016 20:00-22:00 | Aufgabe mit Termin inkl. Uhrzeit
+|@@%%[ ] offene Aufgabe
+[!] wichtige Aufgabe
+[x] erledigte Aufgabe
+[ ] 28.02.2016 | Aufgabe mit Termin
+[ ] 28.02.2016 20:00-22:00 | Aufgabe mit Termin inkl. Uhrzeit%%@@
+
+##Zum Erstellen von Terminlisten siehe [[Kontakte und Termine]].##
+|-
+|Inhaltsverzeichnis aller Überschriften:
+{{toc}}
+|@@%%Inhaltsverzeichnis aller Überschriften:
+{{toc}}%%@@
+|-
+|{{parent:../Index}} (Definition einer Vater-Seite)
+Vater-Seiten: {{listparents | showinline | separator=", " | outputOnEmpty="-"}}
+Kind-Seiten: {{listchildren | showinline | separator=", " | outputOnEmpty="-"}}
+Kind-Seiten von ../Index: {{listchildren:../Index | showinline | separator=", " | outputOnEmpty="-"}}
+|@@%%{{parent:../Index}} (Definition einer Vater-Seite)
+Vater-Seiten: {{listparents | showinline | separator=", " | outputOnEmpty="-"}}
+Kind-Seiten: {{listchildren | showinline | separator=", " | outputOnEmpty="-"}}
+Kind-Seiten von ../Index: {{listchildren:../Index | showinline | separator=", " | outputOnEmpty="-"}}%%@@
+|-
+|Liste aller Wikiseiten im aktuellen Ordner und allen Unterordnern:
+{{listpages}}
+
+Das gleiche für den Ordner /wiki:
+{{listpages:/wiki}}
+|@@%%Liste aller Wikiseiten im aktuellen Ordner und allen Unterordnern:
+{{listpages}}
+
+Das gleiche für den Ordner /wiki:
+{{listpages:/wiki}}
+%%@@
+|-
+|Zuletzt angesehene Seiten:
+{{listviewhistory | length=3}}
+|@@%%Zuletzt angesehene Seiten:
+{{listviewhistory | length=3}}%%@@
+|-
+|Zuletzt geänderte Seiten:
+{{listedithistory | length=3 | showPath}}
+|@@%%Zuletzt geänderte Seiten:
+{{listedithistory | length=3 | showPath}}%%@@
+|-
+|Jetzt: {{datetime}}
+Aktuelles Datum: {{datetime | date}}
+Aktuelle Zeit: {{datetime | time}}
+|@@%%Jetzt: {{datetime}}
+Aktuelles Datum: {{datetime | date}}
+Aktuelle Zeit: {{datetime | time}}%%@@
+|-
+|Diese Seite hat den Namen {{pagename}} und befindet sich im Ordner {{pagename | showFolder}}.
+Voller Name: {{pagename | showPath}}
+Mit Links: {{pagename | showPath | link}}
+|@@%%Diese Seite hat den Namen {{pagename}} und befindet sich im Ordner {{pagename | showFolder}}.
+Voller Name: {{pagename | showPath}}
+Mit Links: {{pagename | showPath | link}}%%@@
+|-
+|Diese Seite wurde erstellt am: {{pagetimestamp}}
+|@@%%Diese Seite wurde erstellt am: {{pagetimestamp}}%%@@
+|-
+|Wiki-Version: {{version}}
+|@@%%Wiki-Version: {{version}}%%@@
+|-
+|Fügt eine Wiki-Seite ein:
+{{includepage:Seitenname}}
+|@@%%Fügt eine Wiki-Seite ein:
+{{includepage:Seitenname}}%%@@
+|-
+|// einzeiliger Kommentar
+
+/* mehrzeiliger
+Kommentar */
+|@@%%// einzeiliger Kommentar
+
+/* mehrzeiliger
+Kommentar */%%@@
+|}
+
+Zu den speziellen Wiki-Befehlen gibt es eine [[Wiki-Befehle | detailliertere Syntaxbeschreibung]].
+
+= Semantische Tags und Plugins
+
+{|fullwidth
+|Meine Adresse:
+<adresse>
+ <vorname>Max</vorname> <name>Mustermann</name>
+ <straße>Lindenallee</straße> <hausnr>1</hausnr>
+ <plz>12345</plz> <ort>Hausen</ort>
+</adresse>
+// Es können beliebige Tagnamen verwendet werden.
+// Diese werden bei der Ausgabe nicht angezeigt.
+// Wichtig: Semantische Tags müssen immer auch geschlossen werden!
+|@@%%Meine Adresse:
+<adresse>
+ <vorname>Max</vorname> <name>Mustermann</name>
+ <straße>Lindenallee</straße> <hausnr>1</hausnr>
+ <plz>12345</plz> <ort>Hausen</ort>
+</adresse>
+// Es können beliebige Tagnamen verwendet werden.
+// Diese werden bei der Ausgabe nicht angezeigt.
+// Wichtig: Semantische Tags müssen immer auch geschlossen werden!%%@@
+|-
+|<präfix:name>Mustermann</präfix:name>
+// Auch ein Präfix kann angegeben werden,
+// um Namensräume zu definieren.
+|@@%%<präfix:name>Mustermann</präfix:name>
+// Auch ein Präfix kann angegeben werden,
+// um Namensräume zu definieren.%%@@
+|-
+|}
+
+Für weitere Details siehe [[../Plugins]] und [[Kontakte und Termine]].
