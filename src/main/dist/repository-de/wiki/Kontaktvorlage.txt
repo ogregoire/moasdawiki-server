@@ -1,0 +1,74 @@
+{{parent:/wiki/Vorlagen}}
+// Dies ist eine Vorlage für Kontaktdaten.
+//
+// Ausfüllhinweise:
+// Name und Vorname der Person in die Titelzeile oben eintragen.
+// Unten den entsprechenden Text zwischen den Tags einfügen. Bitte keine
+// Leerzeilen im XML-Abschnitt einfügen.
+//
+// Leere Tags werden automatisch ignoriert. Es empfiehlt sich dennoch,
+// ungenutzte Tags zu löschen, um die Wikiseite übersichtlich zu halten.
+// Manche Tags dürfen mehrfach angegeben werden, wie z.B. "vorname".
+// Mit dem optionalen Attribut "gültigbis" können Daten als abgelaufen
+// gekennzeichnet werden, ohne sie aber ganz löschen zu müssen. Beispiel:
+//   <mobil gültigbis="31.12.2012">012345678</mobil>
+// Die Reihenfolge der Tags ist egal.
+//
+<kontakt>
+  <name></name>
+  <geburtsname></geburtsname>
+  <vorname></vorname>
+  <rufname></rufname>
+  <titel></titel>
+  <geburtstag></geburtstag>
+  <todestag></todestag>
+  <foto></foto>
+  <homepage></homepage>
+  <mobil></mobil>
+  <email></email>
+  <aim></aim>
+  <facebook></facebook>
+  <googletalk></googletalk>
+  <icq></icq>
+  <jabber></jabber>
+  <linkedin></linkedin>
+  <msn></msn>
+  <skype></skype>
+  <twitter></twitter>
+  <xing></xing>
+  <yahoo></yahoo>
+  <youtube></youtube>
+  <adresse>
+    <name></name>
+    <straße></straße>
+    <plz></plz>
+    <ort></ort>
+    <land></land>
+    <bundesland></bundesland>
+    <bezirk></bezirk>
+    <telefon></telefon>
+    <fax></fax>
+    <homepage></homepage>
+    <mobil></mobil>
+    <email></email>
+    <aim></aim>
+    <facebook></facebook>
+    <googletalk></googletalk>
+    <icq></icq>
+    <jabber></jabber>
+    <linkedin></linkedin>
+    <msn></msn>
+    <skype></skype>
+    <twitter></twitter>
+    <xing></xing>
+    <yahoo></yahoo>
+    <youtube></youtube>
+    <beschreibung></beschreibung>
+    <kategorie></kategorie>
+  </adresse>
+  <kategorie></kategorie>
+</kontakt>
+
+= Bemerkung
+
+// beliebiger Text

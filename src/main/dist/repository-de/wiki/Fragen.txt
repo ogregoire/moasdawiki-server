@@ -1,0 +1,26 @@
+{{parent:Index}}
+''Diese Seite beantwortet häufig gestellte Fragen.''
+
+= Wie lösche ich eine Wiki-Seite?
+
+# Klicke auf ##Seite editieren##, um den Editor zu öffnen.
+# Klicke auf ##Löschen##.
+# Klicke in der Sicherheitsabfrage auf "OK".
+
+= Wie kann ich ein Java-Applet einbinden?
+
+Um ein Java-Applet in einer Wiki-Seite anzuzeigen, folgenden Codeabschnitt einfügen:
+@@
+{{html}}
+  <applet codebase="../" code="MyApplet.class" width="150" height="50">
+  </applet>
+{{/html}}
+@@
+
+Das Applet muss kompiliert werden und die class-Datei (im obigen Beispiel MyApplet.class) ins root-Verzeichnis im Repository kopiert werden.
+
+Eine Anleitung zum Schreiben eines Java-Applets gibt es z.B. unter [[http://www.tutego.com/javabuch/javainsel6/javainsel_19_001.htm]].
+
+= Kann ##MoasdaWiki## erweitert werden?
+
+Ja, ''MoasdaWiki'' ist über Plugins erweiterbar. Eine Anleitung dazu ist auf der Seite [[Plugins]] zu finden.

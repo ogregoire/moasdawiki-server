@@ -1,0 +1,2 @@
+Folgende Seiten sind nicht im Repository vorhanden, es gibt aber Links auf sie ("wanted pages"):
+{{listwantedpages | showPath | outputOnEmpty="keine Seiten gefunden"}}
