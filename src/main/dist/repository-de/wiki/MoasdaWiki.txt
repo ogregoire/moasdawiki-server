@@ -1,0 +1,69 @@
+{{parent:Index}}
+{{toc}}
+
+= Was ist MoasdaWiki?
+
+''MoasdaWiki'' ist eine webbasierte Wissensverwaltung, die es erlaubt Webseiten mit Hilfe eines Webbrowsers zu erstellen und zu ändern.
+
+''MoasdaWiki'' dient wie jede andere Wiki-Software dazu, Wissen auf einfache Weise in Webseiten niederschreiben und wieder auffinden zu können. Die dadurch entstehende Sammlung von Webseiten wird auch Wiki genannt.
+
+°°Siehe auch°°
+* °°[[http://de.wikipedia.org/wiki/Wiki]]°°
+* °°[[http://de.wikipedia.org/wiki/Liste_von_Wiki-Software]]°°
+
+= Was bedeutet der Name ##MoasdaWiki##?
+
+##Moasda## ist das bayerische Wort für ##Meister##. ''MoasdaWiki'' ist also ein meisterhaftes Werkzeug zur Wissensverwaltung. :-)
+
+= Was ist das Besondere an MoasdaWiki?
+
+Das Besondere an ''MoasdaWiki'' ist:
+
+* einfache Bedienbarkeit
+* keine Installation notwendig, daher auch auf USB-Stick lauffähig
+* keine besonderen Systemanforderungen wie Datenbank oder Webserver
+* auf jedem System mit einer Java VM ab 1.7 lauffähig
+* erweiterbar durch [[Plugins]]
+* kostenlos nutzbar, Quelltext verfügbar
+
+°°Siehe auch°°
+* °°[[http://c2.com/cgi/wiki?WikiEngines | Umfangreiche Liste an Wiki-Software]]°°
+* °°[[http://www.wikimatrix.org/ | Vergleich von Wiki-Software mit Wikimatrix]]°°
+
+= Feature-Liste
+
+* Datenablage in lesbaren Textdateien, keine Installation einer Datenbank erforderlich
+* schnelle und mächtige Volltextsuche (siehe [[Wiki-Suche]])
+* eingebauter Webserver, keine Installation eines Webservers erforderlich
+* unter vielen Betriebssystemen mit einer Java VM lauffähig
+* Webseiten ohne Menü ausdruckbar
+* umfangreiche [[syntax/ | Wiki-Syntax]] inkl. Tabellen, Grafiken
+* frei definierbare [[Vorlagen]] zum Erstellen einheitlich aussehender Webseiten
+* frei konfigurierbare Oberfläche
+** Navigation über die Seite [[Navigation]] anpassbar
+** Layout der Webseite per Stylesheet änderbar
+** Header und Footer der Webseiten über die Seiten [[SeiteKopfzeilen]] und [[SeiteFusszeilen]] anpassbar
+** anpassbarer HTML-Header über sie Seite [[HtmlHeader]], um z.B. eigene Stylesheets oder JavaScript-Bibliotheken einzubinden
+** Änderung der Konfiguration über die Seite [[/config]]
+* erweiterbar durch [[Plugins]], Internationalisierung durch [[messages]]
+* Anzeige der zuletzt geänderten und zuletzt besuchten Seiten
+
+= Was ist MoasdaWiki ##nicht##?
+
+''MoasdaWiki'' ist für den persönlichen Gebrauch konzipiert und soll in erster Linie einfach zu bedienen sein. Aus diesem Grund wird auf folgende Funktionalität bewusst verzichtet:
+
+* Benutzer- und Rechteverwaltung
+* Zugriffskontrolle (außer Beschränkung auf localhost)
+* Versionierung der Wiki-Seiten
+
+= Wo finde ich die neueste Version von MoasdaWiki?
+
+Die aktuelle Version kann von der [[http://moasdawiki.net/ | ''MoasdaWiki''-Homepage]] kostenlos heruntergeladen werden.
+
+Änderungen gegenüber früheren Versionen sind in der [[Versionshistorie]] aufgelistet.
+
+= Rechtliche Hinweise
+
+{{version}}
+Copyright (c) 2008 - 2019 [[https://www.linkedin.com/in/herbert-reiter | Dr. Herbert Reiter]]
+''MoasdaWiki'' steht unter der [[Lizenz | GNU General Public License]].

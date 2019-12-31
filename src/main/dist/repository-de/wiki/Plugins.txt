@@ -1,0 +1,100 @@
+{{parent:Index}}
+Diese Anleitung beschreibt, wie man ein ''MoasdaWiki''-Plugin erstellt. Dazu sind mehrere Schritte zu beachten, die im Folgenden beschrieben werden.
+
+Inhaltsverzeichnis
+{{toc}}
+
+= Funktionsweise von Plugins
+
+Plugins ermöglichen die ''Transformation von Wikiseiten'', die z.B. im Browser angezeigt werden. Diese Transformationen erfolgen nicht im Repository, sondern auf einer Kopie der Wikiseite, erst unmittelbar bevor die Wikiseite angezeigt wird.
+
+Darüber hinaus können beliebige ''URLs direkt mit Plugins verknüpft'' werden. Das Plugin hat dann Zugriff auf alle HTML-Formulardaten und erzeugt direkt die Antwort an den Browser. Dabei steht die volle Wiki-API zur Verfügung. Bestes Beispiel dafür sind die Standard-Plugins von ''MoasdaWiki''. Auf diese Weise kann ''MoasdaWiki'' als Applikations-Framework verwendet werden.
+
+== Transformation von Wikiseiten
+
+Wird im Browser eine Wikiseite aufgerufen, findet intern folgender Ablauf statt:
+# Wikiseite aus dem Repository holen, liegt dort bereits fertig geparst als Wikibaum vor
+# Plugin 1 anwenden
+# Plugin 2 anwenden
+# usw.
+# Wikibaum in HTML transformieren und an den Browser senden
+
+Bei jedem Plugin wird die Methode @@transformWikiPage()@@ aufgerufen. Diese arbeitet auf dem Wikibaum einer Wikiseite. Dabei handelt es sich um die Zwischendarstellung, die durch das Parsen des Textes einer Wikiseite entsteht. Die Knoten des Wikibaums werden durch entsprechende Java-Klassen repräsentiert, die sich im Package @@net.moasdawiki.service.wiki.structure@@ befinden.
+
+Die Reihenfolge der Plugins kann über die Annotation @@@CallOrder@@ gesteuert werden:
+
+@@
+@CallOrder(5)
+public WikiPage transformWikiPage(WikiPage wikiPage) {
+  ...
+}
+@@
+
+== URLs direkt mit Plugins verknüpfen
+
+Wird eine URL aufgerufen, die mit einem Plugin verknüpft ist, findet intern folgender Ablauf statt:
+# HTTP-Anfrage vom Browser auswerten.
+# Der URL zugeordnetes Plugin bestimmen.
+# Die Pluginmethode @@handleRequest()@@ aufrufen. Das Plugin generiert eine Antwort.
+# Die Anwort per HTTP an den Browser zurückschicken.
+
+Die Zuordnung von URLs an ein Plugin erfolgt per Annotation an die @@handleRequest()@@-Methode:
+
+@@
+@PathPattern("/edit/.*")
+public HttpResponse handleRequest(HttpRequest request) {
+  ...
+}
+@@
+
+Es können auch mehrere alternative Pfade angegeben werden:
+
+@@
+@PathPattern(multiValue = { "/view/.*", "/" })
+public HttpResponse handleRequest(HttpRequest request) {
+  ...
+}
+@@
+
+Das Plugin erhält dabei Zugriff auf den HttpRequest und generiert als Antwort einen HttpResponse. Die Mächtigkeit dieses Mechanismus wird dadurch demonstriert, dass fast alle URLs von ''MoasdaWiki'' über Plugins beantwortet werden.
+
+= Ein Plugin selbst implementieren
+
+== Schnittstelle implementieren
+
+Ein Plugin wird als Java-Klasse realisiert. Diese muss eine fest vorgegebene Schnittstelle implementieren, die durch das Interface @@net.moasdawiki.plugin.Plugin@@ beschrieben wird. Im Einzelnen sind folgende Methoden zu implementieren:
+@@
+public interface Plugin {
+  void setServiceLocator(ServiceLocator serviceLocator);
+  WikiPage transformWikiPage(WikiPage wikiPage);
+  HttpResponse handleRequest(HttpRequest request);
+}
+@@
+
+Jedes Plugin wird nur ein einziges Mal instantiiert (über den Standardkonstruktor ohne Parameter) und erhält unmittelbar nach der Erstellung über den Aufruf der Methode @@setServiceLocator()@@ Zugriff auf die API von ''MoasdaWiki''.
+
+Die Methode @@transformWikiPage()@@ wird aufgerufen, wenn eine Wikiseite dargestellt werden soll. Sie erlaubt beliebige Transformationen der Wikiseite. Der häufigste Anwendungsfall ist aber nicht die Veränderung einer ganzen Wikiseite, sondern die Ersetzung bestimmter Seitenelemente, wie im folgenden Abschnitt beschrieben. Die Aufrufreihenfolge mehrerer Plugins kann über die Annotation @@@CallOrder@@ gesteuert werden.
+
+Die Methode @@handleRequest()@@ wird aufgerufen, wenn der Benutzer in seinem Browser eine URL öffnet, die einem Plugin zugeordnet ist. Dann ist das Plugin selbst für die Generierung der Antwort zuständig. Die Zuordnung von URLs zu einem Plugin erfolgt über die Annotation @@@PathPattern@@.
+
+== Plugin registrieren
+
+Damit das Plugin geladen wird, muss es in der Konfigurationsdatei [[/config]] unter @@plugin@@ angegeben werden.
+
+Hinweis: Damit ''MoasdaWiki'' das Plugin findet, muss die Klasse im Classpath der Java VM angegeben sein.
+
+== Codebeispiele
+
+Da ''MoasdaWiki'' die meisten Funktionen ebenfalls über Plugins bereitstellt, gibt es zahlreiche Codebeispiele für die Verwendung der API.
+
+Beispiel für die ''Transformation von Wikiseiten'' finden sich im @@StandardWikiTagsPlugin@@ und im @@KontaktPlugin@@.
+
+Ein einfaches Beispiel für den ''Aufruf eines Plugins über eine URL'' ist das @@StandardViewPlugin@@. Ein komplexeres Beispiel, das auch den Umgang mit HTML-Formularen zeigt, ist das @@StandardEditorPlugin@@.
+
+== Internationalisierung
+
+Mehrsprachige Texte können über eine Sprachdatei [[messages]] geladen werden:
+
+@@
+messages.getMessage("key")
+@@

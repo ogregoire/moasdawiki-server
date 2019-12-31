@@ -1,0 +1,18 @@
+{{parent:Index}}
+{{center}}
+[[wiki:startpage | {{image:kuh.png}}
+''MoasdaWiki'']]
+
+{{search}}
+
+* ''[[wiki:editpage]]''
+* [[wiki:newpage]]
+* [[/Testseite]]
+* [[/wiki/ | Hilfe]]
+* [[wiki:shutdown]]
+
+= Zuletzt geändert
+{{listedithistory | length=10}}
+
+= Zuletzt besucht
+{{listviewhistory | length=10}}

@@ -1,0 +1,82 @@
+@@
+// Sprachdatei von MoasdaWiki
+//
+// Damit die Sprachdatei geladen wird, muss sie in der
+// Konfigurationsdatei config.txt angegeben werden. Änderungen
+// werden erst nach einem Neustart wirksam. Kommentarzeilen
+// beginnen mit "//". Die Zeichen "@@" am Anfang und Ende dienen
+// lediglich der besseren Darstellung als Wikiseite.
+
+wiki.errorpage.linkToStartpage = Zurück zur <a href="/">Startseite</a>
+wiki.errorpage.message = Fehlermeldung: {0}
+wiki.errorpage.title = Fehler
+wiki.messageformat.locale = de
+wiki.plugin.handleRequest.notsupported = Das Plugin ''{0}'' unterstützt keine HTTP-Requests.
+wiki.server.handler.error = Fehler beim Verarbeiten der Anfrage
+wiki.server.onlylocalhost = Zugang zum Server ist auf localhost beschränkt!
+wiki.server.shutdown.denied = Der Server-Shutdown über die Webschnittstelle ist deaktiviert, weil der Server als Dienst läuft!
+wiki.server.shutdown.finished = Server wurde heruntergefahren
+wiki.server.url = Der Wiki-Server ist über folgende URL erreichbar:
+wiki.server.url.unmapped = Die aufgerufene URL wird nicht unterstützt: {0}
+
+EditorPlugin.delete.error = Wikiseite ''{0}'' konnte nicht gelöscht werden: {1}
+EditorPlugin.editor.error = Wikiseite ''{0}'' kann nicht editiert werden: {1}
+EditorPlugin.editor.help = Syntax-Hilfe öffnen
+EditorPlugin.editor.input.cancel = Abbrechen
+EditorPlugin.editor.input.content = Textinhalt der Wikiseite
+EditorPlugin.editor.input.delete = Löschen
+EditorPlugin.editor.input.save = Speichern
+EditorPlugin.editor.input.templateSelect = Inhaltsvorlage auswählen ...
+EditorPlugin.editor.input.title = Name der Wikiseite
+EditorPlugin.editor.input.upload.hint = Ziehen Sie eine Datei auf dieses Feld, um sie hochzuladen
+EditorPlugin.editor.input.upload.title = Datei hochladen
+EditorPlugin.editor.title.newPage = Neue Wikiseite
+EditorPlugin.editor.uploadPanel.cancel = Abbrechen
+EditorPlugin.editor.uploadPanel.file = Hochzuladende Datei:
+EditorPlugin.editor.uploadPanel.fileTag = Download-Link an Cursorposition im Wikitext einfügen
+EditorPlugin.editor.uploadPanel.imageTag = Bild-Tag an Cursorposition im Wikitext einfügen
+EditorPlugin.editor.uploadPanel.repositoryPath = Dateiname im Repository:
+EditorPlugin.editor.uploadPanel.save = Hochladen
+EditorPlugin.editor.uploadPanel.title = Datei ins Wiki-Repository hochladen
+EditorPlugin.save.alreadyExisting = Die Wikiseite ''{0}'' kann nicht erstellt werden, weil bereits eine Seite mit diesem Namen existiert! Bitte wählen Sie einen anderen Namen.
+EditorPlugin.save.error = Die Wikiseite ''{0}'' konnte nicht gespeichert werden: {1}
+EditorPlugin.save.invalidName = Die Wikiseite konnte nicht gespeichert werden, weil der Name ''{0}'' ungültig ist! Bitte geben Sie einen gültigen Namen ein.
+EditorPlugin.save.scanRepository = Nach dem Speichern der Wikiseite ''{0}'' konnte das Repository nicht aktualisiert werden: {1}
+EditorPlugin.upload.alreadyExisting = Die Datei ''{0}'' konnte nicht hochgeladen werden, weil bereits eine Datei mit diesem Namen existiert! Bitte wählen Sie einen anderen Namen.
+EditorPlugin.upload.invalidName = Die Datei konnte nicht hochgeladen werden, weil der Name ''{0}'' ungültig ist! Bitte geben Sie einen gültigen Namen ein.
+EditorPlugin.upload.parentNavigation = Die Datei ''{0}'' konnte nicht hochgeladen werden, weil der Dateipfad eine unerlaubte Rückwärtsnavigation enthält!
+EditorPlugin.url.invalid = Ungültige URL ''{0}''
+EditorPlugin.error = Allgemeiner Fehler: {0}
+
+FileDownloadPlugin.fileNotFound = Datei ''{0}'' nicht gefunden.
+FileDownloadPlugin.readError = Fehler beim Lesen der Datei ''{0}''.
+FileDownloadPlugin.reverseNavigation = Der Dateipfad ''{0}'' enthält eine unerlaubte Rückwärtsnavigation!
+
+SearchPlugin.error = Suche konnte nicht durchgeführt werden
+SearchPlugin.relevance = Relevanzpunkte: {0}
+SearchPlugin.summary.one = 1 Seite gefunden.
+SearchPlugin.summary.more = {0} Seiten gefunden.
+SearchPlugin.title = Suche nach ''{0}''
+
+TerminPlugin.table.date = Datum
+TerminPlugin.table.name = Name
+TerminPlugin.table.age = Alter
+
+ViewPagePlugin.html.editCode = Codeblock bearbeiten
+ViewPagePlugin.html.editSection = Abschnitt bearbeiten
+ViewPagePlugin.html.editTable = Tabelle bearbeiten
+ViewPagePlugin.html.editTableCell = Tabellenzelle bearbeiten
+ViewPagePlugin.html.search = Suche
+ViewPagePlugin.index.disabled = Der Ordner-Index ist abgeschaltet.
+ViewPagePlugin.index.notfound = Der Ordner-Index zu ''{0}'' kann nicht angezeigt werden, weil keine Indexseite vorhanden ist!
+ViewPagePlugin.page.notfound = Die Wikiseite ''{0}'' ist nicht vorhanden!
+ViewPagePlugin.wiki.editpage = Seite editieren
+ViewPagePlugin.wiki.newpage = Neue Seite
+ViewPagePlugin.wiki.shutdown = Herunterfahren
+ViewPagePlugin.wiki.startpage = Startseite
+ViewPagePlugin.wiki.status = Serverstatus
+
+WikiTagsPlugin.dateformat.date = dd.MM.yyyy
+WikiTagsPlugin.dateformat.time = HH:mm:ss
+WikiTagsPlugin.dateformat.datetime = dd.MM.yyyy HH:mm:ss
+@@

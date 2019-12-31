@@ -1,0 +1,2 @@
+{{style:pageheader}}{{style:path}}{{pagename | showFolder | link | globalContext}}{{/style}}
+{{style:title}}{{pagename | globalContext}}{{/style}}{{/style}}
