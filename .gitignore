@@ -27,5 +27,14 @@ moasdawiki-server.iml
 .project
 
 # Gradle
-.gradle
+gradlew
+gradlew.bat
+gradle/
+.gradle/
 build/
+
+# Git
+local.properties
+
+# Others
+repository-test/

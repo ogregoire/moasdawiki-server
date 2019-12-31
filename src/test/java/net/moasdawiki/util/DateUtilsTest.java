@@ -1,0 +1,66 @@
+package net.moasdawiki.util;
+
+import net.moasdawiki.base.ServiceException;
+import org.testng.annotations.Test;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
+import static org.testng.Assert.*;
+
+@SuppressWarnings("ConstantConditions")
+public class DateUtilsTest {
+
+    @Test
+    public void testParseUtcDateValid() throws Exception {
+        Date date = DateUtils.parseUtcDate("2019-05-20T14:30:45.123Z");
+        assertNotNull(date);
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cal.setTime(date);
+        assertEquals(cal.get(Calendar.YEAR), 2019);
+        assertEquals(cal.get(Calendar.MONTH), 4); // 0 = January
+        assertEquals(cal.get(Calendar.DAY_OF_MONTH), 20);
+        assertEquals(cal.get(Calendar.HOUR_OF_DAY), 14);
+        assertEquals(cal.get(Calendar.MINUTE), 30);
+        assertEquals(cal.get(Calendar.SECOND), 45);
+        assertEquals(cal.get(Calendar.MILLISECOND), 123);
+    }
+
+    @Test
+    public void testParseUtcDateNull() throws Exception {
+        Date date = DateUtils.parseUtcDate(null);
+        assertNull(date);
+    }
+
+    @Test(expectedExceptions = ServiceException.class)
+    public void testParseUtcDateError() throws Exception {
+        DateUtils.parseUtcDate("abcde");
+    }
+
+    @Test
+    public void testFormatUtcDateValid() {
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        //noinspection MagicConstant
+        cal.set(2019, 4, 20,14, 30,45);
+        cal.set(Calendar.MILLISECOND, 123);
+        String dateStr = DateUtils.formatUtcDate(cal.getTime());
+        assertEquals(dateStr, "2019-05-20T14:30:45.123Z");
+    }
+
+    @Test
+    public void testFormatUtcDateNull() {
+        String dateStr = DateUtils.formatUtcDate(null);
+        assertNull(dateStr);
+    }
+
+    @Test
+    public void testFormatDate() {
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        //noinspection MagicConstant
+        cal.set(2019, 4, 20,14, 30,45);
+        String dateStr = DateUtils.formatDate(cal.getTime(), "yyyy.MM.dd");
+        assertEquals(dateStr, "2019.05.20");
+        // no need to test more formats as this would test SimpleDateFormat
+    }
+}
