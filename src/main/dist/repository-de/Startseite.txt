@@ -1,0 +1,9 @@
+''Herzlich Willkommen im MoasdaWiki!''
+
+Dies ist die Startseite von ''MoasdaWiki''. Sie kommen jederzeit zu dieser Seite zurück, indem Sie links oben auf das Logo klicken.
+
+Wenn Sie zum ersten Mal mit ''MoasdaWiki'' arbeiten, sehen Sie sich bitte die [[/wiki/MoasdaWiki | Infos über MoasdaWiki]] an. Zugang zu verschiedenen Hilfethemen bekommen Sie über den Link [[/wiki/ | Hilfe]] im Menü auf der linken Seite.
+
+Fortgeschrittene Benutzer können ''MoasdaWiki'' nach ihren Wünschen anpassen. Beispielsweise lassen sich das Menü auf der linken Seite und die Startseite, die Sie gerade sehen, frei gestalten. Machen Sie diese Startseite zu Ihrer persönlichen Einstiegsseite mit allen Infos und Links, die Sie täglich benötigen. ''MoasdaWiki'' ist zudem mittels Plugins um neue Funktionen erweiterbar. Die entsprechenden Wiki-Seiten mit Anleitungen finden Sie unter [[/wiki/ | Hilfe]].
+
+Viel Spaß mit ''MoasdaWiki'' wünscht Herbert Reiter.

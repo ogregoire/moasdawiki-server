@@ -1,0 +1,9 @@
+''Herzlich Willkommen im MoasdaWiki!''
+
+Dies ist die Startseite von ''MoasdaWiki''. Sie kommen jederzeit zu dieser Seite zurück, indem Sie auf das Haus-Symbol oben klicken.
+
+Wichtige Links
+* [[/wiki/MoasdaWiki | Über MoasdaWiki]]
+* [[/wiki/ | Hilfethemen]]
+
+Viel Spaß mit ''MoasdaWiki'' wünscht Herbert Reiter.
