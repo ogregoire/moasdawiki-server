@@ -1,0 +1,721 @@
+/**** global settings ****/
+* {
+	margin: 0;
+	padding: 0;
+	outline: 0;
+	box-sizing: border-box;
+}
+
+img {
+	border: 0;
+}
+
+body {
+	font-family: Verdana, Tahoma, Helvetica, sans-serif;
+	font-size: 13px;
+	line-height: 1.5em;
+	color: #030303;
+	background-color: white;
+}
+
+a:link, a:visited {
+	color: #2324aa;
+	background-color: inherit;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #80c426;
+	background-color: inherit;
+}
+
+h1, h2, h3 {
+	font-family: 'Trebuchet MS', Arial, Sans-serif;
+	font-weight: normal;
+}
+
+ul, ol {
+	margin: 0 20px;
+	padding: 0 15px;
+}
+
+input[type=text], textarea {
+	padding: 3px 5px;
+	color: #777;
+	border: 1px solid #CCC;
+	border-radius: 5px;
+	box-shadow: inset 1px 1px 3px #CCC;
+}
+
+input[type=text]::-webkit-input-placeholder, textarea::-webkit-input-placeholder
+	{
+	color: #AAA;
+}
+
+input[type=text]::-moz-placeholder, textarea::-moz-placeholder {
+	color: #AAA;
+}
+
+input[type=text]:-ms-input-placeholder, textarea:-ms-input-placeholder {
+	color: #AAA;
+}
+
+input[type=text]:focus, input[type=text]:not (:disabled ):hover,
+	textarea:focus, textarea:hover {
+	border: 1px solid #9EC630;
+	box-shadow: inset 1px 1px 3px #9EC630;
+}
+
+button {
+	color: #333333;
+	font-weight: bold;
+	padding: 2px 5px;
+	border-radius: 5px;
+	border: 1px solid #333333;
+	box-shadow: 0px 1px 3px rgba(000, 000, 000, 0.5), inset 0px 0px 1px
+		rgba(255, 255, 255, 1);
+	background-color: #e0e0e0;
+	background: -moz-linear-gradient(top, #e0e0e0 0%, #8c8e8f);
+	background: -webkit-gradient(linear, left top, left bottom, from(#e0e0e0),
+		to(#8c8e8f));
+}
+
+button:active {
+	background: #8c8e8f;
+}
+
+button.save {
+	background-color: #8dbad8;
+	background: -moz-linear-gradient(top, #8dbad8 0%, #5b778a);
+	background: -webkit-gradient(linear, left top, left bottom, from(#8dbad8),
+		to(#5b778a));
+}
+
+button.save:active {
+	background: #5b778a;
+}
+
+button.delete {
+	background-color: #ff9673;
+	background: -moz-linear-gradient(top, #ff9673 0%, #bf6b4f);
+	background: -webkit-gradient(linear, left top, left bottom, from(#ff9673),
+		to(#bf6b4f));
+}
+
+button.delete:active {
+	background: #bf6b4f;
+}
+
+button:disabled, button:disabled:active {
+	color: #8c8e8f;
+	background: #e0e0e0;
+	border-color: #e0e0e0;
+}
+
+/**** Navigationsbereich auf der linken Seite ****/
+div.menu {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 150px;
+	height: 100%;
+	overflow: hidden;
+	color: white;
+	background-color: #1f1f1f;
+}
+
+@media print {
+	div.menu {
+		display: none;
+	}
+}
+
+div.menu .center {
+	text-align: center;
+}
+
+div.menu h1 {
+	font-size: 1.2em;
+	color: inherit;
+	margin-top: 10px;
+	border-top: 1px solid #80c426;
+	padding: 10px 0 10px 10px;
+}
+
+div.menu input {
+	width: 100%;
+	margin: 10px 1px;
+}
+
+div.menu ul {
+	list-style: none;
+	margin: 0 0;
+	padding: 0;
+}
+
+div.menu ul li {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	padding: 0px 0 0 10px;
+}
+
+div.menu ul li a {
+	display: block;
+}
+
+div.menu a {
+	color: inherit;
+}
+
+div.menu a:hover {
+	color: #80c426;
+}
+
+div.menu a.editsection {
+	display: none;
+}
+
+/**** Hauptseite rechts ****/
+div.wikipage {
+	margin-left: 152px;
+	top: 0px;
+	left: 0px;
+	/* nach vorne holen */
+	position: relative;
+	background-color: white;
+}
+
+@media print {
+	div.wikipage {
+		margin-left: 0px;
+		padding: 0px;
+		color: black;
+	}
+}
+
+div.wikipage span.pageheader {
+	display: block;
+	font-family: 'Trebuchet MS', Arial, Sans-serif;
+	color: white;
+	background-color: #2324aa;
+	padding: 5px 10px 10px 10px;
+	margin-bottom: 5px;
+}
+
+div.wikipage span.pageheader span.path {
+	margin-bottom: 5px;
+}
+
+div.wikipage span.pageheader span.title {
+	font-size: 2em;
+}
+
+div.wikipage span.pageheader a {
+	color: white;
+}
+
+div.wikipage span.pageheader a:hover {
+	color: #80c426;
+}
+
+div.wikipage span.pagefooter {
+	display: block;
+	font-size: 0.8em;
+	line-height: 1.5em;
+	color: white;
+	background-color: #2324aa;
+	padding: 10px;
+	margin-top: 5px;
+}
+
+div.wikipage span.pagefooter a {
+	color: white;
+}
+
+div.wikipage span.pagefooter a:hover {
+	color: #80c426;
+}
+
+div.wikipage hr {
+	height: 2px;
+	border: 0;
+	border-top: 2px solid #9EC630;
+	margin: 10px 0;
+	border-top: 2px solid #9EC630;
+}
+
+div.wikipage .verticalspace {
+	margin-top: 12px;
+	margin-bottom: 12px;
+}
+
+div.wikipage div.code {
+	margin-top: 6px;
+	margin-bottom: 6px;
+	margin-left: 10px;
+	border: 1px dashed #121250;
+	font-family: "Courier New", Courier, monospace;
+	padding: 3px;
+}
+
+div.wikipage div.code span.code-java-comment {
+	color: #3F7F5F;
+}
+
+div.wikipage div.code span.code-java-keyword {
+	color: #7F0055;
+	font-weight: bold;
+}
+
+div.wikipage div.code span.code-java-string {
+	color: #0000FF;
+}
+
+div.wikipage div.code span.code-xml-comment {
+	color: #3F5FBF;
+}
+
+div.wikipage div.code span.code-xml-tag {
+	color: #3F7F7F;
+}
+
+div.wikipage div.code span.code-xml-attribute-name {
+	color: #7F007F;
+}
+
+div.wikipage div.code span.code-xml-attribute-value {
+	color: #2A00FF;
+	font-style: italic;
+}
+
+div.wikipage div.code span.code-xml-escaped-character {
+	color: #2A00FF;
+}
+
+div.wikipage div.code span.code-properties-comment {
+	color: #3F7F5F;
+}
+
+div.wikipage div.code span.code-properties-key {
+	
+}
+
+div.wikipage div.code span.code-properties-delimiter {
+	
+}
+
+div.wikipage div.code span.code-properties-value {
+	color: #2A00FF;
+}
+
+@media print {
+	div.wikipage div.code {
+		border: 1px dotted black;
+		background-color: white;
+	}
+}
+
+div.wikipage .small {
+	font-size: 0.8em;
+	line-height: 1.5em;
+}
+
+div.wikipage .directory1 {
+	margin-left: 20px;
+}
+
+div.wikipage .directory2 {
+	margin-left: 40px;
+}
+
+div.wikipage .directory3 {
+	margin-left: 60px;
+}
+
+div.wikipage .paragraph0 {
+	
+}
+
+div.wikipage .paragraph1 {
+	margin-left: 20px;
+}
+
+div.wikipage .paragraph2 {
+	margin-left: 40px;
+}
+
+div.wikipage .paragraph3 {
+	margin-left: 60px;
+}
+
+div.wikipage .center {
+	text-align: center;
+}
+
+div.wikipage .task {
+	background-image: url(/taskopen.png);
+	background-repeat: no-repeat;
+	background-position: 0px 4px;
+	padding-left: 15px;
+}
+
+div.wikipage .task.important {
+	background-image: url(/taskimportant.png);
+}
+
+div.wikipage .task.closed {
+	background-image: url(/taskclosed.png);
+}
+
+div.wikipage .task .schedule {
+	color: #808080;
+	margin-right: 0.5em;
+}
+
+div.wikipage table {
+	border-style: none;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+div.wikipage table.center {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+div.wikipage table.right {
+	margin-left: auto;
+}
+
+div.wikipage table.fullwidth {
+	width: 100%;
+}
+
+div.wikipage tr {
+	vertical-align: top;
+}
+
+div.wikipage tr .right {
+	text-align: right;
+}
+
+div.wikipage th {
+	border: 1px solid #121250;
+	background-color: #F2F2F2;
+	color: #333333;
+	padding: 1px 3px;
+	text-align: left;
+}
+
+div.wikipage td {
+	border: 1px solid #121250;
+	padding: 1px 3px;
+}
+
+div.wikipage table.noborder>tbody>tr>td {
+	border-style: none;
+}
+
+div.wikipage a.linknewpage:after {
+	content: url(edit.png);
+	margin-left: 3px;
+	margin-right: 3px;
+}
+
+div.wikipage a.linkexternal:after {
+	content: url(link.png);
+	margin-left: 3px;
+	margin-right: 3px;
+}
+
+div.wikipage a.linkemail:after {
+	content: url(email.png);
+	margin-left: 3px;
+	margin-right: 3px;
+}
+
+div.wikipage a.linkfile:after {
+	content: url(file.png);
+	margin-left: 3px;
+	margin-right: 3px;
+}
+
+
+div.wikipage h1 {
+	font-size: 1.5em;
+	color: white;
+	background-color: #2324aa;
+	border-top: 3px solid #80c426;
+	padding: 20px;
+	margin: 10px 0;
+}
+
+div.wikipage h2 {
+	font-size: 1.5em;
+	font-weight: bold;
+	color: #002856;
+	text-shadow: 1px 1px 1px #CCC;
+	padding: 20px 0;
+	margin: 10px 0;
+}
+
+div.wikipage h3 {
+	font-size: 1.1em;
+	font-weight: bold;
+	color: #333;
+	text-shadow: 1px 1px 1px #CCC;
+	margin: 10px 0;
+}
+
+/* Bearbeitung von Seitenausschnitten */
+div.wikipage h1, div.wikipage h2, div.wikipage h3 {
+	position: relative;
+}
+
+div.wikipage h1>a.editsection, div.wikipage h2>a.editsection, div.wikipage h3>a.editsection {
+	position: absolute;
+	right: 5px;
+	top: 15px;
+	display: none;
+}
+
+div.wikipage h3>a.editsection {
+	top: -6px;
+}
+
+div.wikipage h1:hover>a.editsection, div.wikipage h2:hover>a.editsection,
+	div.wikipage h3:hover>a.editsection {
+	display: inline;
+}
+
+div.wikipage div.table {
+	position: relative;
+}
+
+div.wikipage div.table>a.edittable {
+	position: absolute;
+	right: 3px;
+	top: -6px;
+	display: none;
+}
+
+div.wikipage div.table:hover>a.edittable {
+	display: inline;
+}
+
+div.wikipage div.tablecell {
+	position: relative;
+}
+
+div.wikipage div.tablecell>a.editcell {
+	position: absolute;
+	right: 1px;
+	top: 2px;
+	display: none;
+}
+
+div.wikipage div.tablecell:hover>a.editcell {
+	display: inline;
+}
+
+div.wikipage div.code {
+	position: relative;
+}
+
+div.wikipage div.code>a.editcode {
+	position: absolute;
+	right: 3px;
+	display: none;
+}
+
+div.wikipage div.code:hover>a.editcode {
+	display: inline;
+}
+
+/**** Wiki-Editor ****/
+div.wikipage.editor .titleinput {
+	width: 100%;
+	font-size: 2em;
+	padding: 1px;
+	display: block;
+}
+
+div.wikipage.editor .textinput {
+	width: 100%;
+	height: 70%;
+	padding: 1px;
+	display: block;
+	margin-top: 5px;
+}
+
+div.wikipage.editor div.controlarea {
+	width: 100%;
+	padding-top: 5px;
+}
+
+div.wikipage.editor div.controlarea div.section {
+	display: inline-block;
+	height: 42px;
+	padding-right: 5px;
+	margin: 0 5px 5px 0;
+	border-right: 1px solid grey;
+	vertical-align: top;
+}
+
+div.wikipage.editor div.controlarea div.section button {
+	margin-left: 5px;
+}
+
+div.wikipage.editor div.controlarea div.section button:first-child {
+	margin-left: 0;
+}
+
+div.wikipage.editor div.controlarea div.section select {
+	box-shadow: 0px 1px 3px rgba(000, 000, 000, 0.5), inset 0px 0px 1px
+		rgba(255, 255, 255, 1);
+}
+
+div.wikipage.editor div.controlarea div.section a {
+	font-weight: bold;
+	display: block;
+	margin-top: 2px;
+}
+
+div.wikipage.editor div.controlarea div.uploadarea {
+	display: inline-block;
+	width: 80px;
+	height: 42px;
+	border: 1px solid black;
+	background-color: #8DBAD8;
+	box-shadow: 0px 1px 3px rgba(000, 000, 000, 0.5), inset 0px 0px 1px
+		rgba(255, 255, 255, 1);
+	color: #333333;
+	text-align: center;
+	padding: 2px;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+div.wikipage.editor div.controlarea div.uploadarea.dragover, div.wikipage.editor div.controlarea div.uploadarea:active
+	{
+	border-color: green;
+	background-color: #A8E0A3;
+}
+
+div.wikipage.editor .TemplateSelect {
+	width: 250px;
+	vertical-align: middle;
+}
+
+/**** Dialog-Panel ****/
+div.panelbackground {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: white;
+	opacity: 0.5;
+}
+
+div.panel {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	background-color: #EDEDED;
+	border: 1px solid #333333;
+	box-shadow: 5px 5px 10px rgba(000, 000, 000, 0.5);
+}
+
+div.panel div.header {
+	text-align: center;
+	font-size: 1em;
+	font-weight: bold;
+	color: black;
+	padding: 5px 10px;
+	text-shadow: 0px 1px 0px rgb(207, 207, 207);
+	background-color: #e0e0e0;
+	background: -moz-linear-gradient(top, #e0e0e0 0%, #8c8e8f);
+	background: -webkit-gradient(linear, left top, left bottom, from(#e0e0e0),
+		to(#8c8e8f));
+}
+
+div.panel div.body {
+	padding: 10px;
+}
+
+div.panel div.body div.section {
+	margin-bottom: 10px;
+}
+
+div.panel div.body div.section label {
+	font-weight: bold;
+}
+
+div.panel div.body div.section input[type=checkbox] {
+	vertical-align: middle;
+	margin-right: 3px;
+}
+
+div.panel div.body div.section input[type=file] {
+	width: 100%;
+}
+
+div.panel div.body div.section input[type=text] {
+	width: 100%;
+}
+
+div.panel div.footer button {
+	margin-right: 5px;
+	margin-top: 10px;
+}
+
+div.panel label.disabled {
+	color: grey;
+}
+
+div.panel.uploadpanel {
+	width: 450px;
+	margin-left: -225px;
+	margin-top: -120px;
+}
+
+/**** Plugin-spezifisch ****/
+div.kontaktseite-bilder {
+	width: 50%;
+	margin-left: auto;
+	position: relative;
+	z-index: 10;
+}
+
+img.kontaktseite-bild {
+	float: right;
+	padding-left: 5px;
+	padding-bottom: 5px;
+}
+
+table.kontaktseite-adresse {
+	width: 100%;
+	background-color: #f0f0ff;
+}
+
+table.kontaktseite-adresse td {
+	border-style: none;
+}
+
+table.kontaktseite-adresse td:first-child {
+	width: 40%;
+}
+
+table.geburtstagsliste tr.past {
+	background-color: #ffe8e8;
+}
+
+table.geburtstagsliste tr.present {
+	background-color: #ffffd9;
+}
+
+table.geburtstagsliste tr.future {
+	background-color: #e6ffe6;
+}
