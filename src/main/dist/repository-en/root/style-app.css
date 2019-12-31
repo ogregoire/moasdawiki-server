@@ -1,0 +1,35 @@
+/**** Modifications for rendering inside the App ****/
+body {
+	font-size: 18px;
+}
+
+div.menu {
+	display: none;
+}
+
+div.wikipage {
+	margin-left: 0px;
+	padding: 3px;
+	color: black;
+}
+
+div.wikipage h1:hover>a.editsection, div.wikipage h2:hover>a.editsection,
+	div.wikipage h3:hover>a.editsection {
+	display: none;
+}
+
+div.wikipage div.table:hover>a.edittable {
+	display: none;
+}
+
+div.wikipage div.tablecell:hover>a.editcell {
+	display: none;
+}
+
+div.wikipage div.code:hover>a.editcode {
+	display: none;
+}
+
+div.wikipage.editor div.controlarea div.uploadarea {
+	display: none;
+}

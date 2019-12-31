@@ -1,0 +1,109 @@
+{{parent:Index}}
+= Syntax
+
+To define a table use the following syntax:
+@@
+{|formatting parameters
+| column 1 in row 1 | column 2 in row 1 |-
+| column 1 in row 2 | column 2 in row 2 |-
+|}
+@@
+
+The table command starts with the two characters @@%%{|%%@@. They can be followed by optional formatting parameters.
+
+A table cell starts with the pipe character @@%%|%%@@. The characters @@%%|-%%@@ define the end of a table row and start a new one.
+
+The table command ends with the two characters @@%%|}%%@@.
+
+The following sections describe the table syntax in detail.
+
+= Formatting Parameters
+
+The first line of the table command can include optional formatting parameters to control the layout of the table. Technically, they are CSS classes, which can also be user defined (see [[../HtmlHeader]]). If several CSS classes are given, they must be separated by spaces. See the following examples:
+
+{|fullwidth
+|| Result || Syntax |-
+|{|
+| Simple | table |-
+|}
+|@@%%{|
+| Simple | table |-
+|}%%@@
+|-
+|{|center
+| Centered | alignment |-
+|}
+|@@%%{|center
+| Centered | alignment |-
+|}%%@@
+|-
+|{|right
+| Right | alignment |-
+|}
+|@@%%{|right
+| Right | alignment |-
+|}%%@@
+|-
+|{|noborder
+| No | border |-
+|}
+|@@%%{|noborder
+| No | border |-
+|}%%@@
+|-
+|{|fullwidth
+| Full | width |-
+|}
+|@@%%{|fullwidth
+| Full | width |-
+|}%%@@
+|-
+|}
+
+= Highlight cells
+
+To highlight a table cell use a double pipe as ##left## cell delimiter:
+
+{|fullwidth
+|| Result || Syntax |-
+|{|
+| || Column 1 || Column 2 |-
+|| Row 1 | Cell A | Cell B |-
+|| Row 2 | Cell C | Cell D |-
+|}
+|@@%%{|
+| || Column 1 || Column 2 |-
+|| Row 1 | Cell A | Cell B |-
+|| Row 2 | Cell C | Cell D |-
+|}%%@@
+|-
+|}
+
+If a cell has no text, you have to write at least a space character to avoid two cell delimiters to be interpreted as a highlighted cell instead.
+
+= Nested Tables
+
+Tables can easily be nested, sie the example below:
+
+{|fullwidth
+|| Result || Syntax |-
+|{|
+| A
+|{|
+| nested |-
+| table |-
+|}
+|-
+| in a | table |-
+|}
+|@@%%{|
+| A
+|{|
+| nested |-
+| table |-
+|}
+|-
+| in a | table |-
+|}%%@@
+|-
+|}

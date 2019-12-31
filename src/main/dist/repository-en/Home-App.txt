@@ -1,0 +1,9 @@
+''Welcome to MoasdaWiki!''
+
+This ist the start page of ''MoasdaWiki''. You can easily return to this page by clicking on the house logo above.
+
+Important links
+* [[/wiki/MoasdaWiki | About MoasdaWiki]]
+* [[/wiki/ | Help topics]]
+
+Have fun with ''MoasdaWiki'' wishes Herbert Reiter.

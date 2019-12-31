@@ -1,0 +1,4 @@
+{{style:pagefooter}}Parent pages: {{listparents | globalContext | showinline | separator=" | " | outputOnEmpty="-"}}
+Child pages: {{listchildren | globalContext | showinline | separator=" | " | outputOnEmpty="-"}}
+Last modified on: {{pagetimestamp | globalContext}}
+Created with [[http://moasdawiki.net/ | {{version}}]]{{/style}}

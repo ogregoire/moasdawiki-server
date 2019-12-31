@@ -1,0 +1,1 @@
+This wiki page is intended to test the [[/wiki/syntax/ | syntax]].

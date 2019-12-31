@@ -1,0 +1,2 @@
+Pages that are linked from a wiki page but do not exist ("wanted pages"):
+{{listwantedpages | showPath | outputOnEmpty="no pages found"}}

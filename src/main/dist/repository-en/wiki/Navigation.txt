@@ -1,0 +1,18 @@
+{{parent:Index}}
+{{center}}
+[[wiki:startpage | {{image:cow.png}}
+''MoasdaWiki'']]
+
+{{search}}
+
+* ''[[wiki:editpage]]''
+* [[wiki:newpage]]
+* [[/Playground]]
+* [[/wiki/ | Help]]
+* [[wiki:shutdown]]
+
+= Last modified
+{{listedithistory | length=10}}
+
+= Last visited
+{{listviewhistory | length=10}}

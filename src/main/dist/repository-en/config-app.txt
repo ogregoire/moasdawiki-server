@@ -1,0 +1,87 @@
+@@
+// MoasdaWiki configuration file (App)
+// Will be renamed to config.txt when assembling the APK file.
+//
+// Changes take effect only after a server restart.
+// The characters "@@" on top and bottom of the file are
+// just for better readability as wiki page.
+
+// Port number of the wiki server. If no port is given,
+// the wiki server chooses any unused port. 
+
+port = 11080
+
+// File suffix of wiki files in the repository
+
+repository.pagesuffix = .txt
+
+// Message file with translations
+
+messagefile = /wiki/messages.txt
+
+// Wiki page used as start page
+
+page.startpage = /Home-App
+
+// Wiki page used as navigation panel
+
+page.navigation = /wiki/Navigation
+
+// Wiki page with HTML headers
+
+page.html.header = /wiki/HtmlHeader-App
+
+// Wiki page used as page header
+
+page.header = /wiki/PageHeader
+
+// Wiki page used as page footer
+
+page.footer = /wiki/PageFooter
+
+// Wiki page used as parent page of all content template pages.
+// The child pages can be selected on the editor page.
+
+page.templates = /wiki/Templates
+
+// Wiki page name used as folder overview. If a repository folder
+// contains a wiki page with this name, it is automatically used
+// to generate the folder overview. Otherwise the default wiki page
+// is used instead. A repository folder is addressed with a final '/'.
+// To turn off this feature, just comment out both options.
+
+page.index.name = Index
+page.index.default = /wiki/IndexStandard
+
+// Repository folder that contains files to be accessed via
+// a root path URL, e.g. /favicon.ico
+
+repository.root = root
+
+// Plug-ins to be loaded. Can be in any order.
+
+plugin = net.moasdawiki.plugin.FileDownloadPlugin
+plugin = net.moasdawiki.plugin.IncludePagePlugin
+plugin = net.moasdawiki.plugin.SearchPlugin
+plugin = net.moasdawiki.plugin.ViewPagePlugin
+plugin = net.moasdawiki.plugin.WikiTagsPlugin
+
+// Repository files to be excluded from synchronization with
+// other Wiki repositories. If an entry ends with "/", all
+// files and sub folders in this folder are excluded.
+
+synchronization.exclude = /config.txt
+synchronization.exclude = /config-app.txt
+synchronization.exclude = /filelist.cache
+synchronization.exclude = /parentrelations.cache
+synchronization.exclude = /root/
+synchronization.exclude = /wiki/
+
+// Restrict access to the same host as the wiki server?
+// If set to "false", the wiki server can be accessed from any
+// computer in the LAN (except there is a firewall).
+// Is relevant for both, access by browser and synchronization
+// with the App.
+
+authentication.onlylocalhost = false
+@@

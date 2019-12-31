@@ -1,0 +1,78 @@
+@@
+// MoasdaWiki message file
+//
+// Contains translations for hard coded messages in the wiki
+// server or plug-ins. This file has to be referred in config.txt
+// to load it. Changes take effect only after a server restart.
+// The characters "@@" on top and bottom of the file are
+// just for better readability as wiki page.
+
+wiki.errorpage.linkToStartpage = Back to <a href="/">start page</a>
+wiki.errorpage.message = Error message: {0}
+wiki.errorpage.title = Error
+wiki.messageformat.locale = en
+wiki.plugin.handleRequest.notsupported = The plug-in ''{0}'' doesn't support HTTP requests.
+wiki.server.handler.error = Error while handling request
+wiki.server.onlylocalhost = Server access is restricted to localhost!
+wiki.server.shutdown.denied = Server shut down via user interface is disabled, because the server is running as daemon.
+wiki.server.shutdown.finished = Server was shut down
+wiki.server.url = The wiki server can be accessed by the URL:
+wiki.server.url.unmapped = Unsupported URL {0}
+
+EditorPlugin.delete.error = Wiki page ''{0}'' couldn''t be deleted: {1}
+EditorPlugin.editor.error = Wiki page ''{0}'' cannot be edited: {1}
+EditorPlugin.editor.help = Show syntax overview
+EditorPlugin.editor.input.cancel = Cancel
+EditorPlugin.editor.input.content = Content of wiki page
+EditorPlugin.editor.input.delete = Delete
+EditorPlugin.editor.input.save = Save
+EditorPlugin.editor.input.templateSelect = Select template ...
+EditorPlugin.editor.input.title = Name of wiki page
+EditorPlugin.editor.input.upload.hint = Drop a file on this area for upload
+EditorPlugin.editor.input.upload.title = Upload file
+EditorPlugin.editor.title.newPage = New wiki page
+EditorPlugin.editor.uploadPanel.cancel = Cancel
+EditorPlugin.editor.uploadPanel.file = Selected file:
+EditorPlugin.editor.uploadPanel.fileTag = Insert download link at cursor position in wiki text
+EditorPlugin.editor.uploadPanel.imageTag = Insert image tag at cursor position in wiki text
+EditorPlugin.editor.uploadPanel.repositoryPath = File name in repository:
+EditorPlugin.editor.uploadPanel.save = Upload
+EditorPlugin.editor.uploadPanel.title = Upload a file into wiki repository
+EditorPlugin.save.alreadyExisting = Wiki page ''{0}'' couldn''t be saved, because there is already a page with the same name. Please choose another name.
+EditorPlugin.save.error = Wiki page ''{0}'' couldn''t be saved: {1}
+EditorPlugin.save.invalidName = Wiki page couldn''t be saved, because its name ''{0}'' is invalid! Please choose a valid name.
+EditorPlugin.save.scanRepository = Error updating repository after saving wiki page ''{0}'': {1}
+EditorPlugin.upload.alreadyExisting = File ''{0}'' couldn''t be uploaded, because there is already a file with the same name. Please choose another name.
+EditorPlugin.upload.invalidName = File couldn''t be uploaded, because its name ''{0}'' is invalid! Please choose a valid name.
+EditorPlugin.upload.parentNavigation = File ''{0}'' couldn''t be uploaded, because the file name contains a illegal parent navigation!
+EditorPlugin.url.invalid = Invalid URL ''{0}''
+EditorPlugin.error = General error: {0}
+
+FileDownloadPlugin.fileNotFound = File ''{0}'' not found.
+FileDownloadPlugin.readError = Error reading file ''{0}''.
+FileDownloadPlugin.reverseNavigation = The file path ''{0}'' contains an invalid reverse navigation!
+
+SearchPlugin.error = Search cannot be performed
+SearchPlugin.relevance = Relevance: {0}
+SearchPlugin.summary.one = 1 page found.
+SearchPlugin.summary.more = {0} pages found.
+SearchPlugin.title = Search for ''{0}''
+
+ViewPagePlugin.html.editCode = Edit code section
+ViewPagePlugin.html.editSection = Edit section
+ViewPagePlugin.html.editTable = Edit table
+ViewPagePlugin.html.editTableCell = Edit table cell
+ViewPagePlugin.html.search = Search
+ViewPagePlugin.index.disabled = Folder overview is turned off.
+ViewPagePlugin.index.notfound = Folder overview for ''{0}'' cannot be shown, because the overview page is missing.
+ViewPagePlugin.page.notfound = Unknown wiki page ''{0}''!
+ViewPagePlugin.wiki.editpage = Edit page
+ViewPagePlugin.wiki.newpage = New page
+ViewPagePlugin.wiki.shutdown = Shut down
+ViewPagePlugin.wiki.startpage = Start page
+ViewPagePlugin.wiki.status = Server status
+
+WikiTagsPlugin.dateformat.date = M/d/yyyy
+WikiTagsPlugin.dateformat.time = h:mm a
+WikiTagsPlugin.dateformat.datetime = M/d/yyyy h:mm a
+@@

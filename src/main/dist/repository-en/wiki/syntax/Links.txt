@@ -1,0 +1,86 @@
+{{parent:Index}}
+{{toc}}
+
+= Syntax Overview
+
+@@
+[[URL]]
+[[URL | Alternative text]]
+@@
+
+The URL can refer to different types of target. Additionally, an alternative text can be set that is shown instead of the URL. The following sections describe the link syntax in detail.
+
+= Link Types
+
+''MoasdaWiki'' distinguishes four link types:
+{|
+|| Link type || Syntax || Description |-
+| ''Wiki page'' | @@%%[[Index]]%%@@ | Link to a wiki page in the repository |-
+| ''Built-in link'' | @@%%[[wiki:newpage]]%%@@ | Link to a built-in function of the wiki server |-
+| ''External link'' | @@%%[[http://moasdawiki.net/]]%%@@ | Link to a web page or email address |-
+| ''File link'' | @@%%[[file:filename.zip]]%%@@ | Link to any file in the repository |-
+|}
+
+== Link Type ##Wiki page##
+
+To link to a wiki page, just set its name in double squared brackets. If the target wiki page is in a different folder, a relative or absolute path has also to be added. Furthermore, a page anchor can be given to jump to specific position in a page. The following variants are possible:
+
+{|
+|| Result || Syntax || Description |-
+| [[Index]] | @@%%[[Index]]%%@@ | relative link to a wiki page |-
+| [[/wiki/syntax/Index]] | @@%%[[/wiki/syntax/Index]]%%@@ | absolute link to a wiki page |-
+| [[/wiki/syntax/]] | @@%%[[/wiki/syntax/]]%%@@ | absolute link to the overview of a folder |-
+| [[unknown link]] | @@%%[[unknown link]]%%@@ | link to a missing page, opens the wiki editor |-
+| [[Index#anchorname]] | @@%%[[Index#anchorname]]%%@@ | link to a anchor in a wiki page |-
+| [[#anchorname]] | @@%%[[#anchorname]]%%@@ | link to a anchor in the current wiki page |-
+|}
+
+{{#anchorname}}
+Before linking to an anchor it has to be defined. Example:
+@@
+{{#anchorname}}
+@@
+The leading hash sign @@#@@ is important, the anchor name can be choosen freely.
+
+== Link Type ##Built-in link##
+
+Link targets with prefix @@wiki:@@ refer to a built-in function of the wiki server. Available functions:
+{|
+|| Result || Syntax || Description |-
+| [[wiki:startpage]] | @@%%[[wiki:startpage]]%%@@ | link to the start page, can be modified in [[/config]] |-
+| [[wiki:editpage]] | @@%%[[wiki:editpage]]%%@@ | link to the wiki editor to modify the page |-
+| [[wiki:newpage]] | @@%%[[wiki:newpage]]%%@@ | link to the wiki editor to create a new wiki page |-
+| [[wiki:shutdown]] | @@%%[[wiki:shutdown]]%%@@ | Shut down the wiki server |-
+|}
+
+== Link Type ##External link##
+
+An external link refers to a web page or an email address. Example:
+{|
+|| Result || Syntax || Description |-
+| [[http://moasdawiki.net/]] | @@%%[[http://moasdawiki.net/]]%%@@ | link to a web page |-
+| [[support@moasdawiki.net]] | @@%%[[support@moasdawiki.net]]%%@@ | link to an email address |-
+|}
+
+Links to a web page are recognized by a leading protocol definition, e.g. @@http:@@ and @@ftp:@@.
+
+== Link Type ##File link##
+
+To link to a file in the repository, use the following syntax:
+{|
+|| Result || Syntax || Description |-
+| [[file:filename.zip]] | @@%%[[file:filename.zip]]%%@@ | link to a file relative to the wiki page |-
+| [[file:/path/filename.zip]] | @@%%[[file:/path/filename.zip]]%%@@ | absolute link to a file |-
+|}
+
+Because of security reasons browsers refuse direct links to the local file system, e.g. @@file://filename.zip@@. Therefore, ''MoasdaWiki'' supports to store any file in the repository provides a download URL via wiki server. Local file access is restricted to files inside the repository.
+ 
+= Show an alternative text
+
+Usually, the link target is shown in the wiki page. If an alternative text should be shown instead, use the syntax below. An alternative text can use all formatting options allowed in a paragraph.
+{|
+|| Result || Syntax |-
+| [[Index | Syntax overview]] | @@%%[[Index | Syntax overview]]%%@@ |-
+| [[Index | {{image:reddot.png}}]] | @@%%[[Index | {{image:reddot.png}}]]%%@@ |-
+| [[Index | come to ##the## {{image:reddot.png}}]] | @@%%[[Index | come to ##the## {{image:reddot.png}}]]%%@@ |-
+|}

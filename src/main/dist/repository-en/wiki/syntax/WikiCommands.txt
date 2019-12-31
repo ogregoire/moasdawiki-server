@@ -1,0 +1,51 @@
+{{parent:Index}}
+
+Special wiki command are written in curly brackets @@%%{{ }}%%@@. This page lists all available wiki commands an their parameters.
+
+{|
+|| Syntax || Parameter || Description |-
+| @@%%{{toc}}%%@@ | | show Table of Contents |-
+| @@%%{{parent:Seitenname}}%%@@ | | define a parent page |-
+| @@%%{{includepage:Seitenname}}%%@@ | | include a wiki page |-
+| @@%%{{image:roterpunkt.png}}%%@@ | width, height, title, align | show an image ([[Images | details]]) |-
+| @@%%{{version}}%%@@ | | show the version of ''MoasdaWiki'' |-
+| @@%%{{datetime}}%%@@ | date, time | show the current date and time |-
+| @@%%{{pagename}}%%@@ | showPath, showFolder, link, globalContext | show the name of the wiki page |-
+| @@%%{{pagetimestamp}}%%@@ | globalContext | show the last modification timestamp of the wiki page |-
+| @@%%{{listviewhistory}}%%@@ | length, showPath, showFolder, showinline, separator, outputOnEmpty | show the list of recently visited wiki pages |-
+| @@%%{{listedithistory}}%%@@ | length, showPath, showFolder, showinline, separator, outputOnEmpty | show the list of recently modified wiki pages |-
+| @@%%{{listparents}}%%@@ | showPath, showFolder, showinline, separator, outputOnEmpty, globalContext | show the list of parent pages |-
+| @@%%{{listchildren}}%%@@ | showPath, showFolder, showinline, separator, outputOnEmpty, globalContext | show the list of children pages |-
+| @@%%{{listpages}}%%@@ | showPath, showFolder, showinline, separator, outputOnEmpty, globalContext | show the list of all wiki pages in the repository |-
+| @@%%{{listwantedpages}}%%@@ | showPath, showFolder, showinline, separator, outputOnEmpty, globalContext | show the list of wanted wiki pages |-
+| @@%%{{listunlinkedpages}}%%@@ | hideParents, hideChildren, showPath, showFolder, showinline, separator, outputOnEmpty, globalContext | show the list of unlinked wiki pages |-
+| @@%%{{search}}%%@@ | | show an input field for the wiki search |-
+| @@%%{{vspace}}%%@@ | | add vertical space |-
+| @@%%{{br}}%%@@ | | add a line break |-
+| @@%%{{%%{{%%}}%%}}%%@@ | | show the characters {{%%}} |-
+| @@%%{{color:red}}...{{/color}}%%@@ |  | show colored text |-
+| @@%%{{style:class1 class2}}...{{/style}}%%@@ | | use CSS classes to format text |-
+| @@%%{{html}}...{{/html}}%%@@ | | use HTML syntax to format text |-
+|}
+
+All parameters are optional. They must be separated from the command by the pipe character @@|@@. In the following the parameters are described.
+
+{|
+|| Parameter || Description |-
+| width | image width in pixel |-
+| height | image height in pixel |-
+| title | image title, is shown on mouse over |-
+| align | image alignment on the page |-
+| date | only show the date |-
+| time | only show the time |-
+| showPath | show the full path (folder and name) of a wiki page |-
+| showFolder | only show the folder of a wiki page |-
+| link | link all folders in the path |-
+| length | only show the first n items of the list |-
+| showinline | show an inline list of the items instead of bullet points |-
+| separator | show additional delimiter between items, only relevant with "showinline" |-
+| outputOnEmpty | show this text if the list is empty |-
+| globalContext | the command refers to the current wiki page instead of the wiki page that contains the command |-
+| hideParents | don't show parent pages, e.g. used with "listunlinkedpages" |-
+| hideChildren | don't show children pages, e.g. used with "listunlinkedpages" |-
+|}

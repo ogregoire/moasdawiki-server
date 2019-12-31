@@ -1,0 +1,3 @@
+Below a list of known mobile devices with MoasdaWiki app. The synchronization access has to be granted once for each device.
+
+{{sync-status}}

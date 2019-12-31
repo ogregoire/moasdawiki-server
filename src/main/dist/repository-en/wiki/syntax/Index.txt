@@ -1,0 +1,302 @@
+{{toc}}
+
+= Formatting Text
+
+{|fullwidth
+|= Heading 1
+|@@= Heading 1@@
+|-
+|== Heading 2
+|@@== Heading 2@@
+|-
+|=== Heading 3
+|@@=== Heading 3@@
+|-
+|* List
+** Sub item 1
+** Sub item 2
+# Enumeration
+## Sub item 1
+## Sub item 2
+|@@%%* List
+** Sub item 1
+** Sub item 2
+# Enumeration
+## Sub item 1
+## Sub item 2%%@@
+|-
+|This text is ''bold'', ##italic##, __underlined__, ~~striked through~~ and ''##__~~combined~~__##''.
+|@@%%This text is ''bold'', ##italic##,
+__underlined__, ~~striked through~~ and
+''##__~~combined~~__##''.%%@@
+|-
+|°°small font°°
+|@@%%°°small font°°%%@@
+|-
+|@@monospace font@@
+|@@%%@@monospace font@@%%@@
+|-
+|{{center}}centered text
+|@@%%{{center}}centered text%%@@
+|-
+|Non-indented text
+
+ Single indented text
+
+  Double indented text
+|@@Non-indented text@@
+
+@@{{html}}&nbsp;{{/html}}Single indented text@@
+
+@@{{html}}&nbsp;&nbsp;{{/html}}Double indented text@@
+|-
+|Text with line
+breaks looks
+like this.
+
+Text with manual{{br}}line break.
+|@@%%Text with line
+breaks looks
+like this.
+
+Text with manual{{br}}line break.%%@@
+|-
+|Insert vertical
+{{vspace}}
+space.
+|@@%%Insert vertical
+{{vspace}}
+space.%%@@
+|-
+|%%Prevent [[text]] from {{br}} being ''interpreted''.%%
+|@@{{%%}}%%Prevent [[text]] from {{br}}
+being ''interpreted''.%%{{%%}}@@
+|-
+|{{html}}Use HTML code to <sup>format</sup> text.{{/html}}
+|@@%%{{html}}Use HTML code to <sup>format</sup> text.{{/html}}%%@@
+|-
+|{{color:red}}red text{{/color}}
+{{color:green}}green text{{/color}}
+{{color:#0000ff}}blue text{{/color}}
+|@@%%{{color:red}}red text{{/color}}
+{{color:green}}green text{{/color}}
+{{color:#0000ff}}blue text{{/color}}%%@@
+|-
+|@@
+Programming language code can also be formatted.
+  Indentions
+    are
+  kept.
+@@
+
+@@|xml
+<root attr1="value1">
+  <atag />
+  <!-- XML with syntax highlighting -->
+</root>
+@@
+
+Syntax highlighting currently available for: XML, HTML, Java, Properties
+|@@%%@@%%
+Programming language code can also be formatted.
+{{html}}&nbsp;&nbsp;{{/html}}Indentions
+{{html}}&nbsp;&nbsp;&nbsp;&nbsp;{{/html}}are
+{{html}}&nbsp;&nbsp;{{/html}}kept.
+%%@@%%@@
+
+@@%%@@|xml%%
+%%<root attr1="value1">%%
+{{html}}&nbsp;&nbsp;{{/html}}%%<atag />%%
+{{html}}&nbsp;&nbsp;{{/html}}%%<!-- XML with syntax highlighting -->%%
+%%</root>%%
+%%@@%%@@
+
+Syntax highlighting currently available for: XML, HTML, Java, Properties
+|-
+|}
+
+= Links
+
+{|fullwidth
+|[[Index]]
+|@@%%[[Index]]%%@@
+|-
+|[[Index | alternative text]]
+|@@%%[[Index | alternative text]]%%@@
+|-
+|[[unknown link]]
+|@@%%[[unknown link]]%%@@
+|-
+|External link: [[http://www.domain.com/]]
+|@@%%External link: [[http://www.domain.com/]]%%@@
+|-
+|Email link: [[support@moasdawiki.net]]
+|@@%%Email link: [[support@moasdawiki.net]]%%@@
+|-
+|Link to a file in the repository: [[file:filename.zip]]
+|@@%%Link to a file in the repository: [[file:filename.zip]]%%@@
+|-
+|[[wiki:startpage]]
+[[wiki:editpage]]
+[[wiki:newpage]]
+[[wiki:shutdown]]
+|@@%%[[wiki:startpage]]
+[[wiki:editpage]]
+[[wiki:newpage]]
+[[wiki:shutdown]]%%@@
+|-
+|{{#anchorname}}
+Link to [[#anchorname]].
+Different page: [[Index#anchorname]].
+|@@%%{{#anchorname}}
+Link to [[#anchorname]].
+Different page: [[Index#anchorname]].%%@@
+|}
+
+See also the [[Links | detailed syntax description]] on links.
+
+= Tables
+
+{|fullwidth
+|{|
+| ||Column 1||Column 2|-
+||Row 1|Cell A|Cell B|-
+||Row 2|Cell C|Cell D
+|}
+|@@%%{|
+| ||Column 1||Column 2|-
+||Row 1|Cell A|Cell B|-
+||Row 2|Cell C|Cell D
+|}%%@@
+|}
+
+See also the [[Tables | detailed syntax description]] on tables.
+
+= Special Wiki Commands
+
+{|fullwidth
+|
+----
+|@@%%----%%@@
+|-
+|{{image:reddot.png}}
+|@@%%{{image:reddot.png}}%%@@
+
+##See also the [[Images | detailed syntax description]] on embedding images.##
+|-
+|[ ] open task
+[!] important task
+[x] finished task
+[ ] 28.02.2016 | task with date
+[ ] 28.02.2016 20:00-22:00 | task with date and time
+|@@%%[ ] open task
+[!] important task
+[x] finished task
+[ ] 28.02.2016 | task with date
+[ ] 28.02.2016 20:00-22:00 | task with date and time%%@@
+|-
+|Table of Content:
+{{toc}}
+|@@%%Table of Content:
+{{toc}}%%@@
+|-
+|{{parent:../Index}} (definition of a parent page)
+Parent pages: {{listparents | showinline | separator=", " | outputOnEmpty="-"}}
+Child pages: {{listchildren | showinline | separator=", " | outputOnEmpty="-"}}
+Child pages of ../Index: {{listchildren:../Index | showinline | separator=", " | outputOnEmpty="-"}}
+|@@%%{{parent:../Index}} (definition of a parent page)
+Parent pages: {{listparents | showinline | separator=", " | outputOnEmpty="-"}}
+Child pages: {{listchildren | showinline | separator=", " | outputOnEmpty="-"}}
+Child pages of ../Index: {{listchildren:../Index | showinline | separator=", " | outputOnEmpty="-"}}%%@@
+|-
+|List all pages in the current page's folder and sub folders:
+{{listpages}}
+
+The same for the folder /wiki:
+{{listpages:/wiki}}
+|@@%%List all pages in the current page's folder and sub folders:
+{{listpages}}
+
+The same for the folder /wiki:
+{{listpages:/wiki}}
+%%@@
+|-
+|Last visited pages:
+{{listviewhistory | length=3}}
+|@@%%Last visited pages:
+{{listviewhistory | length=3}}%%@@
+|-
+|Last modified pages:
+{{listedithistory | length=3 | showPath}}
+|@@%%Last modified pages:
+{{listedithistory | length=3 | showPath}}%%@@
+|-
+|Now: {{datetime}}
+Current date: {{datetime | date}}
+Current time: {{datetime | time}}
+|@@%%Now: {{datetime}}
+Current date: {{datetime | date}}
+Current time: {{datetime | time}}%%@@
+|-
+|This page has the name {{pagename}} and is located in the folder {{pagename | showFolder}}.
+Full name: {{pagename | showPath}}
+With links: {{pagename | showPath | link}}
+|@@%%This page has the name {{pagename}} and is located in the folder {{pagename | showFolder}}.
+Full name: {{pagename | showPath}}
+With links: {{pagename | showPath | link}}%%@@
+|-
+|This page was last modified on: {{pagetimestamp}}
+|@@%%|This page was last modified on: {{pagetimestamp}}%%@@
+|-
+|Wiki version: {{version}}
+|@@%%Wiki version: {{version}}%%@@
+|-
+|Include a page:
+{{includepage:Page Name}}
+|@@%%Include a page:
+{{includepage:Page Name}}%%@@
+|-
+|// single line comment
+
+/* multi line
+comment */
+|@@%%// single line comment
+
+/* multi line
+comment */%%@@
+|}
+
+See also the [[WikiCommands | detailed syntax description]] on wiki commands.
+
+= Semantic Tags and Plug-ins
+
+{|fullwidth
+|My Address:
+<address>
+ <firstname>Max</firstname> <lastname>Mustermann</lastname>
+ <street>Lindenallee 1</street>
+ <postalcode>12345</postalcode> <city>Hausen</city>
+</address>
+// Tags can use any name.
+// They will not be shown in HTML output.
+// Important: Tags always must be closed!
+|@@%%My Address:
+<address>
+ <firstname>Max</firstname> <lastname>Mustermann</lastname>
+ <street>Lindenallee 1</street>
+ <postalcode>12345</postalcode> <city>Hausen</city>
+</address>
+// Tags can use any name.
+// They will not be shown in HTML output.
+// Important: Tags always must be closed!%%@@
+|-
+|<prefix:name>Mustermann</prefix:name>
+// Also a prefix can be used
+// to define a name space.
+|@@%%<prefix:name>Mustermann</prefix:name>
+// Also a prefix can be used
+// to define a name space.%%@@
+|-
+|}
+
+See also [[../Plugins]].

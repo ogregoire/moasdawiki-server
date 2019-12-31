@@ -1,0 +1,72 @@
+{{parent:Index}}
+
+= Syntax Overview
+
+@@
+{{image:image_file.png}}
+{{image:path/image_file.png}}
+{{image:http://domain/path/image_file.png}}
+{{image:image_file.png | parameter1=value1 | parameter2=value2 | ...}}
+@@
+
+= Show Image
+
+To show an image in a wiki page, use the following syntax.
+{|
+|| Result || Syntax |-
+| {{image:reddot.png}} | @@%%{{image:reddot.png}}%%@@ |-
+|}
+
+There are different URLs to refer to an image file
+* relative path to current wiki page, e.g. @@reddot.png@@
+* absolute path, e.g. @@/wiki/syntax/reddot.png@@
+* Internet URL, e.g. @@http://moasdawiki.net/en/wiki/reddot.png@@
+
+You can use all image formats supported by the browser, e.g. @@.jpg@@, @@.gif@@ and @@.png@@.
+
+= Available Parameters
+
+Parameters allow you to modify size and position of an image. Some examples:
+{|
+|| Result || Syntax || Description |-
+| {{image:reddot.png | width=30}}
+| @@%%{{image:reddot.png | width=30}}%%@@
+| width 30 pixel, height is kept proportional
+|-
+| {{image:reddot.png | width=30 | height=20}}
+| @@%%{{image:reddot.png | width=30 | height=20}}%%@@
+| width 30 pixel, height 20 pixel
+|-
+| {{image:reddot.png | title="Image title"}}
+| @@%%{{image:reddot.png | title="Image title"}}%%@@
+| Show text on mouse over image
+|-
+| {{image:reddot.png | align=left | width=30}} text
+flows
+around
+image
+| @@%%{{image:reddot.png | align=left | width=30}} text
+flows
+around
+image%%@@
+| Image aligned left with text flow
+|-
+| {{image:reddot.png | align=right | width=30}} text
+flows
+around
+image
+| @@%%{{image:reddot.png | align=right | width=30}} text
+flows
+around
+image%%@@
+| Image aligned right with text flow
+|-
+| {{image:reddot.png | align=top | width=8}} text
+| @@%%{{image:reddot.png | align=top | width=8}} text%%@@
+| Image aligned at top of text
+|-
+| {{image:reddot.png | align=bottom | width=8}} text
+| @@%%{{image:reddot.png | align=bottom | width=8}} text%%@@
+| Image aligned at bottom of text
+|-
+|}

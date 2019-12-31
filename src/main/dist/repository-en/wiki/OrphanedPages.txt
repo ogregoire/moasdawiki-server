@@ -1,0 +1,2 @@
+Pages that are not linked by any wiki page ("orphaned pages"):
+{{listunlinkedpages | hideParents | hideChildren | showPath | outputOnEmpty="no pages found"}}

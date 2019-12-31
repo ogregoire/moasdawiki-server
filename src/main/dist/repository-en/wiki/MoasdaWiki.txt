@@ -1,0 +1,69 @@
+{{parent:Index}}
+{{toc}}
+
+= What is MoasdaWiki?
+
+''MoasdaWiki'' is a web based knowledge management application that allows you to create and modify its content by a web browser.
+
+It allows you to create and find web pages easily. The collection of web pages is called wiki. 
+
+°°See also°°
+* °°[[http://en.wikipedia.org/wiki/Wiki]]°°
+* °°[[http://en.wikipedia.org/wiki/List_of_wiki_software]]°°
+
+= What does ##MoasdaWiki## mean?
+
+##Moasda## is the Bavarian word for ##Champion##. Thus, ''MoasdaWiki'' is a champion knowlegde management tool. :-)
+
+= What are the key features of MoasdaWiki?
+
+The key features are:
+
+* easy usability
+* no setup necessary, can be run from a USB stick
+* no special system requirements like database or application server
+* runs on any system with Java VM 1.7 or higher
+* extensible by [[Plugins]]
+* free of charge, open source
+
+°°See also°°
+* °°[[http://c2.com/cgi/wiki?WikiEngines | Extensive list of wiki software]]°°
+* °°[[http://www.wikimatrix.org/ | Compare wiki software with Wikimatrix]]°°
+
+= Feature List
+
+* Store pages as text files in the file system, no database required
+* fast and powerful full text search (see [[WikiSearch]])
+* built-in web server, no external web server required
+* runs on several operating systems with a Java VM
+* pages can be printed without navigation panel
+* powerful [[syntax/ | wiki syntax]] including tables and images
+* make your own [[Templates]] to create uniform looking web pages
+* full customizable graphical user interface
+** navigation panel can be modified by [[Navigation]]
+** page layout is defined by a CSS stylesheet
+** page header and footer can be modified by [[PageHeader]] and [[PageFooter]]
+** customizable HTML header by [[HtmlHeader]], e.g. to include your own CSS stylesheets and JavaScript libraries
+** configuration file [[/config]]
+* extensible by [[Plugins]], internationalization by [[messages]]
+* show recently modified or viewed pages
+
+= What is excluded from MoasdaWiki?
+
+''MoasdaWiki'' is designed for personal usage, its main goal is easy usability. Due to this the following features will never be privided:
+
+* user and permission management
+* access control (except restriction to localhost)
+* versioning of wiki pages
+
+= Where can I get the newest version of MoasdaWiki?
+
+The newest version is available at [[http://moasdawiki.net/]].
+
+Changes to earlier versions are listet in the [[Changelog]].
+
+= License
+
+{{version}}
+Copyright (c) 2008 - 2019 [[https://www.linkedin.com/in/herbert-reiter | Dr. Herbert Reiter]]
+''MoasdaWiki'' is under [[License | GNU General Public License]].

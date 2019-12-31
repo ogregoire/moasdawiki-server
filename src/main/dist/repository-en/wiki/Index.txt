@@ -1,0 +1,29 @@
+Utility pages
+* [[MoasdaWiki | About MoasdaWiki]]
+* [[syntax/ | Syntax overview]]
+** [[syntax/Links]]
+** [[syntax/Tables]]
+** [[syntax/Images]]
+** [[syntax/WikiCommands]]
+* [[WikiSearch]]
+* [[Templates]]
+* [[Plugins | Write own Plug-ins]]
+* [[Questions | Questions and Answers]]
+
+Configuration
+* [[/config]] / [[/config-app]]
+* [[Navigation]]
+* [[IndexStandard]]
+* [[PageHeader]]
+* [[PageFooter]]
+* [[HtmlHeader]] / [[HtmlHeader-App]]
+* [[messages]]
+* [[Synchronization]]
+
+Other special pages
+* [[Changelog]]
+* [[License]]
+* [[AllPages]]
+* [[MissingPages]] and [[OrphanedPages]]
+* [[wiki:status]]
+* [[wiki:shutdown]]

@@ -1,0 +1,9 @@
+''Welcome to MoasdaWiki!''
+
+This ist the start page of ''MoasdaWiki''. You can easily return to this page by clicking on the logo on the upper left corner.
+
+If you are new to ''MoasdaWiki'', please see the [[/wiki/MoasdaWiki | infos about MoasdaWiki]]. Help pages an a detailed syntax description are available by the link [[/wiki/ | Help]] in the navigation on the left side.
+
+Advanced users can customize ''MoasdaWiki'' individually. For example the navigation on the left side and the start page you are reading right now can be modified freely. Make this start page to your personal landing page with all infos and links for your daily work. Furthermore, ''MoasdaWiki'' can be extended by plug-ins. More details you can find in [[/wiki/ | Help]].
+
+Have fun with ''MoasdaWiki'' wishes Herbert Reiter.

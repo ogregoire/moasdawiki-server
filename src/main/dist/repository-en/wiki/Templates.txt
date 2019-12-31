@@ -1,0 +1,7 @@
+{{parent:Index}}
+Child pages of this wiki page are offered as templates in the wiki editor. They can be used to easily build new wiki pages.
+
+To define a new template as child page, just add the following line at the top of the page
+@@
+{{parent:/wiki/Templates}}
+@@

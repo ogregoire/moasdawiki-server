@@ -1,0 +1,8 @@
+<!-- Der Inhalt dieser Datei wird unverändert in den HTML-Header übernommen. -->
+<link rel="stylesheet" type="text/css" href="/style.css">
+<link rel="stylesheet" type="text/css" href="/style-app.css">
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="pragma" content="no-cache">
+<script type="text/javascript" src="/script.js"></script>
