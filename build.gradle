@@ -1,0 +1,55 @@
+plugins {
+    id 'java'
+    id 'distribution'
+}
+
+group 'net.moasdawiki'
+version '2.1.0'
+
+sourceCompatibility = 1.8
+
+sourceSets {
+    buildtime {
+        java {
+            srcDirs sourceSets.main.allSource
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly group: 'org.jetbrains', name: 'annotations', version: '18.0.0'
+    testCompile group: 'org.testng', name: 'testng', version: '6.14.3'
+    buildtimeCompile group: 'org.jetbrains', name: 'annotations', version: '18.0.0'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': "net.moasdawiki.Main",
+                'Created-By': "Gradle ${gradle.gradleVersion}",
+                'Implementation-Vendor': "Herbert Reiter",
+                'Implementation-URL': "https://moasdawiki.net/",
+                'Implementation-Version': project.version
+        )
+    }
+}
+
+// Generate cache files for repository
+task buildtimeRepositoryDe(type: JavaExec) {
+    dependsOn buildtimeClasses
+    classpath = sourceSets.buildtime.runtimeClasspath
+    main = 'net.moasdawiki.build.CacheFilesBuilder'
+    args 'src/main/dist/repository-de'
+}
+task buildtimeRepositoryEn(type: JavaExec) {
+    dependsOn buildtimeClasses
+    classpath = sourceSets.buildtime.runtimeClasspath
+    main = 'net.moasdawiki.build.CacheFilesBuilder'
+    args 'src/main/dist/repository-en'
+}
+distZip.dependsOn buildtimeRepositoryDe, buildtimeRepositoryEn
+distTar.enabled = false
