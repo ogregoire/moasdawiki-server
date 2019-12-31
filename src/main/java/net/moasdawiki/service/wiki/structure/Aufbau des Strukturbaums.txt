@@ -1,0 +1,56 @@
+Aufbau des Strukturbaums
+========================
+
+PageElement
+(Blockelemente, kein Inline)
+  |- WikiPage        = PageElementList + Metadaten
+  |- (Kommentar)     [wird auf dieser Ebene geparst aber nicht abgebildet]
+  |- PageElementList = List<PageElement>
+  |- Heading         = PageElementList
+  |- TitleHeading    = PageElementList
+  |- Separator
+  |- VerticalSpace           
+  |- TableOfContents
+  |- Parent          [wird nicht angezeigt]
+  |- Task            = PageElementList
+  |- UnorderedList   = PageElementList
+  |- OrderedList     = PageElementList
+  |- Table           = List<TableRow>, weitere Tabelleneigenschaften
+  |- Paragraph       = PageElementList, zentriert, Einzug
+  |- Code            = Text mit Zeilenwechsel
+  |- IncludePage     = Seitenname 
+(Inline)
+  |- Bold            = PageElementList
+  |- Italic          = PageElementList
+  |- Underlined      = PageElementList
+  |- Strikethrough   = PageElementList
+  |- Monospace       = PageElementList [nur Schriftänderung]
+  |- Small           = PageElementList [nur Schriftänderung]
+  |- Color           = PageElementList
+  |- Nowiki          = Text, Zeilenwechsel und Sonderzeichen werden escaped
+  |- Html            = Text, Zeilenwechsel werden ignoriert
+  |- LinkPage        = Seitenname
+  |- LinkWiki        = spezielle Wiki-Links, haben den Präfix "wiki:"
+  |- LinkLocalFile   = beliebige Datei im Repository, Präfix "file:"
+  |- LinkExternal    = URL
+  |- Anchor
+  |- XmlTag          = PageElementList
+  |- TextOnly        = String einer Zeile, Zeilenwechsel sind mit LineBreak anzugeben
+  |- LineBreak
+  |- Image
+  |- WikiVersion
+  |- DateTime
+  |- PageName
+  |- PageTimestamp
+  |- ListEditHistory
+  |- ListViewHistory
+  |- ListParents
+  |- ListChildren
+  |- ListPages
+  |- WantedPages
+  |- UnlinkedPages
+  |- SearchInput
+  |- WikiTag
+
+TableRow = List<TableCell>, weitere Zeileneigenschaften
+TableCell = PageElementList, weitere Zelleneigenschaften
