@@ -1,0 +1,2 @@
+Auf folgende Wikiseiten gibt es keinen Link ("orphaned pages"):
+{{listunlinkedpages | hideParents | hideChildren | showPath | outputOnEmpty="keine Seiten gefunden"}}

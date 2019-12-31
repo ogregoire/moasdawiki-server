@@ -1,0 +1,3 @@
+Nachfolgend werden alle bekannten Mobilgeräte mit MoasdaWiki-App aufgelistet. Die Synchronisierung der Wikiseiten muss pro Gerät einmal genehmigt werden.
+
+{{sync-status}}

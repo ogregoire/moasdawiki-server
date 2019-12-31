@@ -1,0 +1,48 @@
+= Einfache Suche
+
+Über die Wiki-Suche können bestehende Wikiseiten schnell erreicht werden. Folgende Beispiele erläutern die Syntax.
+
+Suche nach einem einfachen Begriff:
+@@
+Suchbegriff
+@@
+
+Suche nach mehreren Begriffen, die gleichzeitig vorkommen müssen:
+@@
+mehrere Begriffe
+@@
+
+Soll nach einer Suchphrase mit Leerzeichen gesucht werden, muss diese mit Anführungszeichen umschlossen werden:
+@@
+"Suchphrase mit Leerzeichen"
+@@
+
+Das Ganze lässt sich natürlich beliebig kombinieren
+@@
+"Suchphrase mit Leerzeichen" Begriff "eine weitere Suchphrase"
+@@
+
+Bei der Volltextsuche werden Groß-/Kleinschreibung und Akzente (diakritische Zeichen) ignoriert, "ß" und "ss" werden als gleich behandelt. Beispielsweise findet die Suche nach "resume" auch das Wort "Résumé".
+
+= Auszuschließender Text
+
+Sollen Wikiseiten mit bestimmten Inhalten vom Suchergebnis ausgeschlossen werden, werden zusätzlich auszuschließende Begriffe oder Suchphrasen mit einem vorangestellten Minuszeichen angegeben:
+@@
+Suchbegriff -nichtdabei -"auszuschließende Suchphrase mit Leerzeichen"
+@@
+
+= Komplexe Suche mit regulären Ausdrücken
+
+Komplexere Suchanfragen werden mittels regulärer Ausdrücke angegeben. Diesen wird "regex:" vorangestellt.
+
+Beispiel: Suche nach Wörtern mit mind. zwei "f"
+@@
+regex:f\S*f
+@@
+
+Enthält der reguläre Ausdruck ein Leerzeichen, muss die gesamte Suchanweisung wie auch bei Suchphrasen in Anführungszeichen gesetzt werden. Natürlich kann nach obiger Syntax auch gleichzeitig nach mehreren regulären Ausdrücken gesucht werden:
+@@
+"regex:r a" weitere Begriffe
+@@
+
+Eine Anleitung zur genauen Syntax regulärer Ausdrücke ist in [[http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html]] zu finden.

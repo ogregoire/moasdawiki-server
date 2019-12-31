@@ -1,0 +1,200 @@
+{{parent:Index}}
+= Version 2.0.9 (03.01.2019)
+
+* HTML-Layout auf border-box umgestellt
+* App: targetSdkVersion angepasst wegen neuer Google-Anforderungen
+* App: Es wird kein interner TCP-Port mehr geöffnet. Damit braucht die App für den Normalbetrieb keine Internet-Berechtigung mehr, lediglich für die Synchronisation.
+* App (versionCode 10)
+* App (versionCode 11)
+* App (versionCode 12)
+** App: Bugfix: Fehler in der Suche behoben
+* App 2.0.9.2 (versionCode 13)
+** App: Bugfix: Seiten mit Leerzeichen/Sonderzeichen waren nicht mehr aufrufbar
+
+= Version 2.0.8 (05.02.2018)
+
+* App kann nun über zweimaliges Drücken des Zurückbuttons beendet werden.
+* Bugfix: Wenn eine Seite editiert wurde, wurden die Kind-Seiten nicht wiederhergestellt.
+* App (versionCode 9)
+
+= Version 2.0.7 (28.05.2017)
+
+* Bugfix: App: Editor-Icons wurden beim Scrollen eingeblendet
+* App (versionCode 7)
+
+= Version 2.0.6 (28.11.2016)
+
+* Bugfix: JavaScript wurde in der englischen Version nicht geladen
+* Bugfix: Einige fehlende englische Übersetzungen ergänzt
+* Bugfix: App: Editor-Symbol zum Bearbeiten von Wikiseiten war u.U. noch sichtbar und anklickbar
+* App (versionCode 6)
+
+= Version 2.0.5 (22.11.2016)
+
+* Initiale Version der App (versionCode 5)
+
+= Version 2.0.1 (22.11.2016)
+
+* Bugfix: Fehler im Pfadhandling unter Windows, Mediendateien wurden nicht gefunden
+
+= Version 2.0.0 (21.11.2016)
+
+* MoasdaWiki auch als Android-App (versionCode 2)
+** App dient als Kopie für Unterwegs
+** Synchronisierung mit einem MoasdaWiki-Server
+** Optimiert für kleine Auflösung, verwendet in App integrierte Navigation
+* Neue Syntaxelement-Klasse WikiTag
+* Neues Plugin zur Synchronisierung von Wikiseiten mit der App
+** Statusanzeige und Freischaltung von Clients über [[Synchronisierung]]
+** UDP-Broadcast-Suche der App nach dem Server
+* Repository-Zugriff unterstützt nun App-Assets und Android Internal Storage
+* Cachedateien eingeführt, um den Startvorgang der App zu beschleunigen
+* Kontakt-Plugin: Tags für QQ und WeChat ergänzt
+* GUI-Design überarbeitet
+* Bugfix: Bei Firefox blieben Requests manchmal einige Sekunden hängen (speculative requests).
+
+= Version 1.12 (18.01.2015)
+
+* %%@@%%-Tag unterstützt nun die Syntaxhervorhebung für Java, HTML, XML und Properties
+* Rendering von mehrzeiligen Codeblöcken (%%@@...@@%%) geändert, so dass bei Copy&Paste die Zeilenumbrüche erhalten bleiben
+* Darstellung von Datums- und Zeitangaben können nun über die Sprachdatei gesteuert werden
+* Quellcode setzt nun Java 1.7 voraus, Dokumentation aktualisiert
+* Bugfix: Image-URLs waren nicht richtig escaped, z.B. wenn die URL das Zeichen "+" enthielt
+* Bugfix: Bei Index-Seiten wurde der Zeitstempel der Seite nicht angezeigt 
+
+= Version 1.11 (21.06.2014)
+
+* Projekt übersetzt in englisch
+* Bugfix: Escaping bei Seitenlinks mit Sonderzeichen '!' korrigiert
+* Bugfix: Der Wikieditor hatte beim Speichern mit Sonderzeichen im Seitennamen noch Probleme
+
+= Version 1.10 (18.01.2014)
+
+* Bugfix: Kontaktliste wurde um den Jahreswechsel herum nicht richtig berechnet
+* Bugfix: Wikiseitennamen mit Sonderzeichen wurden nicht richtig encoded, wodurch einige Links nicht funktioniert haben
+
+= Version 1.9 (01.11.2013)
+
+* neues CSS-Design, Darstellung auf Mobilgeräten verbessert
+* Wiki-Editor erweitert um den Upload von Dateien
+* [[Wiki-Suche]] mit verbesserter Treffersortierung und erweiterter Syntax
+** Eingabe mehrerer Suchbegriffe und Testphrasen sowie auszuschließender Texte
+** bessere Sortierung der Ergebnisliste: Worttreffer und Treffer in Titel und Überschriften werden stärker gewichtet
+** Buchstaben mit Akzenten (diakritische Zeichen) werden nun ebenfalls gefunden, z.B. Résumé vs. Resume
+** auch reguläre Ausdrücke sind nun möglich
+* Terminliste: Datumsangaben können nun in den Formaten "TT.MM.JJJJ", "TT.MM.", "MM.JJJJ", "MM.", "JJJJ" erfolgen
+* Liste der zuletzt aufgerufenen Wikiseiten: keine doppelte Auflistung von Wikiseiten mehr
+* bei Ordnerlinks wie @@%%[[/wiki/syntax/]]%%@@ wird nun der Ordnername anstatt "Index" angezeigt, falls kein Alternativtext angegeben ist
+* Plugins werden nun per Annotation konfiguriert, siehe [[Plugins]]
+* Konsole: URL mit Hostname (anstatt "localhost") anzeigen, wenn das Wiki im Netzwerk verfügbar ist [gemeldet von Wolfi]
+* generierten HTML-Code fehlerbereinigt
+* Nicht benötigte Plugins entfernt
+* Internationalisierung per Sprachdatei
+* Bugfix: HTTP-Anfragetimeout von 5 Sekunden eingeführt, weil manche Browser manchmal nicht gleich die vollständige HTTP-Anfrage schicken und so den Wikiserver blockieren
+* Bugfix: Escaping bei Seitenlinks mit Sonderzeichen korrigiert
+
+= Version 1.8 (13.10.2012)
+
+* Wiki-Editor: Automatisch Fokus in Editor setzen
+* Wiki-Editor: Automatische Höhenanpassung
+* Kontaktseite: Anordnung der Bilder verbessert
+* Kontaktseite: mehrere Rufnamen möglich
+* Kontaktseite: Attribut "gültigbis" nicht anwenden wenn es in der Zukunft liegt
+* Terminliste: keine Termine mit negativem Alter anzeigen
+* Terminliste: keine Kontakte mit Todestag anzeigen
+* Editierstift bei Tabellen etwas nach oben gesetzt [gemeldet von Wolfi]
+* RSS- und Feed-Plugin entfernt, hat hinter Proxies den Thread lange blockiert
+* Package-Namen geändert zu net.moasdawiki...
+
+= Version 1.7 (14.05.2011)
+
+* Teilbereiche von Wikiseiten editieren
+** Abschnitt zwischen Überschriften
+** Tabelle
+** Tabellenzelle
+** Code-Block
+* KontaktseitePlugin erweitert um Unterstützung von LinkedIn, Twitter und Youtube
+* KontaktseitePlugin: ICQ und Skype werden nun ebenfalls verlinkt
+* Bug: Im Editor hat der Link zur Syntax nicht funktioniert [gemeldet von Thorsten]
+
+= Version 1.6 (05.12.2010)
+
+* KontaktseitePlugin erweitert um Unterstützung von AIM, Jabber, Facebook und Xing
+* TerminPlugin liest jetzt auch das Tag "geburtsdatum"
+* Pfad im WikiHeader Ordnerweise verlinken, um Navigation nach oben zu ermöglichen.
+* Bug beim Einfügen von Vorlagen auf der Editorseite behoben
+
+= Version 1.5 (05.03.2010)
+
+* neues Tag zur Ausgabe von Geburtstags- und Terminlisten
+* @@%%[ ]%%@@-Tag zum Beschreiben von Aufgaben erweitert (siehe [[syntax/Kontakte und Termine#Termineanlegen]])
+* Startscript erstellt um ''MoasdaWiki'' als Linux-Daemon laufen zu lassen (siehe [[MoasdaWiki starten#AlsLinux-Daemon]])
+* das Tabellen-Tag wurde auf Formatierung per CSS-Klasse umgestellt
+* beim Anlegener einer neuen Wikiseite wird der Ordner der aktuellen Wikiseite übernommen
+* Webseiten in W3C-konformes XHTML gebracht
+* Dateien auf UTF-8 umgestellt
+* Bug in KontaktPlugin behoben
+* Bug in JavaScript auf Editorseite behoben
+* Bug in Inhaltsverzeichnis behoben
+
+= Version 1.4 (24.11.2009)
+
+* Verzeichnislisting ermöglichen
+** URL endet mit "/"
+** Wenn eine Wikiseite "Index" vorhanden ist, wird diese angezeigt, ansonsten die Standard-Indexseite.
+** Standard-Indexseite definieren: /wiki/IndexStandard
+* Seitenkontext eingeführt
+** Alle Befehle in einer Wikiseite werden nun standardmäßig im Kontext dieser Seite interpretiert, d.h. z.B. wird bei Grafiken der Dateiname relativ zur Wikiseite ausgewertet.
+** Bei manchen Befehlen gibt es einen optionalen Parameter @@globalContext@@, um statt des lokalen Kontextes den globalen Kontext zu verwenden.
+* Struktur und Transformation des Wikibaums überarbeitet
+** WikiPage ist jetzt auch eine Unterklasse von PageElement, um eingebettete Wikiseiten beschreiben zu können
+** Wikiseiten werden vor der Transformation durch Plugins komplett geklont, um Seiteneffekte durch Parent-Referenzen zu vermeiden
+* @@listpages@@ umbenannt, verwendet jetzt standardmäßig den Pfad der Wikiseite
+* XML-Unterstützung wieder entfernt, da sie bisher nicht benötigt wurde
+* neue Funktionen
+** @@listwantedpages@@ listet kaputte Links auf (wanted pages)
+** @@listunlinkedpages@@ listet unverlinkte Seiten auf (orphaned pages)
+
+= Version 1.3 (27.09.2009)
+
+* Bei Datei-Links wird jetzt ein eigenes Symbol angezeigt.
+* Erweiterte Unterstützung für Plugins (siehe Doku in [[/wiki/Plugins]])
+** Plugins können nun auch direkt HTML-Formulardaten verarbeiten. Auf diese Weise kann das Wiki als Applikations-Framework verwendet werden.
+** Über das neue URL-Mapping in [[/config]] können URLs einem Plugin zugeordnet werden. Die Methode handleRequest() bearbeitet dann die Anfrage und generiert eine Antwort.
+** Die API für Plugins überarbeitet, es ist nun voller Zugriff auf die gesamte Wiki-Funktionalität möglich.
+* Link "Seite editieren" deaktivieren wenn der Editor angezeigt wird.
+* Der Wikieditor hat nun einen Löschen-Button.
+
+= Version 1.2 (19.06.2009)
+
+* Unterstützung hierarchischer Repositories
+** Das Repository kann nun aus beliebig vielen Unterordnern bestehen
+** Wiki-Links können absolut und relativ zum aktuellen Ordner sein
+** Ordnerwechsel nur mit expliziter Angabe, wechsel in Rootordner mit @@/Seitenname@@
+** Alle Standard-Wikiseiten befinden sich jetzt in @@/wiki/@@.
+** Die Syntax aller list-Anweisungen wurde um einige Parameter erweitert, siehe die Syntaxhilfe.
+* URLs zum Anzeigen einer Wikiseite beginnen nun mit @@/view/@@ und nicht mehr mit @@/wiki/@@.
+* Die Sortierung von generierten Listen, z.B. bei @@%%{{listchildren}}%%@@, erfolgt jetzt lexikographisch.
+* Die Seitennavigation wurde fest positioniert und rollt nicht mehr mit.
+
+= Version 1.1 (30.01.2009)
+
+* Bug behoben: XML-Tags mit Parameter wurden falsch eingelesen
+* Bug behoben: Die Darstellung der Suchergebnisse einer Volltextsuche hatte Probleme, wenn das Zeichen 'ß' vorkam. Die Ursache lag in der Großbuchstaben-Darstellung "SS" von 'ß'.
+* Umstellung der Doku auf die neue URL der [[http://www.moasdawiki.net/ | MoasdaWiki-Homepage]].
+* überarbeitete [[Kontaktvorlage]]
+* CSS: Vertikale Ausrichtung von Tabellenzellen standardmäßig auf top gestellt.
+* CSS: neue CSS-Klasse @@highlight@@ eingeführt, um Tabellen o.ä. hervorzuheben
+* Kontakt-Plugin hinzugefügt mit folgenden Features
+** einheitlich formatierte Ausgabe der Kontaktdaten
+** kann alle Tags der [[Kontaktvorlage]] verarbeiten
+** Automatische Berechnung des Alters einer Person, wenn ein Geburtstag angegeben wurde. Wurde zusätzlich ein Todestag angegeben, wird das Alter am Todestag berechnet.
+** Kennzeichnung von veralteten Kontaktdaten mittels des @@gültigbis@@-Attributs. So können z.B. alte Adressen archiviert werden und die Kontaktseite bleibt trotzdem übersichtlich.
+* Syntax: Text kann jetzt auch ~~durchgestrichen~~ (@@%%~~durchgestrichen~~%%@@) werden.
+* Interface Navigateable erweitert um die Methode @@getChildren()@@, um im Baum einer Wikiseite vollständig navigieren zu können. Das ist insbesondere für Plugins interessant.
+* Bei den Wiki-Anweisungen @@listchildren@@ und @@listparents@@ kann nun optional die Wikiseite angegeben werden, auf die sich die Anweisung beziehen soll.
+* Weitere kleine Verbesserungen.
+
+= Version 1.0 (05.07.2008)
+
+* erste veröffentlichte Version
