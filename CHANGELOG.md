@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.0 (01.01.2020)
+## 2.1.0 (2020-01-01)
 
 - Code refactored to use the new language features of Java 1.8
 - Replaced JAXB implementation by my own one to keep it running on future Java releases
