@@ -63,5 +63,5 @@ Die aktuelle Version kann von der [[https://moasdawiki.net/ | ''MoasdaWiki''-Hom
 = Rechtliche Hinweise
 
 {{version}}
-Copyright (c) 2008 - 2019 [[https://www.linkedin.com/in/herbert-reiter | Herbert Reiter]]
+Copyright (c) 2008 - 2020 [[https://www.linkedin.com/in/herbert-reiter | Herbert Reiter]]
 ''MoasdaWiki'' steht unter der [[Lizenz | GNU General Public License]].

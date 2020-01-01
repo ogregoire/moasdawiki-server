@@ -59,13 +59,13 @@ Aufgaben mit Terminen können auf beliebigen Wikiseiten angelegt werden. Dazu wi
 |[ ] offene Aufgabe
 [!] wichtige Aufgabe
 [x] erledigte Aufgabe
-[ ] 01.04.2019 | Aufgabe mit Datum
-[ ] 01.04.2019 20:00-22:00 | Aufgabe mit Datum und Uhrzeit
+[ ] 01.04.2020 | Aufgabe mit Datum
+[ ] 01.04.2020 20:00-22:00 | Aufgabe mit Datum und Uhrzeit
 |@@%%[ ] offene Aufgabe
 [!] wichtige Aufgabe
 [x] erledigte Aufgabe
-[ ] 01.04.2019 | Aufgabe mit Datum
-[ ] 01.04.2019 20:00-22:00 | Aufgabe mit Datum und Uhrzeit%%@@
+[ ] 01.04.2020 | Aufgabe mit Datum
+[ ] 01.04.2020 20:00-22:00 | Aufgabe mit Datum und Uhrzeit%%@@
 |-
 |}
 
@@ -84,10 +84,10 @@ Die ''Terminangabe'' ist optional und wird mit einem senkrechten Strich von der 
 |@@%%Aktuelle Geburtstage und Termine der nächsten 30 Tage
 <terminliste tagedanach="0" tagedavor="30" />%%@@
 |-
-|Geburtstage und Termine im Jahr 2019
-<terminliste jahr="2019" />
-|@@%%Geburtstage und Termine im Jahr 2019
-<terminliste jahr="2019" />%%@@
+|Geburtstage und Termine im Jahr 2020
+<terminliste jahr="2020" />
+|@@%%Geburtstage und Termine im Jahr 2020
+<terminliste jahr="2020" />%%@@
 |-
 |}
 
