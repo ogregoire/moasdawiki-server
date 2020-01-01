@@ -53,3 +53,16 @@ task buildtimeRepositoryEn(type: JavaExec) {
 }
 distZip.dependsOn buildtimeRepositoryDe, buildtimeRepositoryEn
 distTar.enabled = false
+
+distributions {
+    main {
+        contents {
+            from jar
+            from 'LICENSE'
+            from 'README.md'
+            into('lib') {
+                from project.configurations.runtime
+            }
+        }
+    }
+}
