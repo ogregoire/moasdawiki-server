@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2008 - 2019 Herbert Reiter (support@moasdawiki.net)
- * 
- * This file is part of MoasdaWiki.
- * 
- * MoasdaWiki is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
- * 
- * MoasdaWiki is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License along with
- * MoasdaWiki. If not, see <http://www.gnu.org/licenses/>.
+ * MoasdaWiki Server
+ * Copyright (C) 2008 - 2020 Herbert Reiter (herbert@moasdawiki.net)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package net.moasdawiki.util;
@@ -29,7 +29,7 @@ import static org.testng.Assert.*;
  *
  * @author Herbert Reiter
  */
-@SuppressWarnings("CharsetObjectCanBeUsed")
+@SuppressWarnings({"CharsetObjectCanBeUsed", "ConstantConditions"})
 public class EscapeUtilsTest {
 
 	@Test
