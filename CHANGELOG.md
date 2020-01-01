@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.1.0 (01.01.2020)
+
+- Code refactored to use the new language features of Java 1.8
+- Replaced JAXB implementation by my own one to keep it running on future Java releases
+- Added `@Nullable` and `@NotNull` annotations, fixed potential bugs
+- RepositoryService and WikiService refactored, rewrote parts of the implementation
+- Removed UDP broadcast support as it didn't really work for the app 
+- Moved app sources to a separate project
+- Updated copyright
+- Ant build script replaced by Gradle, restructured repository folders
+- Published sources on GitLab
+
 ## 2.0.9 (2019-01-03)
 
 - HTML layout changed to border-box
