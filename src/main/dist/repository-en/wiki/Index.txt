@@ -21,7 +21,6 @@ Configuration
 * [[Synchronization]]
 
 Other special pages
-* [[Changelog]]
 * [[License]]
 * [[AllPages]]
 * [[MissingPages]] and [[OrphanedPages]]

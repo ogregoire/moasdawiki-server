@@ -17,7 +17,7 @@ The URL can refer to different types of target. Additionally, an alternative tex
 || Link type || Syntax || Description |-
 | ''Wiki page'' | @@%%[[Index]]%%@@ | Link to a wiki page in the repository |-
 | ''Built-in link'' | @@%%[[wiki:newpage]]%%@@ | Link to a built-in function of the wiki server |-
-| ''External link'' | @@%%[[http://moasdawiki.net/]]%%@@ | Link to a web page or email address |-
+| ''External link'' | @@%%[[https://moasdawiki.net/]]%%@@ | Link to a web page or email address |-
 | ''File link'' | @@%%[[file:filename.zip]]%%@@ | Link to any file in the repository |-
 |}
 
@@ -58,7 +58,7 @@ Link targets with prefix @@wiki:@@ refer to a built-in function of the wiki serv
 An external link refers to a web page or an email address. Example:
 {|
 || Result || Syntax || Description |-
-| [[http://moasdawiki.net/]] | @@%%[[http://moasdawiki.net/]]%%@@ | link to a web page |-
+| [[https://moasdawiki.net/]] | @@%%[[https://moasdawiki.net/]]%%@@ | link to a web page |-
 | [[support@moasdawiki.net]] | @@%%[[support@moasdawiki.net]]%%@@ | link to an email address |-
 |}
 

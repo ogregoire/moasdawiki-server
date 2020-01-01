@@ -22,7 +22,7 @@ The key features are:
 * easy usability
 * no setup necessary, can be run from a USB stick
 * no special system requirements like database or application server
-* runs on any system with Java VM 1.7 or higher
+* runs on any system with Java VM 1.8 or higher
 * extensible by [[Plugins]]
 * free of charge, open source
 
@@ -56,11 +56,9 @@ The key features are:
 * access control (except restriction to localhost)
 * versioning of wiki pages
 
-= Where can I get the newest version of MoasdaWiki?
+= Where can I get the latest version of MoasdaWiki?
 
-The newest version is available at [[http://moasdawiki.net/]].
-
-Changes to earlier versions are listet in the [[Changelog]].
+The latest version is available at [[https://moasdawiki.net/]].
 
 = License
 

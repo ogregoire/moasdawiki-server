@@ -1,4 +1,4 @@
 {{style:pagefooter}}Vaterseiten: {{listparents | globalContext | showinline | separator=" | " | outputOnEmpty="-"}}
 Kindseiten: {{listchildren | globalContext | showinline | separator=" | " | outputOnEmpty="-"}}
 Zuletzt geändert: {{pagetimestamp | globalContext}}
-Erstellt mit [[http://moasdawiki.net/ | {{version}}]]{{/style}}
+Erstellt mit [[https://moasdawiki.net/ | {{version}}]]{{/style}}

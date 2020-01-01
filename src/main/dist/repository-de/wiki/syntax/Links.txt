@@ -18,7 +18,7 @@ Bei der Angabe des Linkziels werden mehrere Linkarten unterschieden. Optional ka
 || Linkart || Beispiel || Beschreibung |-
 | ''Wikiseite'' | @@%%[[Index]]%%@@ | Link auf eine Wikiseite im Repository |-
 | ''Serverfunktion'' | @@%%[[wiki:newpage]]%%@@ | Link auf eine spezielle Funktion des Wiki-Servers |-
-| ''externer Link'' | @@%%[[http://moasdawiki.net/]]%%@@ | Link auf eine Internetseite oder E-Mail-Adresse |-
+| ''externer Link'' | @@%%[[https://moasdawiki.net/]]%%@@ | Link auf eine Internetseite oder E-Mail-Adresse |-
 | ''Dateilink'' | @@%%[[file:dateiname.zip]]%%@@ | Link auf eine beliebige Datei im Repository |-
 |}
 
@@ -59,7 +59,7 @@ Linkziele mit dem Präfix @@wiki:@@ verweisen auf interne Serverfunktionen. Folg
 Ein externer Link verweist auf eine Internetseite oder eine E-Mail-Adresse. Beispiele:
 {|
 || Beispiel || Wiki-Text || Beschreibung |-
-| [[http://moasdawiki.net/]] | @@%%[[http://moasdawiki.net/]]%%@@ | Link auf eine Internetseite |-
+| [[https://moasdawiki.net/]] | @@%%[[https://moasdawiki.net/]]%%@@ | Link auf eine Internetseite |-
 | [[support@moasdawiki.net]] | @@%%[[support@moasdawiki.net]]%%@@ | Link auf eine E-Mail-Adresse |-
 |}
 

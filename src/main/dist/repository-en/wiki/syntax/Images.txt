@@ -20,7 +20,7 @@ To show an image in a wiki page, use the following syntax.
 There are different URLs to refer to an image file
 * relative path to current wiki page, e.g. @@reddot.png@@
 * absolute path, e.g. @@/wiki/syntax/reddot.png@@
-* Internet URL, e.g. @@http://moasdawiki.net/en/wiki/reddot.png@@
+* Internet URL, e.g. @@https://moasdawiki.net/en/wiki/reddot.png@@
 
 You can use all image formats supported by the browser, e.g. @@.jpg@@, @@.gif@@ and @@.png@@.
 

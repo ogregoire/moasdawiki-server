@@ -22,7 +22,6 @@ Konfiguration
 * [[Synchronisierung]]
 
 Sonstige Spezialseiten
-* [[Versionshistorie]]
 * [[Lizenz]]
 * [[Alle Seiten]]
 * [[Fehlende Seiten]] und [[Unverlinkte Seiten]]

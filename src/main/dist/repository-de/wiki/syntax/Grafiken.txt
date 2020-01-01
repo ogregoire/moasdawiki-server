@@ -20,7 +20,7 @@ Eine Grafikdatei kann wie folgt in einer Wikiseite angezeigt werden.
 Bei der Angabe der Grafikdatei sind folgende URLs möglich
 * relativer Pfad zur Wikiseite, z.B. @@roterpunkt.png@@
 * absoluter Pfad, z.B. @@/wiki/syntax/roterpunkt.png@@
-* Internet-Pfad, z.B. @@http://moasdawiki.net/wiki/roterpunkt.png@@
+* Internet-Pfad, z.B. @@https://moasdawiki.net/wiki/roterpunkt.png@@
 
 Dabei können alle gängigen Grafikformate wie @@.jpg@@, @@.gif@@ und @@.png@@ verwendet werden.
 

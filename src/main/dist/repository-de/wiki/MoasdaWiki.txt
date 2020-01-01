@@ -22,7 +22,7 @@ Das Besondere an ''MoasdaWiki'' ist:
 * einfache Bedienbarkeit
 * keine Installation notwendig, daher auch auf USB-Stick lauffähig
 * keine besonderen Systemanforderungen wie Datenbank oder Webserver
-* auf jedem System mit einer Java VM ab 1.7 lauffähig
+* auf jedem System mit einer Java VM ab 1.8 lauffähig
 * erweiterbar durch [[Plugins]]
 * kostenlos nutzbar, Quelltext verfügbar
 
@@ -58,12 +58,10 @@ Das Besondere an ''MoasdaWiki'' ist:
 
 = Wo finde ich die neueste Version von MoasdaWiki?
 
-Die aktuelle Version kann von der [[http://moasdawiki.net/ | ''MoasdaWiki''-Homepage]] kostenlos heruntergeladen werden.
-
-Änderungen gegenüber früheren Versionen sind in der [[Versionshistorie]] aufgelistet.
+Die aktuelle Version kann von der [[https://moasdawiki.net/ | ''MoasdaWiki''-Homepage]] kostenlos heruntergeladen werden.
 
 = Rechtliche Hinweise
 
 {{version}}
-Copyright (c) 2008 - 2019 [[https://www.linkedin.com/in/herbert-reiter | Dr. Herbert Reiter]]
+Copyright (c) 2008 - 2019 [[https://www.linkedin.com/in/herbert-reiter | Herbert Reiter]]
 ''MoasdaWiki'' steht unter der [[Lizenz | GNU General Public License]].
