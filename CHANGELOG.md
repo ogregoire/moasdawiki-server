@@ -24,33 +24,33 @@
 - App 2.0.9.2 (versionCode 13)
   - App: Bugfix: Page titles with space or special characters couldn't be shown
 
-## Version 2.0.8 (2018-02-05)
+## 2.0.8 (2018-02-05)
 
 - App can be closed by pressing the back button twice.
 - Bugfix: Children pages were not restored after editing a wiki page.
 - App (versionCode 9)
 
-## Version 2.0.7 (2017-05-28)
+## 2.0.7 (2017-05-28)
 
 - Bugfix: App: Editor icons got visible on scrolling
 - App (versionCode 7)
 
-## Version 2.0.6 (2016-11-28)
+## 2.0.6 (2016-11-28)
 
 - Bugfix: JavaScript was not loaded in English version
 - Bugfix: Some missing translations added
 - Bugfix: App: Edit symbol was still available and active
 - App (versionCode 6)
 
-## Version 2.0.5 (2016-11-22)
+## 2.0.5 (2016-11-22)
 
 - Initial App version (versionCode 5)
 
-## Version 2.0.1 (2016-11-22)
+## 2.0.1 (2016-11-22)
 
 - Bugfix: Error in path handling in Windows, media files were not found
 
-## Version 2.0.0 (2016-11-21)
+## 2.0.0 (2016-11-21)
 
 - MoasdaWiki as Android App (versionCode 2)
   - App provides a copy for mobile usage
@@ -65,7 +65,7 @@
 - New GUI design
 - Bugfix: Firefox requests sometimes got stuck for some seconds (speculative requests).
 
-## Version 1.12 (2015-01-18)
+## 1.12 (2015-01-18)
 
 - `@@` tag now supports syntax highlighting for Java, HTML, XML, and Properties
 - Rendering of multi line code sections (`@@...@@`) improved to support copy & paste preserving line breaks
@@ -74,7 +74,7 @@
 - Bugfix: Image URLs were not escaped correctly, e.g. if URL contains the character `+`
 - Bugfix: Index pages did not show their last modification timestamp
 
-## Version 1.11 (2014-06-21)
+## 1.11 (2014-06-21)
 
 - Translated project into English
 - Bugfix: Page links with special character `!` didn't work
