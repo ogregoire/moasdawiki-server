@@ -1,18 +1,14 @@
 @@
-// MoasdaWiki configuration file
+// MoasdaWiki Server configuration file
 //
 // Changes take effect only after a server restart.
 // The characters "@@" on top and bottom of the file are
 // just for better readability as wiki page.
 
 // Port number of the wiki server. If no port is given,
-// the wiki server chooses any unused port. 
+// the default port 11080 is used.
 
 port = 11080
-
-// File suffix of wiki files in the repository
-
-repository.pagesuffix = .txt
 
 // Message file with translations
 
@@ -66,18 +62,6 @@ plugin = net.moasdawiki.plugin.SearchPlugin
 plugin = net.moasdawiki.plugin.sync.SynchronizationPlugin
 plugin = net.moasdawiki.plugin.ViewPagePlugin
 plugin = net.moasdawiki.plugin.WikiTagsPlugin
-
-// Repository files to be excluded from synchronization with
-// other Wiki repositories. If an entry ends with "/", all
-// files and sub folders in this folder are excluded.
-
-synchronization.exclude = /config.txt
-synchronization.exclude = /config-app.txt
-synchronization.exclude = /filelist.cache
-synchronization.exclude = /parentrelations.cache
-synchronization.exclude = /syncsessions.config
-synchronization.exclude = /root/
-synchronization.exclude = /wiki/
 
 // Restrict access to the same host as the wiki server?
 // If set to "false", the wiki server can be accessed from any

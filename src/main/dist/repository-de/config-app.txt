@@ -1,20 +1,9 @@
 @@|properties
-// Konfigurationdatei von MoasdaWiki (App)
-// Wird beim Erstellen der APK-Datei umbenannt in config.txt.
+// MoasdaWiki App Konfigurationdatei
 //
 // Änderungen werden erst nach einem Neustart wirksam.
 // Die Zeichen "@@" am Anfang und Ende der Datei dienen
 // lediglich der besseren Darstellung als Wikiseite.
-
-// Portnummer, unter der der Wiki-Server erreichbar sein soll.
-// Wenn kein Port angegeben ist, wählt der Wiki-Server einen
-// beliebigen freien Port.
-
-port = 11080
-
-// Dateiendung aller Wikiseiten im Repository
-
-repository.pagesuffix = .txt
 
 // Sprachdatei mit den Übersetzungstexten. Es kann nur eine
 // Datei angegeben werden.
@@ -71,25 +60,4 @@ plugin = net.moasdawiki.plugin.SearchPlugin
 plugin = net.moasdawiki.plugin.TerminPlugin
 plugin = net.moasdawiki.plugin.ViewPagePlugin
 plugin = net.moasdawiki.plugin.WikiTagsPlugin
-
-// Repository-Dateien, die aus der Synchronisierung mit anderen
-// Wiki-Repositories ausgeschlossen werden sollen. Wenn Eintrag
-// mit "/" endet, werden alle Dateien in diesem Ordner und allen
-// Unterordnern ausgeschlossen.
-
-synchronization.exclude = /config.txt
-synchronization.exclude = /config-app.txt
-synchronization.exclude = /filelist.cache
-synchronization.exclude = /parentrelations.cache
-synchronization.exclude = /root/
-synchronization.exclude = /wiki/
-
-// Der Wiki-Server akzeptiert nur Verbindungsanfragen von Clients auf
-// dem selben Server (localhost), wenn dieser Parameter auf "true"
-// gesetzt ist. Bei "false" kann von jedem Rechner im LAN auf das Wiki
-// zugegriffen werden (sofern keine Firewall dies verhindert).
-// Diese Einstellung gilt sowohl für den Browserzugang als auch für
-// die Synchronisierung mit der App.
-
-authentication.onlylocalhost = false
 @@

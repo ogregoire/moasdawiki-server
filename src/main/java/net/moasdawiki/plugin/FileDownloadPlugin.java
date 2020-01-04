@@ -104,7 +104,7 @@ public class FileDownloadPlugin implements Plugin {
 		// Datei einlesen
 		byte[] fileContent;
 		try {
-			AnyFile anyFile = new AnyFile(filePath, null);
+			AnyFile anyFile = new AnyFile(filePath);
 			fileContent = repositoryService.readBinaryFile(anyFile);
 		} catch (ServiceException e) {
 			logger.write("File '" + filePath + "' not found, sending response 404", e);

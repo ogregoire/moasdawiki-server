@@ -179,7 +179,7 @@ public class TerminPlugin implements Plugin, PageElementTransformer {
 	 */
 	private void readEventsFromCacheFile() {
 		try {
-			AnyFile anyFile = new AnyFile(EVENTS_CACHE_FILEPATH, null);
+			AnyFile anyFile = new AnyFile(EVENTS_CACHE_FILEPATH);
 			String cacheContent = repositoryService.readTextFile(anyFile);
 			CacheFile cacheFile = parseCacheFile(cacheContent);
 			cacheTimestamp = cacheFile.timestamp;
@@ -271,7 +271,7 @@ public class TerminPlugin implements Plugin, PageElementTransformer {
 
 		// Datei schreiben
 		try {
-			AnyFile anyFile = new AnyFile(EVENTS_CACHE_FILEPATH, null);
+			AnyFile anyFile = new AnyFile(EVENTS_CACHE_FILEPATH);
 			repositoryService.writeTextFile(anyFile, cacheContent);
 		} catch (ServiceException e) {
 			// nur Fehlermeldung loggen, dieser Fehler kann ansonsten toleriert

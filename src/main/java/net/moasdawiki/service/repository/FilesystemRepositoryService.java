@@ -102,7 +102,7 @@ public class FilesystemRepositoryService implements RepositoryService {
 	 */
 	protected boolean readCacheFile() {
 		String cacheContent;
-		AnyFile fileListCacheFile = new AnyFile(FILELIST_CACHE_FILEPATH, null);
+		AnyFile fileListCacheFile = new AnyFile(FILELIST_CACHE_FILEPATH);
 		try {
 			cacheContent = readTextFile(fileListCacheFile);
 		} catch (ServiceException e) {
@@ -167,16 +167,14 @@ public class FilesystemRepositoryService implements RepositoryService {
 			sb.append('\t');
 
 			String contentTimestampStr = DateUtils.formatUtcDate(anyFile.getContentTimestamp());
-			if (contentTimestampStr != null) {
-				sb.append(contentTimestampStr);
-			}
+			sb.append(contentTimestampStr);
 
 			sb.append('\n');
 		}
 		String cacheContent = sb.toString();
 
 		// Datei schreiben
-		AnyFile fileListCacheFile = new AnyFile(FILELIST_CACHE_FILEPATH, null);
+		AnyFile fileListCacheFile = new AnyFile(FILELIST_CACHE_FILEPATH);
 		try {
 			writeTextFile(fileListCacheFile, cacheContent);
 		} catch (ServiceException e) {
@@ -249,7 +247,7 @@ public class FilesystemRepositoryService implements RepositoryService {
 	public synchronized Set<AnyFile> getModifiedAfter(Date modifiedAfter) {
 		Set<AnyFile> result = new HashSet<>();
 		for (AnyFile anyFile : fileMap.values()) {
-			if (anyFile.getContentTimestamp() != null && (modifiedAfter == null || modifiedAfter.before(anyFile.getContentTimestamp()))) {
+			if (modifiedAfter == null || modifiedAfter.before(anyFile.getContentTimestamp())) {
 				result.add(anyFile);
 			}
 		}
@@ -264,18 +262,7 @@ public class FilesystemRepositoryService implements RepositoryService {
 		fileList.sort((anyFile1, anyFile2) -> {
 			Date timestamp1 = anyFile1.getContentTimestamp();
 			Date timestamp2 = anyFile2.getContentTimestamp();
-			if (timestamp1 != null && timestamp2 != null) {
-				return timestamp2.compareTo(timestamp1);
-			} else if (timestamp1 != null) {
-				// timestamp2 == null
-				return -1;
-			} else if (timestamp2 != null) {
-				// timestamp1 == null
-				return 1;
-			} else {
-				// both are null
-				return 0;
-			}
+			return timestamp2.compareTo(timestamp1);
 		});
 		return fileList.subList(0, Math.min(fileList.size(), count));
 	}
@@ -341,6 +328,7 @@ public class FilesystemRepositoryService implements RepositoryService {
 			}
 		}
 
+		logger.write("Reading file '" + filePath + "' from repository");
 		try (FileInputStream is = new FileInputStream(file)) {
 			byte[] fileContent = new byte[is.available()];
 			//noinspection ResultOfMethodCallIgnored

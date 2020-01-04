@@ -20,7 +20,6 @@ package net.moasdawiki.service.repository;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 
@@ -42,15 +41,15 @@ public class AnyFile {
      * Gibt den Zeitstempel der letzten Inhaltsänderung der Datei zurück. Ist
      * i.d.R. identisch mit Datei-Zeitstempel des Dateisystems. Beim Synchronisieren
      * von Dateien wird der Zeitstempel allerdings auf denselben Wert wie der Synchronisierungspartner gesetzt.
-     * <code>null</code> --> Zeitstempel unbekannt.
      */
-    @Nullable
+    @NotNull
     private final Date contentTimestamp;
 
-    /**
-     * Konstruktor.
-     */
-    public AnyFile(@NotNull String filePath, @Nullable Date contentTimestamp) {
+    public AnyFile(@NotNull String filePath) {
+        this(filePath, new Date());
+    }
+
+    public AnyFile(@NotNull String filePath, @NotNull Date contentTimestamp) {
         super();
         this.filePath = filePath;
         this.contentTimestamp = contentTimestamp;
@@ -73,7 +72,7 @@ public class AnyFile {
 	 * @return Zeitstempel der letzten Inhaltsänderung. <code>null</code> -->
 	 * Zeitstempel unbekannt.
 	 */
-    @Nullable
+    @NotNull
     public Date getContentTimestamp() {
         return contentTimestamp;
     }

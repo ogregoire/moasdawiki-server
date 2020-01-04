@@ -252,10 +252,6 @@ public class Webserver {
 		writer.closeTag();
 		writer.setContinueInNewLine();
 		writer.openTag("li");
-		writer.htmlText("<b>repository.pagesuffix</b> = " + EscapeUtils.escapeHtml(settings.getPageSuffix()));
-		writer.closeTag();
-		writer.setContinueInNewLine();
-		writer.openTag("li");
 		writer.htmlText("<b>repository.root</b> = " + EscapeUtils.escapeHtml(settings.getRootPath()));
 		writer.closeTag();
 		writer.setContinueInNewLine();

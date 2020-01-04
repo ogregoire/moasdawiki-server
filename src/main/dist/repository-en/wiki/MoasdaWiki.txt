@@ -19,12 +19,12 @@ It allows you to create and find web pages easily. The collection of web pages i
 
 The key features are:
 
-* easy usability
-* no setup necessary, can be run from a USB stick
-* no special system requirements like database or application server
-* runs on any system with Java VM 1.8 or higher
-* extensible by [[Plugins]]
-* free of charge, open source
+* Easy usability
+* No setup necessary, can be run from a USB stick
+* No special system requirements like database or application server
+* Runs on any system with a Java VM 1.8 or higher
+* Extendable by plugins
+* Free of charge, open source
 
 °°See also°°
 * °°[[http://c2.com/cgi/wiki?WikiEngines | Extensive list of wiki software]]°°
@@ -32,21 +32,20 @@ The key features are:
 
 = Feature List
 
-* Store pages as text files in the file system, no database required
-* fast and powerful full text search (see [[WikiSearch]])
-* built-in web server, no external web server required
-* runs on several operating systems with a Java VM
-* pages can be printed without navigation panel
-* powerful [[syntax/ | wiki syntax]] including tables and images
-* make your own [[Templates]] to create uniform looking web pages
-* full customizable graphical user interface
-** navigation panel can be modified by [[Navigation]]
-** page layout is defined by a CSS stylesheet
-** page header and footer can be modified by [[PageHeader]] and [[PageFooter]]
-** customizable HTML header by [[HtmlHeader]], e.g. to include your own CSS stylesheets and JavaScript libraries
-** configuration file [[/config]]
-* extensible by [[Plugins]], internationalization by [[messages]]
-* show recently modified or viewed pages
+* Store pages as text files on the file system, no database required
+* Fast and powerful full text search
+* Built-in lightweight web server, no external web server required
+* Powerful syntax, includes tables and images
+* Page templates to create uniform looking pages
+* Full customizable graphical user interface
+** Navigation panel can be modified
+** Page layout for view in browser and for printing is defined by CSS stylesheet
+** Page header and footer can be modified
+** Customizable HTML header, e.g. to include your own CSS stylesheets and JavaScript libraries
+** Configuration file withs lots of options
+* Extensible via plugins
+* Internationalization via message files
+* List of recently modified and viewed pages
 
 = What is excluded from MoasdaWiki?
 

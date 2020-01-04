@@ -251,13 +251,8 @@ public class WikiTagsPlugin implements Plugin, PageElementTransformer {
 
 		try {
 			WikiFile wikiFile = wikiService.getWikiFile(wikiPage.getPagePath());
-			if (wikiFile.getRepositoryFile().getContentTimestamp() != null) {
-				String dateTimeFormat = messages.getMessage("WikiTagsPlugin.dateformat.datetime");
-				return new TextOnly(DateUtils.formatDate(wikiFile.getRepositoryFile().getContentTimestamp(), dateTimeFormat));
-			} else {
-				// keine Ausgabe
-				return null;
-			}
+			String dateTimeFormat = messages.getMessage("WikiTagsPlugin.dateformat.datetime");
+			return new TextOnly(DateUtils.formatDate(wikiFile.getRepositoryFile().getContentTimestamp(), dateTimeFormat));
 		}
 		catch (ServiceException e) {
 			logger.write("Error reading wiki file to show page timestamp", e);

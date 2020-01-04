@@ -20,7 +20,6 @@ package net.moasdawiki.service.wiki;
 
 import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.ServiceException;
-import net.moasdawiki.base.Settings;
 import net.moasdawiki.service.repository.AnyFile;
 import net.moasdawiki.service.repository.RepositoryService;
 import net.moasdawiki.service.wiki.parser.WikiParser;
@@ -49,14 +48,13 @@ import java.util.*;
  */
 public class WikiServiceImpl implements WikiService {
 
+	private static final String PAGE_SUFFIX = ".txt";
+
 	@NotNull
 	private final Logger logger;
 
 	@NotNull
 	private final RepositoryService repositoryService;
-
-	@NotNull
-	private final String pageSuffix;
 
 	/**
 	 * Pfad der Cachedatei mit der Vater-Kind-Liste aller Wikidateien.<br>
@@ -94,10 +92,9 @@ public class WikiServiceImpl implements WikiService {
 	/**
 	 * Konstruktor.
 	 */
-	public WikiServiceImpl(@NotNull Logger logger, @NotNull Settings settings, @NotNull RepositoryService repositoryService) {
+	public WikiServiceImpl(@NotNull Logger logger, @NotNull RepositoryService repositoryService) {
 		this.logger = logger;
 		this.repositoryService = repositoryService;
-		this.pageSuffix = settings.getPageSuffix();
 		this.childParentMap = new HashMap<>();
 		this.wikiFileMap = new HashMap<>();
 		this.viewHistory = new LinkedList<>();
@@ -118,7 +115,7 @@ public class WikiServiceImpl implements WikiService {
 	 */
 	boolean readChildParentCacheFile() {
 		// Read cache file content
-		AnyFile parentRelationsCacheFile = new AnyFile(CHILD_PARENT_CACHE_FILEPATH, null);
+		AnyFile parentRelationsCacheFile = new AnyFile(CHILD_PARENT_CACHE_FILEPATH);
 		String cacheContent;
 		try {
 			cacheContent = repositoryService.readTextFile(parentRelationsCacheFile);
@@ -210,7 +207,7 @@ public class WikiServiceImpl implements WikiService {
 		String cacheContent = sb.toString();
 
 		// Datei schreiben
-		AnyFile parentRelationsCacheFile = new AnyFile(CHILD_PARENT_CACHE_FILEPATH, null);
+		AnyFile parentRelationsCacheFile = new AnyFile(CHILD_PARENT_CACHE_FILEPATH);
 		try {
 			repositoryService.writeTextFile(parentRelationsCacheFile, cacheContent);
 		} catch (ServiceException e) {
@@ -307,7 +304,7 @@ public class WikiServiceImpl implements WikiService {
 
 		// Delete from repository
 		String filePath = wikiFilePath2RepositoryPath(wikiFilePath);
-		AnyFile anyFile = new AnyFile(filePath, null);
+		AnyFile anyFile = new AnyFile(filePath);
 		repositoryService.deleteFile(anyFile);
 
 		// Persist cache
@@ -361,7 +358,7 @@ public class WikiServiceImpl implements WikiService {
 		AnyFile newRepositoryFile;
 		try {
 			String repositoryPath = wikiFilePath2RepositoryPath(wikiFilePath);
-			AnyFile oldRepositoryFile = new AnyFile(repositoryPath, null);
+			AnyFile oldRepositoryFile = new AnyFile(repositoryPath);
 			newRepositoryFile = repositoryService.writeTextFile(oldRepositoryFile, newText);
 		} catch (ServiceException e) {
 			String message = "Error saving wiki file '" + wikiFilePath + "'";
@@ -493,7 +490,7 @@ public class WikiServiceImpl implements WikiService {
 	 * Gibt zurück, ob der angegebene Dateiname den Suffix einer Wikidatei hat.
 	 */
 	private boolean isWikiFilePath(String repositoryPath) {
-		return pageSuffix.length() > 0 && repositoryPath.endsWith(pageSuffix);
+		return repositoryPath.endsWith(PAGE_SUFFIX);
 	}
 
 	/**
@@ -505,7 +502,7 @@ public class WikiServiceImpl implements WikiService {
 	 */
 	private String repositoryPath2WikiFilePath(String repositoryPath) {
 		if (isWikiFilePath(repositoryPath)) {
-			return repositoryPath.substring(0, repositoryPath.length() - pageSuffix.length());
+			return repositoryPath.substring(0, repositoryPath.length() - PAGE_SUFFIX.length());
 		} else {
 			return repositoryPath;
 		}
@@ -518,7 +515,7 @@ public class WikiServiceImpl implements WikiService {
 	 * @return Dateipfad innerhalb des Repositories. Nicht <code>null</code>.
 	 */
 	private String wikiFilePath2RepositoryPath(String wikiFilePath) {
-		return wikiFilePath + pageSuffix;
+		return wikiFilePath + PAGE_SUFFIX;
 	}
 
 	/**

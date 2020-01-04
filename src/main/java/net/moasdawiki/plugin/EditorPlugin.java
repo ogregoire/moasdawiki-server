@@ -591,7 +591,7 @@ public class EditorPlugin implements Plugin {
 				String msg = messages.getMessage("EditorPlugin.upload.alreadyExisting", filePath);
 				throw new Exception(msg);
 			}
-			AnyFile anyFile = new AnyFile(filePath, null);
+			AnyFile anyFile = new AnyFile(filePath);
 			repositoryService.writeBinaryFile(anyFile, request.httpBody, null);
 			logger.write("File '" + filePath + "' successfully uploaded");
 		} catch (Exception e) {

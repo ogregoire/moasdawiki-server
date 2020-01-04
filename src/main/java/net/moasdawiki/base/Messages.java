@@ -74,6 +74,10 @@ public class Messages {
 
 		messages = new HashMap<>();
 		messageFormatLocale = Locale.ENGLISH; // default
+		reset();
+	}
+
+	public void reset() {
 		readMessages();
 		setMessageFormatLocale();
 	}
@@ -89,7 +93,7 @@ public class Messages {
 		}
 
 		try {
-			AnyFile anyFile = new AnyFile(messagesFilePath, null);
+			AnyFile anyFile = new AnyFile(messagesFilePath);
 			String settingsContent = repositoryService.readTextFile(anyFile);
 			BufferedReader reader = new BufferedReader(new StringReader(settingsContent));
 			String line;

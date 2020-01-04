@@ -44,8 +44,7 @@ public class Settings {
 	private static final String CONFIG_FILE_APP = "/config-app.txt";
 
 	private static final String SERVERPORT = "port";
-	private static final String REPOSITORY_PAGESUFFIX = "repository.pagesuffix";
-	private static final String REPOSITORY_PAGESUFFIX_DEFAULT = ".txt";
+	private static final int SERVERPORT_DEFAULT = 11080;
 	private static final String MESSAGE_FILE = "messagefile";
 	private static final String PAGE_STARTPAGE = "page.startpage";
 	private static final String PAGE_STARTPAGE_DEFAULT = "/wiki/Startpage";
@@ -60,7 +59,6 @@ public class Settings {
 	private static final String REPOSITORY_ROOT = "repository.root";
 	private static final String REPOSITORY_ROOT_DEFAULT = "root";
 	private static final String PLUGIN = "plugin";
-	private static final String SYNCHRONIZATION_EXCLUDE = "synchronization.exclude";
 	private static final String AUTHENTICATION_ONLYLOCALHOST = "authentication.onlylocalhost";
 
 	private final Logger logger;
@@ -72,21 +70,27 @@ public class Settings {
 	@NotNull
 	private final Map<String, Object> settings;
 
+	private final RepositoryService repositoryService;
+
+	private final String configFileName;
+
 	/**
 	 * Constructor.
 	 */
 	public Settings(@NotNull Logger logger, @NotNull RepositoryService repositoryService, @NotNull String configFileName) {
 		this.logger = logger;
 		this.settings = new HashMap<>();
-		readSettings(repositoryService, configFileName);
+		this.repositoryService = repositoryService;
+		this.configFileName = configFileName;
+		reset();
 	}
 
 	/**
 	 * Reads the configuration file.
 	 */
-	private void readSettings(@NotNull RepositoryService repositoryService, @NotNull String configFileName) {
+	public void reset() {
 		try {
-			AnyFile anyFile = new AnyFile(configFileName, null);
+			AnyFile anyFile = new AnyFile(configFileName);
 			String settingsContent = repositoryService.readTextFile(anyFile);
 			BufferedReader reader = new BufferedReader(new StringReader(settingsContent));
 			String line;
@@ -312,16 +316,7 @@ public class Settings {
 	 * Returns the port of the wiki server.
 	 */
 	public int getServerPort() {
-		return getInteger(SERVERPORT, 80);
-	}
-
-	/**
-	 * Returns the file extension of the wiki page files in the repository.
-	 * Default is ".txt".
-	 */
-	@NotNull
-	public String getPageSuffix() {
-		return getString(REPOSITORY_PAGESUFFIX, REPOSITORY_PAGESUFFIX_DEFAULT);
+		return getInteger(SERVERPORT, SERVERPORT_DEFAULT);
 	}
 
 	/**
@@ -409,15 +404,6 @@ public class Settings {
 	public Set<String> getPluginClassNames() {
 		String[] classNames = getStringArray(PLUGIN);
 		return new HashSet<>(Arrays.asList(classNames));
-	}
-
-	/**
-	 * Files and folders in the repository to be excluded from synchronization.
-	 */
-	@NotNull
-	public Set<String> getSynchronizationExcludes() {
-		String[] excludes = getStringArray(SYNCHRONIZATION_EXCLUDE);
-		return new HashSet<>(Arrays.asList(excludes));
 	}
 
 	/**

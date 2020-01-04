@@ -516,9 +516,6 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 			xmlResponse.currentServerTime = DateUtils.formatUtcDate(new Date());
 			xmlResponse.fileList = new ArrayList<>();
 			for (AnyFile file : files) {
-				if (file.getContentTimestamp() == null) {
-					continue;
-				}
 				SingleFileXml singleFile = new SingleFileXml();
 				singleFile.timestamp = DateUtils.formatUtcDate(file.getContentTimestamp());
 				singleFile.filePath = file.getFilePath();
@@ -544,26 +541,8 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 	 * der Liste entfernt.
 	 */
 	private Set<AnyFile> getModifiedFiles(Date lastSyncServerTime) {
-		Set<String> syncExcludes = settings.getSynchronizationExcludes();
 		Set<AnyFile> files = repositoryService.getModifiedAfter(lastSyncServerTime);
-		Set<AnyFile> result = new HashSet<>(files); // Kopie erstellen
-		// Datei ausschließen
-		result.removeIf(anyFile -> isFileExcludedFromSynchronization(anyFile.getFilePath(), syncExcludes));
-		return result;
-	}
-
-	/**
-	 * Gibt zu einer einzelnen Datei zurück, ob sie von der Synchronisierung
-	 * ausgeschlossen ist.
-	 */
-	private boolean isFileExcludedFromSynchronization(String filePath, Set<String> syncExcludes) {
-		for (String exclude : syncExcludes) {
-			if (exclude.endsWith("/") && filePath.startsWith(exclude) || filePath.equals(exclude)) {
-				// Datei ausschließen
-				return true;
-			}
-		}
-		return false;
+		return new HashSet<>(files); // Kopie erstellen
 	}
 
 	/**
@@ -617,11 +596,6 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 				return generateErrorResponse("Session unknown: " + readFileXml.serverSessionId);
 			} else if (!sessionData.authorized) {
 				return generateErrorResponse("Session not authorized: " + readFileXml.serverSessionId);
-			}
-
-			// Darf die Datei synchronisiert werden?
-			if (isFileExcludedFromSynchronization(readFileXml.filePath, settings.getSynchronizationExcludes())) {
-				return generateErrorResponse("File is excluded from synchronizing: " + readFileXml.filePath);
 			}
 
 			// Datei einlesen
@@ -787,7 +761,7 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 
 		// Datei schreiben
 		try {
-			AnyFile anyFile = new AnyFile(SESSION_LIST_FILEPATH, null);
+			AnyFile anyFile = new AnyFile(SESSION_LIST_FILEPATH);
 			repositoryService.writeTextFile(anyFile, fileContent);
 			logger.write(sessionMap.size() + " sessions written");
 		} catch (ServiceException e) {

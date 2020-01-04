@@ -74,7 +74,7 @@ public class MainService {
 		repositoryService.init();
 		settings = new Settings(logger, repositoryService, Settings.getConfigFileServer());
 		messages = new Messages(logger, settings, repositoryService);
-		wikiService = new WikiServiceImpl(logger, settings, repositoryService);
+		wikiService = new WikiServiceImpl(logger, repositoryService);
 		searchService = new SearchService(logger, wikiService);
 		pluginService = new PluginService(logger, settings);
 		htmlService = new HtmlService(logger, settings, messages, wikiService, pluginService);

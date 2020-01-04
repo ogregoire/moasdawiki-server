@@ -51,7 +51,7 @@ public class PluginService {
 	private final Settings settings;
 
 	/**
-	 * Menge aller Plugins.
+	 * Geladene Plugins.
 	 */
 	@NotNull
 	private final Set<Plugin> plugins;
@@ -86,6 +86,11 @@ public class PluginService {
 	 * Instanz erzeugt.
 	 */
 	public void loadPlugins(@NotNull ServiceLocator serviceLocator) {
+		// reset cache
+		plugins.clear();
+		pagetransformationPlugins.clear();
+		urlPluginMap.clear();
+
 		// lade Plugins
 		Set<String> classNames = settings.getPluginClassNames();
 		for (String className : classNames) {

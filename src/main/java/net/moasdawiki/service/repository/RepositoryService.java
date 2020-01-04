@@ -73,8 +73,7 @@ public interface RepositoryService {
      * scannen zu müssen.
      * <p>
      * Es werden nur Repository-Dateien mit vorhandenem Zeitstempel berücksichtigt, da nur
-     * diese zur Synchronisierung geeignet sind. Assets-Dateien in Android haben beispielsweise
-     * keinen Zeitstempel.
+     * diese zur Synchronisierung geeignet sind.
      *
      * @param modifiedAfter Frühester Änderungszeitpunkt (exklusive).
      *                      <code>null</code> --> alle Dateien auflisten.
