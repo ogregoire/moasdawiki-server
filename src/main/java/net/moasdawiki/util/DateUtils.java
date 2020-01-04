@@ -45,14 +45,17 @@ public abstract class DateUtils {
 	 * Parses a string in ISO 8601 date format: "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
 	 * 
 	 * @param dateStr String to parse
-	 * @return Date object. <code>null</code> -> dateStr was empty or <code>null</code>.
+	 * @return Date object. <code>null</code> -> dateStr was <code>null</code>.
 	 * @throws ServiceException if string has invalid format
 	 */
 	@Nullable
-	@Contract(value = "null -> null", pure = true)
+	@Contract(value = "null -> null; !null -> !null", pure = true)
 	public static Date parseUtcDate(@Nullable String dateStr) throws ServiceException {
-		if (dateStr == null || dateStr.isEmpty()) {
+		if (dateStr == null) {
 			return null;
+		}
+		if (dateStr.isEmpty()) {
+			throw new ServiceException("Invalid date format, string is empty");
 		}
 
 		try {

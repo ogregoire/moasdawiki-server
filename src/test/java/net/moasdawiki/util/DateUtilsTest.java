@@ -52,6 +52,11 @@ public class DateUtilsTest {
     }
 
     @Test(expectedExceptions = ServiceException.class)
+    public void testParseUtcDateEmpty() throws Exception {
+        DateUtils.parseUtcDate("");
+    }
+
+    @Test(expectedExceptions = ServiceException.class)
     public void testParseUtcDateError() throws Exception {
         DateUtils.parseUtcDate("abcde");
     }
