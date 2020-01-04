@@ -7,6 +7,33 @@ create and modify its content by a web browser.
 
 The latest version is available at https://moasdawiki.net/.
 
+### Key features
+
+- Easy usability
+- No setup necessary, can be run from a USB stick
+- No special system requirements like database or application server
+- Runs on any system with a Java VM 1.8 or higher
+- Extendable by plugins
+- App available, always have a copy of the Wiki content on your mobile device
+- Free of charge, open source
+
+### Feature list
+
+- Store pages as text files on the file system, no database required
+- Fast and powerful full text search, supports regular expressions
+- Built-in lightweight web server, no external web server required
+- Powerful syntax, includes tables and images
+- Page templates to create uniform looking pages
+- Full customizable graphical user interface
+  - Navigation panel can be modified
+  - Page layout for view in browser and for printing is defined by CSS stylesheet
+  - Page header and footer can be modified
+  - Customizable HTML header, e.g. to include your own CSS stylesheets and JavaScript libraries
+  - Configuration file withs lots of options
+- Extensible via plugins
+- Internationalization via message files
+- List of recently modified and viewed pages
+
 ## Installation
 ### Prerequisites
 
