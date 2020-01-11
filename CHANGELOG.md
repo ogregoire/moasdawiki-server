@@ -11,6 +11,7 @@
 - Updated copyright
 - Ant build script replaced by Gradle, restructured repository folders
 - Published sources on GitLab
+- Using GitLab CI
 
 ## 2.0.9 (2019-01-03)
 
