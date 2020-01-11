@@ -127,7 +127,7 @@ instead of `localhost`. The default port is 11080. It can be changed in the file
 
 A detailed description of MoasdaWiki server is included in the default Wiki repository.
 To open the user guide click on the link "Help" in the navigation panel or open the URL
-http://localhost:8001/view/wiki/
+http://localhost:11080/view/wiki/
 
 ## Support
 
