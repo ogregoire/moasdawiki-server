@@ -5,11 +5,6 @@ before_script:
   - export GRADLE_USER_HOME=`pwd`/.gradle
   - chmod +x ./gradlew
 
-cache:
-  paths:
-    - .gradle/wrapper
-    - .gradle/caches
-
 stages:
   - build
   - test
