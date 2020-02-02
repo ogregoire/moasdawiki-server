@@ -640,11 +640,9 @@ public class WikiPage2Html {
 		boolean showEditorPen = false;
 
 		// URL erzeugen
-		String linkPagePath = link.getPagePath();
 		String url;
-		if (link.getPagePath() != null) {
-			linkPagePath = WikiHelper.getAbsolutePagePath(linkPagePath, wikiPage);
-
+		String linkPagePath = WikiHelper.getAbsolutePagePath(link.getPagePath(), wikiPage);
+		if (link.getPagePath() != null && linkPagePath != null) {
 			if (linkPagePath.endsWith("/") || wikiService.existsWikiFile(linkPagePath)) {
 				url = "/view" + linkPagePath;
 			} else {
@@ -670,14 +668,15 @@ public class WikiPage2Html {
 			convertGeneric(link.getAlternativeText());
 		} else {
 			// sonst nur Seitenname angeben
-			if (linkPagePath != null) {
-				if (!linkPagePath.endsWith("/")) {
+			String localLinkPagePath = link.getPagePath();
+			if (localLinkPagePath != null) {
+				if (!localLinkPagePath.endsWith("/")) {
 					// normaler Seitenname
-					String pageName = PathUtils.extractWebName(linkPagePath);
+					String pageName = PathUtils.extractWebName(localLinkPagePath);
 					writer.htmlText(EscapeUtils.escapeHtml(pageName));
 				} else {
 					// Ordnername
-					String folderPath = linkPagePath.substring(0, linkPagePath.length() - 1);
+					String folderPath = localLinkPagePath.substring(0, localLinkPagePath.length() - 1);
 					String folderName = PathUtils.extractWebName(folderPath);
 					if (folderName.isEmpty()) {
 						folderName = "/";
@@ -766,8 +765,11 @@ public class WikiPage2Html {
 
 		// URL erzeugen
 		String linkFilePath = link.getFilePath();
-		String url = "/file" + WikiHelper.getAbsolutePagePath(linkFilePath, wikiPage);
-
+		String pagePath = WikiHelper.getAbsolutePagePath(linkFilePath, wikiPage);
+		if (pagePath == null) {
+			return;
+		}
+		String url = "/file" + pagePath;
 		int depth = writer.openTag("a", "class=\"linkfile\" href=\"" + EscapeUtils.escapeHtml(EscapeUtils.encodeUrl(EscapeUtils.pagePath2Url(url))) + "\"");
 
 		if (link.getAlternativeText() != null) {
@@ -836,6 +838,9 @@ public class WikiPage2Html {
 		String url = image.getUrl();
 		if (!url.startsWith("http")) {
 			url = WikiHelper.getAbsolutePagePath(url, wikiPage);
+			if (url == null) {
+				return;
+			}
 
 			// Bildname escapen, damit auch Sonderzeichen usw. funktionieren
 			url = EscapeUtils.pagePath2Url("/img" + url);

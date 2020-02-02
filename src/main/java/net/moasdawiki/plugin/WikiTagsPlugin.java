@@ -105,13 +105,13 @@ public class WikiTagsPlugin implements Plugin, PageElementTransformer {
 		}
 
 		// Überschriften suchen
-		HeadingCollector headingCollector = new HeadingCollector();
-		WikiHelper.viewPageElements(wikiPage, headingCollector, Heading.class, false);
+		List<Heading> headingList = new ArrayList<>();
+		WikiHelper.traversePageElements(wikiPage, (heading, context) -> context.add(heading), Heading.class, headingList, false);
 
 		// Inhaltsverzeichnis generieren
 		PageElementList pageElementList = new PageElementList();
 		int[] levelCounter = { 0, 0, 0 };
-		for (Heading heading : headingCollector.getHeadingList()) {
+		for (Heading heading : headingList) {
 			if (heading.getLevel() > 3) {
 				continue;
 			}
@@ -268,7 +268,7 @@ public class WikiTagsPlugin implements Plugin, PageElementTransformer {
 
 	@Nullable
 	private PageElement transform(@NotNull ListEditHistory listEditHistory) {
-		List<String> history = wikiService.getLastModifiedWikiFiles(listEditHistory.getMaxLength());
+		List<String> history = wikiService.getLastModified(listEditHistory.getMaxLength());
 		return generateListOfPageLinks(history, listEditHistory);
 	}
 
@@ -280,6 +280,9 @@ public class WikiTagsPlugin implements Plugin, PageElementTransformer {
 		// absoluten Pfad bestimmen
 		String pagePath = listParents.getPagePath();
 		pagePath = WikiHelper.getAbsolutePagePath(pagePath, wikiPage);
+		if (pagePath == null) {
+			return null;
+		}
 
 		// Vaterseiten bestimmen + sortieren
 		try {
@@ -303,6 +306,9 @@ public class WikiTagsPlugin implements Plugin, PageElementTransformer {
 		// absoluten Pfad bestimmen
 		String pagePath = listChildren.getPagePath();
 		pagePath = WikiHelper.getAbsolutePagePath(pagePath, wikiPage);
+		if (pagePath == null) {
+			return null;
+		}
 
 		// Kindseiten bestimmen + sortieren
 		try {
@@ -416,17 +422,24 @@ public class WikiTagsPlugin implements Plugin, PageElementTransformer {
 	 */
 	@NotNull
 	private Set<String> extractAllPageLinks(@NotNull Set<String> pagePaths) {
-		LinkPageCollector linkPageCollector = new LinkPageCollector();
+		Set<String> linkedPagePaths = new HashSet<>();
+		PageElementConsumer<LinkPage, Set<String>> consumer = (linkPage, context) -> {
+			WikiPage contextWikiPage = WikiHelper.getContextWikiPage(linkPage, false);
+			if (contextWikiPage != null) {
+				String absolutePagePath = WikiHelper.getAbsolutePagePath(linkPage.getPagePath(), contextWikiPage);
+				context.add(absolutePagePath);
+			}
+		};
 		for (String pagePath : pagePaths) {
 			try {
 				WikiFile wikiFile = wikiService.getWikiFile(pagePath);
-				WikiHelper.viewPageElements(wikiFile.getWikiPage(), linkPageCollector, LinkPage.class, true);
+				WikiHelper.traversePageElements(wikiFile.getWikiPage(), consumer, LinkPage.class, linkedPagePaths, true);
 			}
 			catch (ServiceException e) {
 				logger.write("Error reading wiki page to scan for links, ignoring it", e);
 			}
 		}
-		return linkPageCollector.getLinkedPagePaths();
+		return linkedPagePaths;
 	}
 
 	/**
@@ -476,44 +489,6 @@ public class WikiTagsPlugin implements Plugin, PageElementTransformer {
 				}
 			}
 			return pageElementList;
-		}
-	}
-
-	/**
-	 * Hilfsklasse zum Sammeln aller Überschriften.
-	 */
-	private static class HeadingCollector implements PageElementViewer<Heading> {
-
-		@NotNull
-		private final List<Heading> headingList = new ArrayList<>();
-
-		public void viewPageElement(@NotNull Heading heading) {
-			headingList.add(heading);
-		}
-
-		@NotNull
-		public List<Heading> getHeadingList() {
-			return headingList;
-		}
-	}
-
-	/**
-	 * Hilfsklasse zum Sammeln aller Links auf Wikiseiten.
-	 */
-	private static class LinkPageCollector implements PageElementViewer<LinkPage> {
-
-		@NotNull
-		private final Set<String> linkedPagePaths = new HashSet<>();
-
-		public void viewPageElement(@NotNull LinkPage linkPage) {
-			WikiPage contextWikiPage = WikiHelper.getContextWikiPage(linkPage, false);
-			String absolutePagePath = WikiHelper.getAbsolutePagePath(linkPage.getPagePath(), contextWikiPage);
-			linkedPagePaths.add(absolutePagePath);
-		}
-
-		@NotNull
-		public Set<String> getLinkedPagePaths() {
-			return linkedPagePaths;
 		}
 	}
 }

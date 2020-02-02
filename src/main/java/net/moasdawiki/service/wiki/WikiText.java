@@ -18,38 +18,99 @@
 
 package net.moasdawiki.service.wiki;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 /**
- * DTO mit dem ganzen Wikitext einer Wikidatei oder einen Ausschnitt davon. Wird
- * verwendet, um eine Wikiseite im Texteditor zu editieren.
+ * Contains the content of a wiki file or a section of a wiki file.
  *
  * @author Herbert Reiter
  */
 public class WikiText {
 
-	/**
-	 * Der Inhalt der Wikidatei, Text in Wikisyntax. Nicht <code>null</code>.
-	 */
-	public String text;
+    /**
+     * Content of the wiki file. Uses wiki syntax.
+     */
+    @NotNull
+    private final String text;
 
-	/**
-	 * Gibt die Position des ersten Zeichens in der Wikidatei an.<br>
-	 * <br>
-	 * <code>fromPos</code> und <code>toPos</code> geben den Ausschnitt in der
-	 * Wikidatei an, dem der Text in {@link #text} entspricht. Ist
-	 * <code>fromPos == toPos</code>, wird eine leere Zeichenkette referenziert.
-	 * Wenn beide Werte gesetzt sind, muss <code>0 <= fromPos <= toPos</code>
-	 * gelten. <code>null</code> -> gesamte Wikidatei.
-	 */
-	public Integer fromPos;
+    /**
+     * Position of the first character of the wiki file.<br>
+     * <br>
+     * <code>fromPos</code> und <code>toPos</code> geben den Ausschnitt in der
+     * Wikidatei an, dem der Text in {@link #text} entspricht. Ist
+     * <code>fromPos == toPos</code>, wird eine leere Zeichenkette referenziert.
+     * Wenn beide Werte gesetzt sind, muss <code>0 <= fromPos <= toPos</code>
+     * gelten. <code>null</code> -> gesamte Wikidatei.
+     */
+    @Nullable
+    private Integer fromPos;
 
-	/**
-	 * Gibt die Position hinter dem letzten Zeichen an in der Wikidatei an.<br>
-	 * <br>
-	 * <code>fromPos</code> und <code>toPos</code> geben den Ausschnitt in der
-	 * Wikidatei an, dem der Text in {@link #text} entspricht. Ist
-	 * <code>fromPos == toPos</code>, wird eine leere Zeichenkette referenziert.
-	 * Wenn beide Werte gesetzt sind, muss <code>0 <= fromPos <= toPos</code>
-	 * gelten. <code>null</code> -> gesamte Wikidatei.
-	 */
-	public Integer toPos;
+    /**
+     * Position behind the last character of the wiki file.<br>
+     * <br>
+     * <code>fromPos</code> und <code>toPos</code> geben den Ausschnitt in der
+     * Wikidatei an, dem der Text in {@link #text} entspricht. Ist
+     * <code>fromPos == toPos</code>, wird eine leere Zeichenkette referenziert.
+     * Wenn beide Werte gesetzt sind, muss <code>0 <= fromPos <= toPos</code>
+     * gelten. <code>null</code> -> gesamte Wikidatei.
+     */
+    @Nullable
+    private Integer toPos;
+
+    /**
+     * Constructor.
+     *
+     * @param text content of the wiki file.
+     */
+    public WikiText(@NotNull String text) {
+        this.text = text;
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param text    content of the wiki file.
+     * @param fromPos position of the first character of the wiki file.
+     * @param toPos   position behind the last character of the wiki file.
+     */
+    public WikiText(@NotNull String text, @Nullable Integer fromPos, @Nullable Integer toPos) {
+        this.text = text;
+        this.fromPos = fromPos;
+        this.toPos = toPos;
+    }
+
+    /**
+     * Returns the content of the wiki file.
+     */
+    @NotNull
+    public String getText() {
+        return text;
+    }
+
+    /**
+     * Returns the position of the first character of the wiki file.
+     * <p>
+     * If {@link #fromPos} and {@link #toPos} are not null, they define a section in a wiki file
+     * that corresponds to the {@link #text}. They must hold <code>0 <= fromPos <= toPos</code>.
+     * If <code>fromPos == toPos</code> an empty string is referred.
+     * In case of null the whole wiki file is referred.
+     */
+    @Nullable
+    public Integer getFromPos() {
+        return fromPos;
+    }
+
+    /**
+     * Returns the position behind the last character of the wiki file.
+	 * <p>
+	 * If {@link #fromPos} and {@link #toPos} are not null, they define a section in a wiki file
+	 * that corresponds to the {@link #text}. They must hold <code>0 <= fromPos <= toPos</code>.
+	 * If <code>fromPos == toPos</code> an empty string is referred.
+	 * In case of null the whole wiki file is referred.
+     */
+    @Nullable
+    public Integer getToPos() {
+        return toPos;
+    }
 }

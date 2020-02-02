@@ -707,15 +707,14 @@ public class WikiParser {
 		int indention = 0;
 		if (centered) {
 			charsReadLine += 10; // center-Tag abschneiden
-			lineReader.setCharsReadLine(charsReadLine);
 		} else {
 			// Einzug bestimmen
 			while (indention < line.length() - charsReadLine && line.charAt(charsReadLine + indention) == ' ') {
 				indention++;
 			}
 			charsReadLine += indention; // Präfix abschneiden
-			lineReader.setCharsReadLine(charsReadLine);
 		}
+		lineReader.setCharsReadLine(charsReadLine);
 
 		// Text einlesen
 		PageElementList content = parseInlineList();

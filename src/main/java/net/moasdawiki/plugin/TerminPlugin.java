@@ -284,7 +284,7 @@ public class TerminPlugin implements Plugin, PageElementTransformer {
 	 * Aktualisiert den Cache, falls es geänderte Wikiseiten gibt.
 	 */
 	private void updateCache() {
-		Set<String> modifiedWikiFilePaths = wikiService.getModifiedByFileTimestamp(cacheTimestamp);
+		Set<String> modifiedWikiFilePaths = wikiService.getModifiedAfter(cacheTimestamp);
 		if (modifiedWikiFilePaths.isEmpty()) {
 			// Cache ist immer noch aktuell
 			return;
@@ -463,13 +463,24 @@ public class TerminPlugin implements Plugin, PageElementTransformer {
 			return;
 		}
 
-		BirthdayExtractor birthdayExtractor = new BirthdayExtractor();
-		WikiHelper.viewPageElements(wikiFile.getWikiPage(), birthdayExtractor, XmlTag.class, true);
-		String birthday = birthdayExtractor.getBirthday();
-		boolean hasDayOfDeath = birthdayExtractor.isHasDayOfDeath();
+		BirthdayData birthdayData = new BirthdayData();
+		PageElementConsumer<XmlTag, BirthdayData> consumer = (xmlTag, context) -> {
+			if (xmlTag.getPrefix() == null && "kontakt".equals(xmlTag.getName())) {
+				context.kontaktTagFound = true;
+			}
 
-		if (birthday != null && !hasDayOfDeath) {
-			DateFields dateFields = parseGermanDate(birthday);
+			if (context.kontaktTagFound && xmlTag.getPrefix() == null && ("geburtstag".equals(xmlTag.getName()) || "geburtsdatum".equals(xmlTag.getName()))) {
+				context.birthday = KontaktseitePlugin.getStringContent(xmlTag);
+			}
+
+			if (context.kontaktTagFound && xmlTag.getPrefix() == null && "todestag".equals(xmlTag.getName())) {
+				context.hasDayOfDeath = true;
+			}
+		};
+		WikiHelper.traversePageElements(wikiFile.getWikiPage(), consumer, XmlTag.class, birthdayData, true);
+
+		if (birthdayData.birthday != null && !birthdayData.hasDayOfDeath) {
+			DateFields dateFields = parseGermanDate(birthdayData.birthday);
 			// zumindest Monat oder Jahr müssen angegeben sein
 			if (dateFields != null && (dateFields.month != null || dateFields.year != null)) {
 				Event event = new Event();
@@ -478,6 +489,12 @@ public class TerminPlugin implements Plugin, PageElementTransformer {
 				eventList.add(event);
 			}
 		}
+	}
+
+	private static class BirthdayData {
+		public boolean kontaktTagFound;
+		public String birthday;
+		public boolean hasDayOfDeath;
 	}
 
 	/**
@@ -495,11 +512,11 @@ public class TerminPlugin implements Plugin, PageElementTransformer {
 		}
 
 		// Aufgaben suchen
-		TaskExtractor taskExtractor = new TaskExtractor();
-		WikiHelper.viewPageElements(wikiFile.getWikiPage(), taskExtractor, Task.class, true);
+		List<Task> taskList = new ArrayList<>();
+		WikiHelper.traversePageElements(wikiFile.getWikiPage(), (task, context) -> context.add(task), Task.class, taskList, true);
 
 		// Aufgaben mit Termin in Event umwandeln
-		for (Task task : taskExtractor.getTaskList()) {
+		for (Task task : taskList) {
 			if (task.getState() == Task.State.CLOSED) {
 				continue; // Aufgabe ignorieren
 			}
@@ -748,65 +765,6 @@ public class TerminPlugin implements Plugin, PageElementTransformer {
 		@Override
 		public String toString() {
 			return "(" + day + ", " + month + ", " + year + ")";
-		}
-	}
-
-	/**
-	 * Diese Hilfsklasse wird verwendet, um das Geburtsdatum eines Kontakts aus
-	 * der Wikiseite zu extrahieren.
-	 */
-	private static class BirthdayExtractor implements PageElementViewer<XmlTag> {
-		private boolean kontaktTagFound;
-		private String birthday;
-		private boolean hasDayOfDeath;
-
-		public void viewPageElement(@NotNull XmlTag xmlTag) {
-			if (xmlTag.getPrefix() == null && "kontakt".equals(xmlTag.getName())) {
-				kontaktTagFound = true;
-			}
-
-			if (kontaktTagFound && xmlTag.getPrefix() == null && ("geburtstag".equals(xmlTag.getName()) || "geburtsdatum".equals(xmlTag.getName()))) {
-				birthday = KontaktseitePlugin.getStringContent(xmlTag);
-			}
-
-			if (kontaktTagFound && xmlTag.getPrefix() == null && "todestag".equals(xmlTag.getName())) {
-				hasDayOfDeath = true;
-			}
-		}
-
-		/**
-		 * Gibt des Geburtstag des Kontakts zurück. null -> keine Angabe
-		 * vorhanden.
-		 */
-		public String getBirthday() {
-			return birthday;
-		}
-
-		public boolean isHasDayOfDeath() {
-			return hasDayOfDeath;
-		}
-	}
-
-	/**
-	 * Diese Hilfsklasse wird verwendet, um das Geburtsdatum eines Kontakts aus
-	 * der Wikiseite zu extrahieren.
-	 */
-	private static class TaskExtractor implements PageElementViewer<Task> {
-
-		@NotNull
-		private final List<Task> taskList;
-
-		public TaskExtractor() {
-			taskList = new ArrayList<>();
-		}
-
-		public void viewPageElement(@NotNull Task task) {
-			taskList.add(task);
-		}
-
-		@NotNull
-		public List<Task> getTaskList() {
-			return taskList;
 		}
 	}
 

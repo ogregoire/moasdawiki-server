@@ -220,10 +220,7 @@ public class EditorPlugin implements Plugin {
 			}
 
 			// neuen Seiteninhalt schreiben
-			WikiText wikiText = new WikiText();
-			wikiText.text = newWikiText;
-			wikiText.fromPos = fromPosInt;
-			wikiText.toPos = toPosInt;
+			WikiText wikiText = new WikiText(newWikiText, fromPosInt, toPosInt);
 			wikiService.writeWikiText(newPagePath, wikiText);
 		} catch (ServiceException e) {
 			logger.write("Error saving wiki page '" + newPagePath + "'", e);
@@ -382,12 +379,12 @@ public class EditorPlugin implements Plugin {
 		writer.setContinueInNewLine();
 
 		// Metadaten ausgeben
-		if (wikiText != null && wikiText.fromPos != null) {
-			writer.htmlText("<input type=\"hidden\" name=\"fromPos\" value=\"" + wikiText.fromPos + "\" />");
+		if (wikiText != null && wikiText.getFromPos() != null) {
+			writer.htmlText("<input type=\"hidden\" name=\"fromPos\" value=\"" + wikiText.getFromPos() + "\" />");
 			writer.setContinueInNewLine();
 		}
-		if (wikiText != null && wikiText.toPos != null) {
-			writer.htmlText("<input type=\"hidden\" name=\"toPos\" value=\"" + wikiText.toPos + "\" />");
+		if (wikiText != null && wikiText.getToPos() != null) {
+			writer.htmlText("<input type=\"hidden\" name=\"toPos\" value=\"" + wikiText.getToPos() + "\" />");
 			writer.setContinueInNewLine();
 		}
 
@@ -408,7 +405,7 @@ public class EditorPlugin implements Plugin {
 		// damit Leerzeilen oben nicht vom Browser entfernt werden
 		writer.htmlText("\n");
 		if (wikiText != null) {
-			writer.htmlText(EscapeUtils.escapeHtml(wikiText.text));
+			writer.htmlText(EscapeUtils.escapeHtml(wikiText.getText()));
 		}
 		writer.closeTag(); // textarea
 		writer.setContinueInNewLine();

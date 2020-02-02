@@ -63,6 +63,9 @@ public class IncludePagePlugin implements Plugin, PageElementTransformer {
 			WikiPage wikiPage = WikiHelper.getContextWikiPage(pageElement, false);
 			IncludePage includePage = (IncludePage) pageElement;
 			String pagePath = WikiHelper.getAbsolutePagePath(includePage.getPagePath(), wikiPage);
+			if (pagePath == null) {
+				return null;
+			}
 			try {
 				WikiFile subWikiFile = wikiService.getWikiFile(pagePath);
 				return subWikiFile.getWikiPage();

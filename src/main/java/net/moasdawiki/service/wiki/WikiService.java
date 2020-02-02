@@ -40,13 +40,6 @@ public interface WikiService {
 	void reset();
 
 	/**
-	 * Internen Cache neu aufbauen. Soll nur dann aufgerufen werden, wenn
-	 * Wikidateien außerhalb dieser Klasse geändert wurden, weil diese Operation
-	 * bei vielen Dateien recht aufwändig sein kann.
-	 */
-	void rebuildCache();
-
-	/**
 	 * Listet die Namen aller Wikidateien auf.
 	 * 
 	 * @return Wikidateien. Nicht <code>null</code>. Darf nicht modifiziert
@@ -66,6 +59,7 @@ public interface WikiService {
 	 * 
 	 * @param wikiFilePath Name der Wikidatei.
 	 * @return Wikiseite
+	 * @throws ServiceException if file doesn't exist
 	 */
 	@NotNull
 	WikiFile getWikiFile(@NotNull String wikiFilePath) throws ServiceException;
@@ -103,8 +97,8 @@ public interface WikiService {
 	 * Wikidatei enthält, wird dieser in die komplette Wikidatei eingearbeitet,
 	 * indem der angegebene Ausschnitt ersetzt wird.
 	 * 
-	 * @param wikiFilePath Name der Wikidatei. Nicht <code>null</code>.
-	 * @param wikiText Text der Wikidatei. Nicht <code>null</code>.
+	 * @param wikiFilePath Name der Wikidatei.
+	 * @param wikiText Text der Wikidatei.
 	 */
 	@SuppressWarnings("UnusedReturnValue")
 	@NotNull
@@ -117,10 +111,10 @@ public interface WikiService {
 	 * 
 	 * @param modifiedAfter Frühester Änderungszeitpunkt (exklusive).
 	 *        <code>null</code> --> alle Wikiseiten auflisten.
-	 * @return Wikiseiten. Nicht <code>null</code>.
+	 * @return Wikiseiten.
 	 */
 	@NotNull
-	Set<String> getModifiedByFileTimestamp(@Nullable Date modifiedAfter);
+	Set<String> getModifiedAfter(@Nullable Date modifiedAfter);
 
 	/**
 	 * Gibt eine Liste der zuletzt geänderten Wiki-Seiten zurück.
@@ -130,14 +124,13 @@ public interface WikiService {
 	 *         Änderungsdatum. Nicht <code>null</code>.
 	 */
 	@NotNull
-	List<String> getLastModifiedWikiFiles(int count);
+	List<String> getLastModified(int count);
 
 	/**
 	 * Gibt die zuletzt besuchten Wiki-Seiten zurück.
 	 * 
 	 * @param count maximale Anzahl der Einträge; -1 = alle Einträge.
-	 * @return Liste, absteigend sortiert nach Besuchsreihenfolge. Nicht
-	 *         <code>null</code>.
+	 * @return Liste, absteigend sortiert nach Besuchsreihenfolge.
 	 */
 	@NotNull
 	List<String> getLastViewedWikiFiles(int count);

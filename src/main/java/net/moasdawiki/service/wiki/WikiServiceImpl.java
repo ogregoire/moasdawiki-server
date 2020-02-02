@@ -23,12 +23,10 @@ import net.moasdawiki.base.ServiceException;
 import net.moasdawiki.service.repository.AnyFile;
 import net.moasdawiki.service.repository.RepositoryService;
 import net.moasdawiki.service.wiki.parser.WikiParser;
-import net.moasdawiki.service.wiki.structure.PageElement;
-import net.moasdawiki.service.wiki.structure.PageElementList;
-import net.moasdawiki.service.wiki.structure.Parent;
-import net.moasdawiki.service.wiki.structure.WikiPage;
+import net.moasdawiki.service.wiki.structure.*;
 import net.moasdawiki.util.DateUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.Reader;
@@ -68,7 +66,7 @@ public class WikiServiceImpl implements WikiService {
 	 * Wird beim Starten der Anwendung aus der Cachedatei geladen und bei jeder Änderung einer
 	 * Wikiseite aktualisiert.
 	 */
-	private final Map<String, Set<String>> childParentMap;
+	final Map<String, Set<String>> childParentMap;
 
 	/**
 	 * Enthält alle Wikidateien, die im Repository sind, dient als Cache. Die
@@ -87,7 +85,7 @@ public class WikiServiceImpl implements WikiService {
 	 * <code>null</code>.
 	 */
 	@NotNull
-	private final LinkedList<String> viewHistory;
+	final LinkedList<String> viewHistory;
 
 	/**
 	 * Konstruktor.
@@ -104,6 +102,9 @@ public class WikiServiceImpl implements WikiService {
 	}
 
 	public void reset() {
+		childParentMap.clear();
+		wikiFileMap.clear();
+		viewHistory.clear();
 		if (!readChildParentCacheFile()) {
 			rebuildCache();
 		}
@@ -113,7 +114,7 @@ public class WikiServiceImpl implements WikiService {
 	 * Liest die Cachedatei mit den Kind-Vater-Beziehungen ein und aktualisiert die
 	 * Einträge in der wikiFileMap.
 	 */
-	boolean readChildParentCacheFile() {
+	private boolean readChildParentCacheFile() {
 		// Read cache file content
 		AnyFile parentRelationsCacheFile = new AnyFile(CHILD_PARENT_CACHE_FILEPATH);
 		String cacheContent;
@@ -125,7 +126,6 @@ public class WikiServiceImpl implements WikiService {
 		}
 
 		// Parse cache content
-		Map<String, Set<String>> newParentChildMap = new HashMap<>();
 		try (BufferedReader reader = new BufferedReader(new StringReader(cacheContent))) {
 			int numLines = 0;
 
@@ -144,43 +144,14 @@ public class WikiServiceImpl implements WikiService {
 				}
 				String wikiFilePath = token[0].trim();
 				Set<String> children = new HashSet<>(Arrays.asList(token).subList(1, token.length));
-				newParentChildMap.put(wikiFilePath, children);
+				childParentMap.put(wikiFilePath, children);
 			}
 			logger.write(numLines + " lines read from parent relations cache file");
 		} catch (Exception e) {
 			logger.write("Error reading cache file " + parentRelationsCacheFile.getFilePath(), e);
 			return false;
 		}
-
-		// Update internal cache
-		this.childParentMap.clear();
-		this.childParentMap.putAll(newParentChildMap);
-
-		// Update children references in wiki pages
-		updateAllChildrenReferences();
 		return true;
-	}
-
-	/**
-	 * Aktualisiert die Kind-Beziehungen in allen Einträgen in wikiFileMap
-	 * anhand des Vater-Kind-Caches.
-	 */
-	private void updateAllChildrenReferences() {
-		// Vorher alle Kind-Beziehungen löschen
-		for (String wikiFilePath : wikiFileMap.keySet()) {
-			wikiFileMap.get(wikiFilePath).getChildren().clear();
-		}
-
-		// Kind-Beziehungen auffüllen
-		for (String childFilePath : childParentMap.keySet()) {
-			Set<String> parentFilePaths = childParentMap.get(childFilePath);
-			for (String parentFilePath : parentFilePaths) {
-				WikiFile wikiFile = wikiFileMap.get(parentFilePath);
-				if (wikiFile != null) {
-					wikiFile.getChildren().add(childFilePath);
-				}
-			}
-		}
 	}
 
 	/**
@@ -216,11 +187,9 @@ public class WikiServiceImpl implements WikiService {
 		}
 	}
 
-	@Override
-	public synchronized void rebuildCache() {
+	private synchronized void rebuildCache() {
 		logger.write("Rebuilding cache");
 		readAllWikiFiles();
-		fixViewHistory();
 		logger.write("Finished rebuilding cache");
 	}
 
@@ -228,11 +197,6 @@ public class WikiServiceImpl implements WikiService {
 	 * Reads all wiki pages from scratch.
 	 */
 	private void readAllWikiFiles() {
-		// Clear internal cache
-		wikiFileMap.clear();
-		childParentMap.clear();
-
-		// Read all wiki files from scratch
 		Set<AnyFile> repositoryFiles = repositoryService.getFiles();
 		for (AnyFile repositoryFile : repositoryFiles) {
 			String repositoryPath = repositoryFile.getFilePath();
@@ -249,14 +213,6 @@ public class WikiServiceImpl implements WikiService {
 			}
 		}
 		writeChildParentCacheFile();
-	}
-
-	/**
-	 * Entfernt nicht mehr vorhandene Wikidateien aus der Liste der zuletzt
-	 * angezeigten Wikiseiten.
-	 */
-	private void fixViewHistory() {
-		viewHistory.removeIf(wikiFilePath -> !wikiFileMap.containsKey(wikiFilePath));
 	}
 
 	@Override
@@ -313,23 +269,18 @@ public class WikiServiceImpl implements WikiService {
 
 	@NotNull
 	@Override
-	public synchronized WikiText readWikiText(@NotNull String wikiFilePath, Integer fromPos, Integer toPos) throws ServiceException {
+	public synchronized WikiText readWikiText(@NotNull String wikiFilePath, @Nullable Integer fromPos, @Nullable Integer toPos) throws ServiceException {
 		WikiFile wikiFile = getWikiFileInternal(wikiFilePath, true);
-
-		WikiText wikiText = new WikiText();
-		wikiText.text = wikiFile.getWikiText();
-
-		// ggf. auf Ausschnitt der Wikiseite reduzieren
 		if (fromPos != null && toPos != null) {
+			// Auf Ausschnitt der Wikiseite reduzieren
 			try {
-				wikiText.text = wikiText.text.substring(fromPos, toPos);
-				wikiText.fromPos = fromPos;
-				wikiText.toPos = toPos;
+				return new WikiText(wikiFile.getWikiText().substring(fromPos, toPos), fromPos, toPos);
 			} catch (IndexOutOfBoundsException e) {
 				throw new ServiceException("Invalid values for fromPos=" + fromPos + " and toPos=" + toPos, e);
 			}
+		} else {
+			return new WikiText(wikiFile.getWikiText());
 		}
-		return wikiText;
 	}
 
 	@NotNull
@@ -339,19 +290,19 @@ public class WikiServiceImpl implements WikiService {
 		uninstallParentAndChildLinks(wikiFilePath);
 
 		// Neuen Wikitext bestimmen, ggf. Seitenausschnitt ersetzen
-		WikiFile oldWikiFile = wikiFileMap.get(wikiFilePath);
 		String newText;
-		if (wikiText.fromPos != null && wikiText.toPos != null) {
+		if (wikiText.getFromPos() != null && wikiText.getToPos() != null) {
+			WikiFile oldWikiFile = wikiFileMap.get(wikiFilePath);
 			if (oldWikiFile == null) {
 				String message = "Cannot write page section for wiki file '" + wikiFilePath + "', because file doesn't exist";
 				logger.write(message);
 				throw new ServiceException(message);
 			}
 			StringBuilder mergedWikiText = new StringBuilder(oldWikiFile.getWikiText());
-			mergedWikiText.replace(wikiText.fromPos, wikiText.toPos, wikiText.text);
+			mergedWikiText.replace(wikiText.getFromPos(), wikiText.getToPos(), wikiText.getText());
 			newText = mergedWikiText.toString();
 		} else {
-			newText = wikiText.text;
+			newText = wikiText.getText();
 		}
 
 		// Datei schreiben
@@ -382,7 +333,7 @@ public class WikiServiceImpl implements WikiService {
 
 	@NotNull
 	@Override
-	public Set<String> getModifiedByFileTimestamp(Date modifiedAfter) {
+	public Set<String> getModifiedAfter(Date modifiedAfter) {
 		Set<AnyFile> modifiedFiles = repositoryService.getModifiedAfter(modifiedAfter);
 		if (modifiedFiles.isEmpty()) {
 			return Collections.emptySet();
@@ -403,7 +354,7 @@ public class WikiServiceImpl implements WikiService {
 
 	@NotNull
 	@Override
-	public synchronized List<String> getLastModifiedWikiFiles(int count) {
+	public synchronized List<String> getLastModified(int count) {
 		List<AnyFile> fileList = repositoryService.getLastModifiedFiles(count, anyFile -> isWikiFilePath(anyFile.getFilePath()));
 		ArrayList<String> result = new ArrayList<>();
 		for (int i = 0; i < fileList.size() && (count == -1 || i < count); i++) {
@@ -475,7 +426,7 @@ public class WikiServiceImpl implements WikiService {
 		String filePath = wikiFilePath2RepositoryPath(wikiFilePath);
 		AnyFile anyFile = repositoryService.getFile(filePath);
 		if (anyFile == null) {
-			throw new ServiceException("File '" + wikiFilePath + "' does not exist");
+			throw new ServiceException("File '" + filePath + "' does not exist");
 		}
 
 		String wikiText = repositoryService.readTextFile(anyFile);
@@ -489,18 +440,18 @@ public class WikiServiceImpl implements WikiService {
 	/**
 	 * Gibt zurück, ob der angegebene Dateiname den Suffix einer Wikidatei hat.
 	 */
-	private boolean isWikiFilePath(String repositoryPath) {
+	static boolean isWikiFilePath(@NotNull String repositoryPath) {
 		return repositoryPath.endsWith(PAGE_SUFFIX);
 	}
 
 	/**
 	 * Schneidet die Dateiendung beim Namen einer Wikidatei ab.
 	 * 
-	 * @param repositoryPath Dateipfad innerhalb des Repositories. Nicht
-	 *        <code>null</code>.
-	 * @return Name der Wikidatei. Nicht <code>null</code>.
+	 * @param repositoryPath Dateipfad innerhalb des Repositories.
+	 * @return Name der Wikidatei.
 	 */
-	private String repositoryPath2WikiFilePath(String repositoryPath) {
+	@NotNull
+	static String repositoryPath2WikiFilePath(@NotNull String repositoryPath) {
 		if (isWikiFilePath(repositoryPath)) {
 			return repositoryPath.substring(0, repositoryPath.length() - PAGE_SUFFIX.length());
 		} else {
@@ -511,10 +462,11 @@ public class WikiServiceImpl implements WikiService {
 	/**
 	 * Ergänzt den Namen einer Wikidatei um die Dateiendung.
 	 * 
-	 * @param wikiFilePath Name der Wikidatei. Nicht <code>null</code>.
-	 * @return Dateipfad innerhalb des Repositories. Nicht <code>null</code>.
+	 * @param wikiFilePath Name der Wikidatei.
+	 * @return Dateipfad innerhalb des Repositories.
 	 */
-	private String wikiFilePath2RepositoryPath(String wikiFilePath) {
+	@NotNull
+	static String wikiFilePath2RepositoryPath(@NotNull String wikiFilePath) {
 		return wikiFilePath + PAGE_SUFFIX;
 	}
 
@@ -526,12 +478,14 @@ public class WikiServiceImpl implements WikiService {
 	private void installParentAndChildLinks(@NotNull WikiFile wikiFile) {
 		// Vater-Verweise aus der Wikiseite extrahieren
 		Set<String> parentFilePaths = new HashSet<>();
-		PageElementViewer<Parent> parentsCollector = parent -> {
+		PageElementConsumer<Parent, Set<String>> consumer = (parent, context) -> {
 			WikiPage wikiPage = WikiHelper.getContextWikiPage(parent, false);
-			String wikiFilePath = WikiHelper.getAbsolutePagePath(parent.getParentPagePath(), wikiPage);
-			parentFilePaths.add(wikiFilePath);
+			if (wikiPage != null) {
+				String wikiFilePath = WikiHelper.getAbsolutePagePath(parent.getParentPagePath(), wikiPage);
+				context.add(wikiFilePath);
+			}
 		};
-		WikiHelper.viewPageElements(wikiFile.getWikiPage(), parentsCollector, Parent.class, false);
+		WikiHelper.traversePageElements(wikiFile.getWikiPage(), consumer, Parent.class, parentFilePaths, false);
 
 		// Vater-Verweise in der Wikiseite eintragen
 		wikiFile.getParents().clear();
@@ -564,7 +518,7 @@ public class WikiServiceImpl implements WikiService {
 	 * Wird aufgerufen, wenn eine Wikiseite gelöscht oder durch eine neuere Version ersetzt wird.
 	 */
 	private void uninstallParentAndChildLinks(@NotNull String wikiFilePath) {
-		// Vater-Verweise im Kind-Vater-Cache eintragen
+		// Vater-Verweise aus Kind-Vater-Cache entfernen
 		Set<String> parentFilePaths = childParentMap.remove(wikiFilePath);
 		if (parentFilePaths == null) {
 			return;

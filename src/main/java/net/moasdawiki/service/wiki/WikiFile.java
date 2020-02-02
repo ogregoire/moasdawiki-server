@@ -33,37 +33,37 @@ import org.jetbrains.annotations.NotNull;
 public class WikiFile {
 
 	/**
-	 * Name der Wikidatei, ohne Dateiendung. Nicht <code>null</code>.
+	 * Name der Wikidatei, ohne Dateiendung.
 	 */
 	@NotNull
 	private final String wikiFilePath;
 
 	/**
-	 * Der Inhalt der Wikidatei, Text in Wikisyntax. Nicht <code>null</code> außerhalb WikiService.
+	 * Der Inhalt der Wikidatei, Text in Wikisyntax.
 	 */
 	@NotNull
 	private final String wikiText;
 
 	/**
-	 * Geparster Inhalt der Wikidatei. Nicht <code>null</code> außerhalb WikiService.
+	 * Geparster Inhalt der Wikidatei.
 	 */
 	@NotNull
 	private final WikiPage wikiPage;
 
 	/**
-	 * Vaterseiten dieser Wikidatei, ohne Dateiendung. Nicht <code>null</code>.
+	 * Vaterseiten dieser Wikidatei, ohne Dateiendung.
 	 */
 	@NotNull
 	private final Set<String> parents;
 
 	/**
-	 * Kindseiten dieser Wikidatei, ohne Dateiendung. Nicht <code>null</code>.
+	 * Kindseiten dieser Wikidatei, ohne Dateiendung.
 	 */
 	@NotNull
 	private final Set<String> children;
 
 	/**
-	 * Dateiname und Zeitstempel im Repository. Nicht <code>null</code>.
+	 * Dateiname und Zeitstempel im Repository.
 	 */
 	@NotNull
 	private final AnyFile repositoryFile;
@@ -82,8 +82,7 @@ public class WikiFile {
 	}
 
 	/**
-	 * Gibt den Namen der Wikidatei zurück, ohne Dateiendung. Nicht
-	 * <code>null</code>.
+	 * Gibt den Namen der Wikidatei zurück, ohne Dateiendung.
 	 */
 	@NotNull
 	public String getWikiFilePath() {
@@ -91,8 +90,7 @@ public class WikiFile {
 	}
 
 	/**
-	 * Gibt den Inhalt der Wikidatei zurück. Der Text ist in Wikisyntax
-	 * verfasst. Nicht <code>null</code>.
+	 * Gibt den Inhalt der Wikidatei zurück. Der Text ist in Wikisyntax verfasst.
 	 */
 	@NotNull
 	public String getWikiText() {
@@ -100,7 +98,7 @@ public class WikiFile {
 	}
 
 	/**
-	 * Gibt den geparsten Inhalt der Wikidatei zurück. Nicht <code>null</code>.
+	 * Gibt den geparsten Inhalt der Wikidatei zurück.
 	 */
 	@NotNull
 	public WikiPage getWikiPage() {
@@ -108,8 +106,7 @@ public class WikiFile {
 	}
 
 	/**
-	 * Gibt die Vaterseiten dieser Wikidatei zurück, ohne Dateiendung. Nicht
-	 * <code>null</code>. Darf nicht modifiziert werden.
+	 * Gibt die Vaterseiten dieser Wikidatei zurück, ohne Dateiendung. Darf nicht modifiziert werden.
 	 */
 	@NotNull
 	public Set<String> getParents() {
@@ -117,8 +114,7 @@ public class WikiFile {
 	}
 
 	/**
-	 * Gibt die Kindseiten dieser Wikidatei zurück, ohne Dateiendung. Nicht
-	 * <code>null</code>.
+	 * Gibt die Kindseiten dieser Wikidatei zurück, ohne Dateiendung.
 	 */
 	@NotNull
 	public Set<String> getChildren() {
@@ -126,8 +122,7 @@ public class WikiFile {
 	}
 
 	/**
-	 * Gibt den Dateinamen und Zeitstempel im Repository zurück. Nicht
-	 * <code>null</code>.
+	 * Gibt den Dateinamen und Zeitstempel im Repository zurück.
 	 */
 	@NotNull
 	public AnyFile getRepositoryFile() {

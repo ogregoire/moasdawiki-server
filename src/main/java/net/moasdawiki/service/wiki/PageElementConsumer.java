@@ -20,31 +20,25 @@ package net.moasdawiki.service.wiki;
 
 import net.moasdawiki.service.wiki.structure.PageElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * Dieses Interface beschreibt eine Callback-Methode, die bei der Transformation
- * eines Wikibaums für jeden Knoten aufgerufen wird.
- * 
+ * Callback method to traverse a wiki tree.
+ * <p>
+ * The method must not modify the wiki tree.
+ * To modify a wiki tree see {@link PageElementTransformer}.
+ *
+ * @param <T> PageElement sub-type that is to traverse
+ * @param <C> type of the context object
  * @author Herbert Reiter
  */
 @FunctionalInterface
-public interface PageElementTransformer {
+public interface PageElementConsumer<T extends PageElement, C> {
 
-	/**
-	 * Transformiert ein Seitenelement.<br>
-	 * <br>
-	 * Diese Methode wird für alle Seitenelemente aufgerufen, außer für
-	 * PageElementList-Typen. Wenn die Methode null zurückgibt, wird das
-	 * Seitenelement samt Unterbaum ersatzlos gelöscht.<br>
-	 * <br>
-	 * Der Parameter <tt>pageElement</tt> darf dabei auch modifiziert werden.
-	 * 
-	 * @param pageElement Ein Knoten im Wikibaum.
-	 * @return Transformiertes Seitenelement, das das ursprüngliche ersetzen
-	 *         soll. null -> Der Knoten samt Unterbaum wird ersatzlos aus dem
-	 *         Wikibaum entfernt.
-	 */
-	@Nullable
-	PageElement transformPageElement(@NotNull PageElement pageElement);
+    /**
+     * Comsumer method that is called for all matching tree nodes.
+     *
+     * @param pageElement A tree node. Must not be modified!
+     * @param context     Context object to share data and pass the result.
+     */
+    void consume(@NotNull T pageElement, @NotNull C context);
 }

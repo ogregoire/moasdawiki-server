@@ -19,7 +19,6 @@
 package net.moasdawiki.plugin;
 
 import net.moasdawiki.service.wiki.PageElementTransformer;
-import net.moasdawiki.service.wiki.PageElementViewer;
 import net.moasdawiki.service.wiki.WikiHelper;
 import net.moasdawiki.service.wiki.structure.*;
 import net.moasdawiki.util.StringUtils;
@@ -76,14 +75,14 @@ public class KontaktseitePlugin implements Plugin, PageElementTransformer {
 	@NotNull
 	private Kontakt getKontakt(@NotNull XmlTag kontaktTag) {
 		// XML-Tags auf oberster Ebene suchen
-		XmlTagCollector xmlTagCollector = new XmlTagCollector();
+		List<XmlTag> xmlTagList = new ArrayList<>();
 		if (kontaktTag.getChild() != null) {
-			WikiHelper.viewPageElements(kontaktTag.getChild(), xmlTagCollector, XmlTag.class, false);
+			WikiHelper.traversePageElements(kontaktTag.getChild(), (xmlTag, context) -> context.add(xmlTag), XmlTag.class, xmlTagList, false);
 		}
 
 		// XML-Tags verarbeiten
 		Kontakt kontakt = new Kontakt();
-		for (XmlTag xmlTag : xmlTagCollector.getXmlTagList()) {
+		for (XmlTag xmlTag : xmlTagList) {
 			String tagName = xmlTag.getName();
 
 			if ("name".equals(tagName)) {
@@ -133,14 +132,14 @@ public class KontaktseitePlugin implements Plugin, PageElementTransformer {
 		}
 
 		// XML-Tags auf dieser Ebene suchen
-		XmlTagCollector xmlTagCollector = new XmlTagCollector();
+		List<XmlTag> xmlTagList = new ArrayList<>();
 		if (adresseTag.getChild() != null) {
-			WikiHelper.viewPageElements(adresseTag.getChild(), xmlTagCollector, XmlTag.class, false);
+			WikiHelper.traversePageElements(adresseTag.getChild(), (xmlTag, context) -> context.add(xmlTag), XmlTag.class, xmlTagList, false);
 		}
 
 		// XML-Tags verarbeiten
 		Adresse adresse = new Adresse();
-		for (XmlTag xmlTag : xmlTagCollector.getXmlTagList()) {
+		for (XmlTag xmlTag : xmlTagList) {
 			String tagName = xmlTag.getName();
 
 			if ("name".equals(tagName)) {
@@ -742,21 +741,5 @@ public class KontaktseitePlugin implements Plugin, PageElementTransformer {
 		public final List<String> fax = new ArrayList<>();
 		public PageElement beschreibung;
 		public final List<String> kategorien = new ArrayList<>();
-	}
-
-	/**
-	 * Hilfsklasse zum Sammeln aller XML-Tags.
-	 */
-	private static class XmlTagCollector implements PageElementViewer<XmlTag> {
-
-		private final List<XmlTag> xmlTagList = new ArrayList<>();
-
-		public void viewPageElement(@NotNull XmlTag xmlTag) {
-			xmlTagList.add(xmlTag);
-		}
-
-		public List<XmlTag> getXmlTagList() {
-			return xmlTagList;
-		}
 	}
 }
