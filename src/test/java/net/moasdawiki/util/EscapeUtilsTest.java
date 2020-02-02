@@ -52,8 +52,8 @@ public class EscapeUtilsTest {
 
 	@Test
 	public void testEncodeUrlEscape() {
-		String result = EscapeUtils.encodeUrl("/a b/äöüß§$");
-		assertEquals(result, "/a+b/%c3%a4%c3%b6%c3%bc%c3%9f%c2%a7%24");
+		String result = EscapeUtils.encodeUrl("/a b/äöüß§$漢語");
+		assertEquals(result, "/a+b/%c3%a4%c3%b6%c3%bc%c3%9f%c2%a7%24%e6%bc%a2%e8%aa%9e");
 	}
 
 	@Test

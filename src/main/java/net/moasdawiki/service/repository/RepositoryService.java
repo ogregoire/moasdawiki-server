@@ -57,7 +57,7 @@ public interface RepositoryService {
     AnyFile getFile(@NotNull String filePath);
 
     /**
-     * Listet alle Dateien im Repository auf. Nicht <code>null</code>.
+     * Listet alle Dateien im Repository auf.
      */
     @NotNull
     Set<AnyFile> getFiles();
@@ -77,7 +77,7 @@ public interface RepositoryService {
      *
      * @param modifiedAfter Frühester Änderungszeitpunkt (exklusive).
      *                      <code>null</code> --> alle Dateien auflisten.
-     * @return Dateiliste. Nicht <code>null</code>.
+     * @return Dateiliste.
      */
     @NotNull
     Set<AnyFile> getModifiedAfter(@Nullable Date modifiedAfter);
@@ -86,7 +86,7 @@ public interface RepositoryService {
      * Returns a list of the latest n modified files, sorted descending by timestamp.
      *
      * @param count  Maximum number of files to be returned.
-     * @param filter Filter for files that match the suffix. null -> do not filter.
+     * @param filter Filter for files that match the suffix.
      */
     @NotNull
     List<AnyFile> getLastModifiedFiles(int count, @NotNull Predicate<AnyFile> filter);
@@ -99,8 +99,8 @@ public interface RepositoryService {
     /**
      * Liest eine Textdatei aus dem Repository ein.
      *
-     * @param anyFile Datei im Repository. Nicht <code>null</code>.
-     * @return Textinhalt der Datei. Nicht <code>null</code>.
+     * @param anyFile Datei im Repository.
+     * @return Textinhalt der Datei.
      */
     @NotNull
     String readTextFile(@NotNull AnyFile anyFile) throws ServiceException;
@@ -109,8 +109,8 @@ public interface RepositoryService {
      * Schreibt eine Textdatei ins Repository. Wenn die Datei bereits existiert,
      * wird sie überschrieben.
      *
-     * @param anyFile Datei im Repository. Nicht <code>null</code>.
-     * @param content Inhalt der Datei. Nicht <code>null</code>.
+     * @param anyFile Datei im Repository.
+     * @param content Inhalt der Datei.
      * @return Neues Dateiobjekt mit aktualisierten Attributen.
      */
     @NotNull
@@ -119,8 +119,8 @@ public interface RepositoryService {
     /**
      * Liest eine Binärdatei vom Repository ein.
      *
-     * @param anyFile Datei im Repository. Nicht <code>null</code>.
-     * @return Inhalt der Datei. Nicht <code>null</code>.
+     * @param anyFile Datei im Repository.
+     * @return Inhalt der Datei.
      */
     @NotNull
     byte[] readBinaryFile(@NotNull AnyFile anyFile) throws ServiceException;
@@ -129,8 +129,8 @@ public interface RepositoryService {
      * Schreibt eine Binärdatei ins Repository. Wenn die Datei bereits
      * existiert, wird sie überschrieben.
      *
-     * @param anyFile   Datei im Repository. Nicht <code>null</code>.
-     * @param content   Inhalt der Datei. Nicht <code>null</code>.
+     * @param anyFile   Datei im Repository.
+     * @param content   Inhalt der Datei.
      * @param timestamp Zeitstempel der Datei. Wird bei der Synchronisierung mit
      *                  einem anderen Repository verwendet. <code>null</code> --> aktuelle Systemzeit verwenden.
      * @return Neues Dateiobjekt mit aktualisierten Attributen.

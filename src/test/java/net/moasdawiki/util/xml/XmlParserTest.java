@@ -26,9 +26,7 @@ import net.moasdawiki.base.ServiceException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
+import static org.testng.Assert.*;
 
 /**
  * Testet den XML-Parser.
@@ -42,7 +40,7 @@ public class XmlParserTest {
 
 	@BeforeMethod
 	public void beforeTest() {
-		Logger logger = new Logger();
+		Logger logger = new Logger(null);
 		xmlParser = new XmlParser(logger);
 	}
 
@@ -65,10 +63,15 @@ public class XmlParserTest {
 	}
 
 	@Test(expectedExceptions = ServiceException.class)
+	public void testXmlDeclarationIncomplete() throws Exception {
+		String xml = "<?xml";
+		xmlParser.parse(xml, EmptyClass.class);
+	}
+
+	@Test(expectedExceptions = ServiceException.class)
 	public void testRootElementAnnotationMissing() throws Exception {
 		String xml = XMLDECL + "<EmptyClass2></EmptyClass2>";
-		EmptyClass2 result = xmlParser.parse(xml, EmptyClass2.class);
-		assertNotNull(result);
+		xmlParser.parse(xml, EmptyClass2.class);
 	}
 
 	public static class EmptyClass2 {
@@ -88,8 +91,25 @@ public class XmlParserTest {
 	@Test(expectedExceptions = ServiceException.class)
 	public void testRootElementAnnotationNameWrong() throws Exception {
 		String xml = XMLDECL + "<EmptyClass></EmptyClass>";
-		EmptyClass3 result = xmlParser.parse(xml, EmptyClass3.class);
-		assertNotNull(result);
+		xmlParser.parse(xml, EmptyClass3.class);
+	}
+
+	@Test(expectedExceptions = ServiceException.class)
+	public void testRootElementIncomplete1() throws Exception {
+		String xml = XMLDECL + "<";
+		xmlParser.parse(xml, EmptyClass3.class);
+	}
+
+	@Test(expectedExceptions = ServiceException.class)
+	public void testRootElementIncomplete2() throws Exception {
+		String xml = XMLDECL + "<root";
+		xmlParser.parse(xml, EmptyClass3.class);
+	}
+
+	@Test(expectedExceptions = ServiceException.class)
+	public void testRootElementIncomplete3() throws Exception {
+		String xml = XMLDECL + "<root/";
+		xmlParser.parse(xml, EmptyClass3.class);
 	}
 
 	@Test
@@ -116,6 +136,18 @@ public class XmlParserTest {
 		assertEquals("value1", result.attr1);
 		assertNull(result.attr2);
 		assertNull(result.attr3);
+	}
+
+	@Test(expectedExceptions = ServiceException.class)
+	public void testAttribute3() throws Exception {
+		String xml = XMLDECL + "<root attr";
+		xmlParser.parse(xml, AttributeClass2.class);
+	}
+
+	@Test(expectedExceptions = ServiceException.class)
+	public void testAttribute4() throws Exception {
+		String xml = XMLDECL + "<root attr=";
+		xmlParser.parse(xml, AttributeClass2.class);
 	}
 
 	@XmlRootElement(name = "root")
@@ -155,12 +187,37 @@ public class XmlParserTest {
 	}
 
 	@Test
-	public void testElements() throws Exception {
+	public void testElements1() throws Exception {
 		String xml = XMLDECL + "<root><elem1>value1</elem1><elem2>value2</elem2></root>";
 		ElementClass3 result = xmlParser.parse(xml, ElementClass3.class);
 		assertEquals("value1", result.elem1);
 		assertNull(result.elem2);
 		assertNull(result.elem3);
+	}
+
+	@Test(expectedExceptions = ServiceException.class)
+	public void testElements2() throws Exception {
+		String xml = XMLDECL + "<root><";
+		xmlParser.parse(xml, ElementClass3.class);
+	}
+
+	@Test(expectedExceptions = ServiceException.class)
+	public void testElements3() throws Exception {
+		String xml = XMLDECL + "<root><elem1";
+		xmlParser.parse(xml, ElementClass3.class);
+	}
+
+	@Test(expectedExceptions = ServiceException.class)
+	public void testElements4() throws Exception {
+		String xml = XMLDECL + "<root><elem1/";
+		xmlParser.parse(xml, ElementClass3.class);
+	}
+
+	@Test
+	public void testElements5() throws Exception {
+		String xml = XMLDECL + "<root><elem1/></root>";
+		ElementClass3 result = xmlParser.parse(xml, ElementClass3.class);
+		assertNull(result.elem1);
 	}
 
 	@XmlRootElement(name = "root")
@@ -171,6 +228,19 @@ public class XmlParserTest {
 		public String elem2;
 		@XmlElement
 		public String elem3;
+	}
+
+	@Test
+	public void testElementBoolean() throws Exception {
+		String xml = XMLDECL + "<root><elem1>true</elem1><elem1>false</elem1></root>";
+		ElementBooleanClass result = xmlParser.parse(xml, ElementBooleanClass.class);
+		assertTrue(result.elem1);
+	}
+
+	@XmlRootElement(name = "root")
+	public static class ElementBooleanClass {
+		@XmlElement
+		public Boolean elem1;
 	}
 
 	@Test
@@ -269,5 +339,21 @@ public class XmlParserTest {
 		public String elem1;
 		@XmlElement
 		public String elem2;
+	}
+
+	@Test
+	public void testUnescapeXmlValue() {
+		assertEquals(xmlParser.unescapeXmlValue("a&lt;&gt;&amp;&quot;&apos;b"), "a<>&\"'b");
+		assertEquals(xmlParser.unescapeXmlValue("a"), "a");
+	}
+
+	@Test
+	public void testUnescapeXmlChar() {
+		assertEquals(xmlParser.unescapeXmlChar("&lt;"), "<");
+		assertEquals(xmlParser.unescapeXmlChar("&gt;"), ">");
+		assertEquals(xmlParser.unescapeXmlChar("&amp;"), "&");
+		assertEquals(xmlParser.unescapeXmlChar("&quot;"), "\"");
+		assertEquals(xmlParser.unescapeXmlChar("&apos;"), "'");
+		assertEquals(xmlParser.unescapeXmlChar("a"), "a");
 	}
 }

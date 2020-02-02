@@ -61,17 +61,19 @@ public class Settings {
 	private static final String PLUGIN = "plugin";
 	private static final String AUTHENTICATION_ONLYLOCALHOST = "authentication.onlylocalhost";
 
+	@NotNull
 	private final Logger logger;
 
 	/**
-	 * Contains all settings. The map value is either a string or a list of
-	 * strings. Not <code>null</code>.
+	 * Contains all settings. The map value is either a string or a list of strings.
 	 */
 	@NotNull
 	private final Map<String, Object> settings;
 
+	@NotNull
 	private final RepositoryService repositoryService;
 
+	@NotNull
 	private final String configFileName;
 
 	/**
@@ -234,9 +236,7 @@ public class Settings {
 				value = Integer.parseInt(strValue);
 			}
 		} catch (NumberFormatException e) {
-			if (logger != null) {
-				logger.write("Setting value for '" + key + "' is not a number: '" + strValue + "'");
-			}
+			logger.write("Setting value for '" + key + "' is not a number: '" + strValue + "'");
 		}
 		return value;
 	}

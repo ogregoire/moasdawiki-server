@@ -460,6 +460,7 @@ public class FilesystemRepositoryService implements RepositoryService {
 	 *         Pfad befindet sich nicht innerhalb des Repositories oder ist
 	 *         ungültig.
 	 */
+	@Contract(value = "null -> null", pure = true)
 	@Nullable
 	protected String filesystem2RepositoryPath(@Nullable String filesystemPath) {
 		if (filesystemPath == null) {
@@ -485,8 +486,7 @@ public class FilesystemRepositoryService implements RepositoryService {
 			if (c == '%' && i + 4 < sb.length()) {
 				try {
 					// Darstellung "%wxyz" zurückübersetzen in ein Zeichen
-					String hex = sb.substring(i + 1, i + 5); // Hex-Zeichen ohne
-					// '%'
+					String hex = sb.substring(i + 1, i + 5); // Hex-Zeichen ohne '%'
 					char d = (char) Integer.parseInt(hex, 16);
 					sb.setCharAt(i, d);
 					sb.delete(i + 1, i + 5);

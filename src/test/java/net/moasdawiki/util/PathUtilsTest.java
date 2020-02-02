@@ -115,7 +115,10 @@ public class PathUtilsTest {
         assertEquals(PathUtils.resolveDots("a/b/../../c/d"), "c/d");
         assertEquals(PathUtils.resolveDots("a/b/../c/../d"), "a/d");
         assertEquals(PathUtils.resolveDots("../a/b"), "a/b");
+        assertEquals(PathUtils.resolveDots("/../abc"), "/abc");
         assertEquals(PathUtils.resolveDots("a/../../b/c"), "b/c");
+        assertEquals(PathUtils.resolveDots("a/.."), "");
+        assertEquals(PathUtils.resolveDots(".."), "");
     }
 
     @Test

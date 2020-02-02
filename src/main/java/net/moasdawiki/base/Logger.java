@@ -21,20 +21,20 @@ package net.moasdawiki.base;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Simple logger. Writes messages to a log file or to the standard output if not
- * yet configured.
+ * Simple logger. Writes messages to the standard output.
  * 
  * @author Herbert Reiter
  */
 public class Logger {
+
+	@Nullable
+	private final PrintStream out;
 
 	/**
 	 * Formatter for log timestamp.
@@ -43,63 +43,39 @@ public class Logger {
 	private final DateFormat dateFormat;
 
 	/**
-	 * Writer into log file. <code>null</code> --> write to standard output.
-	 */
-	@Nullable
-	private PrintWriter writer;
-
-	/**
 	 * Constructor.
 	 */
-	public Logger() {
-		dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-	}
-
-	/**
-	 * Set log file to write the messages to.
-	 */
-	public void setLogfile(@NotNull String logfile) {
-		try {
-			writer = new PrintWriter(new FileWriter(logfile, true));
-		} catch (IOException e) {
-			write("Error opening log file '" + logfile + "': " + e.getMessage());
-		}
+	public Logger(@Nullable PrintStream out) {
+		this.out = out;
+		this.dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	}
 
 	/**
 	 * Writes a message to the log.
 	 */
 	public void write(@NotNull String message) {
-		if (writer != null) {
-			// write to log file
-			writer.print(dateFormat.format(new Date()));
-			writer.print(' ');
-			writer.print(message);
-			writer.println();
-			writer.flush();
-		} else {
-			// write to standard output otherwise
-			System.out.print("Log ");
-			System.out.print(dateFormat.format(new Date()));
-			System.out.print(" ");
-			System.out.print(message);
-			System.out.println();
+		if (out == null) {
+			return;
 		}
+		out.print("Log ");
+		out.print(dateFormat.format(new Date()));
+		out.print(" ");
+		out.print(message);
+		out.println();
 	}
 
 	/**
 	 * Write a message and stack trace to the log.
 	 */
 	public void write(@NotNull String message, @NotNull Throwable e) {
+		if (out == null) {
+			return;
+		}
+
 		// write timestamp and message
 		write(message + ": (" + e.getClass().getCanonicalName() + ") " + e.getMessage());
 
 		// write stack trace
-		if (writer != null) {
-			e.printStackTrace(writer);
-			writer.flush();
-		} else {
-			e.printStackTrace(System.out);
-		}
+		e.printStackTrace(out);
 	}
 }

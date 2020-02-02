@@ -59,7 +59,7 @@ public class MainService {
 	 */
 	public void init(String[] args) {
 		// Schichten initialisieren
-		logger = new Logger();
+		logger = new Logger(System.out);
 		logger.write("MoasdaWiki starting");
 
 		// Repository-Basisordner bestimmen

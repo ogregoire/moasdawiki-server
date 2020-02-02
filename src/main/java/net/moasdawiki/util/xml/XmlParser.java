@@ -600,7 +600,7 @@ public class XmlParser {
 	 * @return Text ohne escapete Zeichen. Nicht <code>null</code>.
 	 */
 	@NotNull
-	private String unescapeXmlValue(@NotNull String value) {
+	String unescapeXmlValue(@NotNull String value) {
 		if (value.indexOf('&') < 0) {
 			return value;
 		}
@@ -620,7 +620,7 @@ public class XmlParser {
 	}
 
 	@NotNull
-	private String unescapeXmlChar(@NotNull String escapedChar) {
+	String unescapeXmlChar(@NotNull String escapedChar) {
 		switch (escapedChar) {
 		case "&lt;":
 			return "<";

@@ -147,8 +147,6 @@ public class XmlGenerator {
 				xml.append('>');
 				if (entry instanceof String) {
 					xml.append(EscapeUtils.escapeHtml((String) entry));
-				} else {
-					processObject(entry);
 				}
 				xml.append("</");
 				xml.append(tagName);
@@ -169,11 +167,7 @@ public class XmlGenerator {
 		if (fieldValue instanceof List) {
 			List<?> list = (List<?>) fieldValue;
 			for (Object entry : list) {
-				if (entry instanceof String) {
-					xml.append(EscapeUtils.escapeHtml((String) entry));
-				} else {
-					processObject(entry);
-				}
+				processObject(entry);
 			}
 		} else {
 			processObject(fieldValue);
