@@ -26,9 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Generisches Tag mit der Syntax
- * <tt>{{name:value | option1=value1 | option2}}</tt>. Spezielle Varianten davon
- * werden in eigentständige Elementtypen übersetzt.
+ * Generisches Tag mit der Syntax <tt>{{name:value | option1=value1 | option2}}</tt>.
+ * Spezielle Varianten davon werden in eigentständige Elementtypen übersetzt.
  *
  * @author Herbert Reiter
  */
@@ -37,8 +36,11 @@ public class WikiTag extends PageElement {
 	@NotNull
 	private final String tagname;
 
+	/**
+	 * null -> kein Wert nach Doppelpunkt ':'
+	 */
 	@Nullable
-	private final String value; // null -> kein Wert nach Doppelpunkt ':'
+	private final String value;
 
 	@NotNull
 	private final Map<String, String> options;

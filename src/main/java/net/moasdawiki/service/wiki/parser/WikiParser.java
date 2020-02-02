@@ -77,8 +77,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Liest eine Wiki-Seite und erzeugt daraus einen Strukturbaum (entspricht einem
- * Parsebaum bei einer expliziten Grammatik).
+ * Liest eine Wiki-Seite und erzeugt daraus einen Strukturbaum (entspricht einem Parsebaum bei einer expliziten Grammatik).
  * 
  * @author Herbert Reiter
  */
@@ -87,7 +86,10 @@ public class WikiParser {
 	@NotNull
 	private LineReader lineReader;
 
-	private int openTables; // Anzahl gerade offener Tabellen (geschachtelt)
+	/**
+	 * Anzahl gerade offener Tabellen (geschachtelt)
+	 */
+	private int openTables;
 
 	public WikiParser(@NotNull Reader reader) throws ServiceException {
 		try {
@@ -110,8 +112,8 @@ public class WikiParser {
 	}
 
 	/**
-	 * Parst den Inhalt einer ganzen Wiki-Seite. Wird auch für den Inhalt einer
-	 * Tabellenzelle aufgerufen.
+	 * Parst den Inhalt einer ganzen Wiki-Seite.
+	 * Wird auch für den Inhalt einer Tabellenzelle aufgerufen.
 	 */
 	@NotNull
 	private PageElementList parsePageElementList() throws IOException {
@@ -135,12 +137,11 @@ public class WikiParser {
 	}
 
 	/**
-	 * Parst das nächste PageElement aus dem Wikitext. Kommentare und Leerzeilen
-	 * werden verworfen.
+	 * Parst das nächste PageElement aus dem Wikitext.
+	 * Kommentare und Leerzeilen werden verworfen.
 	 * 
-	 * Wenn das Ende der Wiki-Seite erreicht ist, wird <code>null</code>
-	 * zurückgegeben. Dies ist dann der Fall, wenn das Ende der Datei oder der
-	 * aktuellen Zelle ("|") einer Tabelle erreicht wird.
+	 * Wenn das Ende der Wiki-Seite erreicht ist, wird <code>null</code> zurückgegeben.
+	 * Dies ist dann der Fall, wenn das Ende der Datei oder der aktuellen Zelle ("|") einer Tabelle erreicht wird.
 	 */
 	@Nullable
 	private PageElement parsePageElement() throws IOException {
@@ -198,8 +199,7 @@ public class WikiParser {
 	}
 
 	/**
-	 * Überprüft, ob aufgrund des Zeilenanfangs ein neues PageElement beginnt
-	 * und der bisherige Absatz damit zu Ende ist.
+	 * Überprüft, ob aufgrund des Zeilenanfangs ein neues PageElement beginnt und der bisherige Absatz damit zu Ende ist.
 	 */
 	private boolean isNewPageElement(@NotNull String line, int offset) {
 		return line.startsWith("//", offset) || line.startsWith("/*", offset) || line.startsWith("=", offset) // Überschrift
@@ -221,9 +221,8 @@ public class WikiParser {
 	}
 
 	/**
-	 * Überprüft, ob in der angegebenen Zeile eine Aufzählung beginnt. Das ist
-	 * dann der Fall, wenn die Zeile mit einem oder mehreren
-	 * aufeinanderfolgenden Zeichen c gefolgt von einem Leerzeichen beginnt.
+	 * Überprüft, ob in der angegebenen Zeile eine Aufzählung beginnt.
+	 * Das ist dann der Fall, wenn die Zeile mit einem oder mehreren aufeinanderfolgenden Zeichen c gefolgt von einem Leerzeichen beginnt.
 	 */
 	private boolean startsWithListItem(char c, @Nullable String line, int offset) {
 		if (line == null || line.length() <= offset) {
@@ -250,8 +249,7 @@ public class WikiParser {
 	}
 
 	/**
-	 * Liest einen mehrzeiligen Kommentar ein, bis das Kommentarende "* /"
-	 * erreicht ist.
+	 * Liest einen mehrzeiligen Kommentar ein, bis das Kommentarende "* /" erreicht ist.
 	 */
 	private void parseCommentMultiLine() throws IOException {
 		String line = lineReader.getLine();
@@ -270,10 +268,9 @@ public class WikiParser {
 	}
 
 	/**
-	 * Liest eine Überschrift ein. Überschriften beginnen mit '='. Die Anzahl
-	 * der '='-Zeichen bestimmt die Größe der Überschrift, die größte
-	 * Überschrift hat nur ein '='. Optional können am Zeilenende nochmal
-	 * '='-Zeichen angegeben werden, um mit gängigen Wikis kompatibel zu sein.
+	 * Liest eine Überschrift ein. Überschriften beginnen mit '='.
+	 * Die Anzahl der '='-Zeichen bestimmt die Größe der Überschrift, die größte Überschrift hat nur ein '='.
+	 * Optional können am Zeilenende nochmal '='-Zeichen angegeben werden, um mit gängigen Wikis kompatibel zu sein.
 	 * Die komplette Überschrift muss in einer Zeile stehen.
 	 */
 	@Nullable
@@ -501,9 +498,9 @@ public class WikiParser {
 	}
 
 	/**
-	 * Liest eine Tabelle ein. Eine Tabelle beginnt mit '{|', ggf. gefolgt von
-	 * Tabellenoptionen im HTML-Format, und endet mit '|}'. Zellen beginnen mit
-	 * '|' und eine neue Tabellenzeile mit '|-'.
+	 * Liest eine Tabelle ein.
+	 * Eine Tabelle beginnt mit '{|', ggf. gefolgt von Tabellenoptionen im HTML-Format, und endet mit '|}'.
+	 * Zellen beginnen mit '|' und eine neue Tabellenzeile mit '|-'.
 	 * 
 	 * Eine Zeile, die mit '||' beginnt, wird als Headerzeile interpretiert.
 	 */
@@ -724,17 +721,14 @@ public class WikiParser {
 	}
 
 	/**
-	 * Liest eine InlineList ein. Diese kann über mehrere Zeilen gehen.<br>
-	 * <br>
-	 * Eine InlineList endet sobald das nächste PageElement beginnt oder die
-	 * aktuelle Tabellenzelle oder der Wiki-Text zu Ende ist oder eine der
-	 * angegebenen terminatingTags-Zeichenfolgen erreicht wird.<br>
-	 * <br>
-	 * Die Terminierung wird nicht konsumiert, das muss die aufrufende
-	 * Codestelle erledigen (wg. der korrekten Bestimmung von toPos).
+	 * Liest eine InlineList ein. Diese kann über mehrere Zeilen gehen.
+	 *
+	 * Eine InlineList endet sobald das nächste PageElement beginnt oder die aktuelle Tabellenzelle oder der Wiki-Text zu Ende ist oder
+	 * eine der angegebenen terminatingTags-Zeichenfolgen erreicht wird.
+	 *
+	 * Die Terminierung wird nicht konsumiert, das muss die aufrufende Codestelle erledigen (wg. der korrekten Bestimmung von toPos).
 	 * 
-	 * @param terminatingTags Liste von Zeichenfolgen, bei denen die InlineList
-	 *        zu beenden ist.<br>
+	 * @param terminatingTags Liste von Zeichenfolgen, bei denen die InlineList zu beenden ist.<br>
 	 *        "\n" -> Zeilenende<br>
 	 *        "\n\n" -> Leerzeile<br>
 	 *        null -> kein vorzeitiges Ende.
@@ -759,18 +753,14 @@ public class WikiParser {
 	}
 
 	/**
-	 * Liest das nächste InlineElement ein. Ist das Ende einer InlineList
-	 * erreicht, wird <code>null</code> zurückgegeben.<br>
-	 * <br>
-	 * Eine InlineList endet sobald das nächste PageElement beginnt oder die
-	 * aktuelle Tabellenzelle oder der Wiki-Text zu Ende ist oder eine der
-	 * angegebenen terminatingTags-Zeichenfolgen erreicht wird.<br>
-	 * <br>
-	 * Die Terminierung wird nicht konsumiert, das muss die aufrufende
-	 * Codestelle erledigen (wg. der korrekten Bestimmung von toPos).
+	 * Liest das nächste InlineElement ein. Ist das Ende einer InlineList erreicht, wird <code>null</code> zurückgegeben.
+	 *
+	 * Eine InlineList endet sobald das nächste PageElement beginnt oder die aktuelle Tabellenzelle oder der Wiki-Text zu Ende ist oder
+	 * eine der angegebenen terminatingTags-Zeichenfolgen erreicht wird.
+	 *
+	 * Die Terminierung wird nicht konsumiert, das muss die aufrufende Codestelle erledigen (wg. der korrekten Bestimmung von toPos).
 	 * 
-	 * @param terminatingTags Menge von Zeichenfolgen, bei denen die InlineList
-	 *        zu beenden ist. Nicht <code>null</code>.<br>
+	 * @param terminatingTags Menge von Zeichenfolgen, bei denen die InlineList zu beenden ist.<br>
 	 *        "\n" -> Zeilenende<br>
 	 *        "\n\n" -> Leerzeile<br>
 	 *        sonstiger String -> indexOf-Suche<br>
@@ -778,7 +768,7 @@ public class WikiParser {
 	 * @return InlineElement. <code>null</code> -> kein weiteres InlineElement.
 	 */
 	@Nullable
-	private PageElement parseInlineElement(String... terminatingTags) throws IOException {
+	private PageElement parseInlineElement(@NotNull String... terminatingTags) throws IOException {
 		// nächste Zeile vorausschauen, nicht konsumieren
 		String line = lineReader.getLine();
 		if (line == null) {
@@ -842,17 +832,14 @@ public class WikiParser {
 	}
 
 	/**
-	 * Liest ein PageElement ein, das zwischen zwei <code>surroundingTag</code>
-	 * eingegrenzt ist. Die umschließeden Tags werden ebenfalls konsumiert, der
-	 * Rückgabewert ist das eingeschlossene PageElement.
+	 * Liest ein PageElement ein, das zwischen zwei <code>surroundingTag</code> eingegrenzt ist.
+	 * Die umschließeden Tags werden ebenfalls konsumiert, der Rückgabewert ist das eingeschlossene PageElement.
 	 * 
-	 * @param surroundingTag Umschließende Tags. Nicht <code>null</code>, nicht
-	 *        leer.
+	 * @param surroundingTag Umschließende Tags.Nicht leer.
 	 * @return Inneres PageElement.
-	 * @throws IOException Wenn ein Fehler auftritt.
 	 */
 	@NotNull
-	private PageElement parseSimpleSurroundedInlineElement(String surroundingTag) throws IOException {
+	private PageElement parseSimpleSurroundedInlineElement(@NotNull String surroundingTag) throws IOException {
 		//noinspection UnusedAssignment
 		String line = lineReader.getLine();
 		int charsReadLine = lineReader.getCharsReadLine();
@@ -921,13 +908,11 @@ public class WikiParser {
 	}
 
 	/**
-	 * Liest Text ein, der nicht als Wiki-Text interpretiert werden soll. Diese
-	 * Funktion setzt die Überwachung des Absatzendes außer Kraft und liest
-	 * solange, bis "%%" gelesen wird. Damit ist es möglich, Zeichen mit
-	 * Sonderbedeutung (z.B. |, *) auszugeben.<br>
-	 * <br>
-	 * Um die Zeichenfolge "%%" auszugeben, kann das Wiki-Tag
-	 * <code>{{%%}}</code> verwendet werden.
+	 * Liest Text ein, der nicht als Wiki-Text interpretiert werden soll.
+	 * Diese Funktion setzt die Überwachung des Absatzendes außer Kraft und liest solange, bis "%%" gelesen wird.
+	 * Damit ist es möglich, Zeichen mit Sonderbedeutung (z.B. |, *) auszugeben.
+	 *
+	 * Um die Zeichenfolge "%%" auszugeben, kann das Wiki-Tag <code>{{%%}}</code> verwendet werden.
 	 */
 	@NotNull
 	private Nowiki parseNowiki() throws IOException {
@@ -960,15 +945,14 @@ public class WikiParser {
 	}
 
 	/**
-	 * Liest einen Link ein.<br>
-	 * <br>
-	 * Links der Form "wiki:..." werden als LinkWiki übersetzt, Links mit einem
-	 * anderen Präfix werden als LinkExternal übersetzt; der Präfix ist dann das
-	 * Internet-Protokoll (z.B. http). Links ohne Präfix sind Verweise auf
-	 * Wiki-Seiten und werden als LinkPage übersetzt. Links mit "file:..." sind
-	 * Verweise auf lokale Dateien. Links mit "...@..." werden automatisch als
-	 * E-Mail-Links erkannt. Links mit "...#..." und ohne Präfix sind Ankerlinks
-	 * auf eine Wiki-Seite.
+	 * Liest einen Link ein.
+	 *
+	 * Links der Form "[[wiki:...]]" werden als LinkWiki übersetzt, Links mit einem anderen Präfix werden als LinkExternal übersetzt;
+	 * der Präfix ist dann das Internet-Protokoll (z.B. http).
+	 * Links ohne Präfix sind Verweise auf Wiki-Seiten und werden als LinkPage übersetzt.
+	 * Links mit "[[file:...]]" sind Verweise auf lokale Dateien.
+	 * Links mit "[[...@...]]" werden automatisch als E-Mail-Links erkannt.
+	 * Links mit "[[...#...]]" und ohne Präfix sind Ankerlinks auf eine Wiki-Seite.
 	 */
 	@Nullable
 	private PageElement parseLink() throws IOException {
@@ -986,11 +970,10 @@ public class WikiParser {
 		int pipepos = line.indexOf('|', charsReadLine);
 		if (pipepos >= 0 && (pipepos < endpos || endpos == -1)) {
 			// Format "[[...|...]]"
-			// oder "[[...|..." jeweils mit Alternativtext
+			// oder   "[[...|..." jeweils mit Alternativtext
 			pagePath = line.substring(charsReadLine, pipepos).trim();
 			charsReadLine = pipepos + 1; // "|" mit abschneiden
-			// ggf. erstes Leerzeichen im Alternativtext abschneiden, da dieses
-			// optional ist
+			// ggf. erstes Leerzeichen im Alternativtext abschneiden, da dieses optional ist
 			if (line.length() > charsReadLine && line.charAt(charsReadLine) == ' ') {
 				charsReadLine++;
 			}
@@ -1000,8 +983,7 @@ public class WikiParser {
 			charsReadLine = endpos + 2; // "]]" abschneiden
 		} else {
 			// Format "[[..." ohne Alternativtext
-			// bis zum Zeilenende als Link-URL verwenden, "]]" ist nicht
-			// vorhanden
+			// bis zum Zeilenende als Link-URL verwenden, "]]" ist nicht vorhanden
 			pagePath = line.substring(charsReadLine).trim();
 			charsReadLine = line.length();
 		}
@@ -1151,8 +1133,8 @@ public class WikiParser {
 						tagDetails.options.get("separator"), tagDetails.options.get("outputOnEmpty"), fromPos, toPos);
 			case "listunlinkedpages":
 				return new ListUnlinkedPages(tagDetails.options.containsKey("hideParents"), tagDetails.options.containsKey("hideChildren"),
-						extractPageNameFormat(tagDetails.options), tagDetails.options.containsKey("showinline"), tagDetails.options.get("separator"),
-						tagDetails.options.get("outputOnEmpty"), fromPos, toPos);
+						extractPageNameFormat(tagDetails.options), tagDetails.options.containsKey("showinline"),
+						tagDetails.options.get("separator"), tagDetails.options.get("outputOnEmpty"), fromPos, toPos);
 			case "search":
 				return new SearchInput(fromPos, toPos);
 			default:
@@ -1235,13 +1217,12 @@ public class WikiParser {
 	}
 
 	/**
-	 * Liest Text ein, der als HTML-Code interpretiert werden soll. Diese
-	 * Funktion setzt die Überwachung des Absatz- und Seitenendes außer Kraft
-	 * und liest solange, bis <code>{{/html}}</code> gelesen wird. Damit ist es
-	 * möglich, Zeichen mit Sonderbedeutung (z.B. |, *) auszugeben.
+	 * Liest Text ein, der als HTML-Code interpretiert werden soll.
+	 * Diese Funktion setzt die Überwachung des Absatz- und Seitenendes außer Kraft und
+	 * liest solange, bis <code>{{/html}}</code> gelesen wird.
+	 * Damit ist es möglich, Zeichen mit Sonderbedeutung (z.B. |, *) auszugeben.
 	 * 
-	 * @param fromPos Gibt die tatsächliche Anfangsposition an, weil das
-	 *        öffnende Tag bereits konsumiert wurde.
+	 * @param fromPos Gibt die tatsächliche Anfangsposition an, weil das öffnende Tag bereits konsumiert wurde.
 	 */
 	@Nullable
 	private Html parseHtml(int fromPos) throws IOException {
@@ -1313,9 +1294,9 @@ public class WikiParser {
 	 * 
 	 * @param cssNamesStr CSS-Klassen, mit Leerzeichen getrennt.
 	 *        <code>null</code> --> keine CSS-Klassen angegeben.
-	 * @param fromPos Gibt die tatsächliche Anfangsposition an, weil das
-	 *        öffnende Tag bereits konsumiert wurde.
+	 * @param fromPos Gibt die tatsächliche Anfangsposition an, weil das öffnende Tag bereits konsumiert wurde.
 	 */
+	@NotNull
 	private Style parseStyle(@Nullable String cssNamesStr, int fromPos) throws IOException {
 		PageElementList content = parseInlineList("{{/style}}");
 
@@ -1591,12 +1572,10 @@ public class WikiParser {
 	}
 
 	/**
-	 * Liest einen einzeiligen Text ein. Der Text endet spätestens am Zeilenende
-	 * oder das nächste InlineElement beginnt oder die aktuelle Tabellenzelle
-	 * oder die angegebene terminatingTag-Zeichenfolge erreicht wird.
+	 * Liest einen einzeiligen Text ein. Der Text endet spätestens am Zeilenende oder das nächste InlineElement beginnt oder
+	 * die aktuelle Tabellenzelle oder die angegebene terminatingTag-Zeichenfolge erreicht wird.
 	 * 
-	 * @param terminatingTags Menge von Zeichenfolgen, bei denen die InlineList
-	 *        zu beenden ist. Nicht <code>null</code>.
+	 * @param terminatingTags Menge von Zeichenfolgen, bei denen die InlineList zu beenden ist.
 	 */
 	@Nullable
 	private TextOnly parseTextOnly(@NotNull String... terminatingTags) {

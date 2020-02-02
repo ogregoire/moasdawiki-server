@@ -22,8 +22,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Enthält einen Textabschnitt, der direktes HTML enthält und ohne Aufbereitung
- * in den HTML-Strom ausgegeben werden soll.
+ * Enthält einen Textabschnitt, der direktes HTML enthält und
+ * ohne Aufbereitung in den HTML-Strom ausgegeben werden soll.
  * 
  * @author Herbert Reiter
  */

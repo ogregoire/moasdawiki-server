@@ -29,17 +29,16 @@ import org.jetbrains.annotations.Nullable;
 public class LinkPage extends PageElementWithChild {
 
 	/**
-	 * Name der Wikiseite, auf die der Link verweist. Wenn der Name nicht mit
-	 * '/' beginnt, handelt es sich um eine relative Adressierung zur Wikiseite,
-	 * die den Link enthält. null -> der Link verweist auf die Wikiseite, die
-	 * das Link-Tag enthält (sinnvoll bei Ankerlinks).
+	 * Name der Wikiseite, auf die der Link verweist.
+	 * Wenn der Name nicht mit '/' beginnt, handelt es sich um eine relative Adressierung zur Wikiseite, die den Link enthält.
+	 * null -> der Link verweist auf die Wikiseite, die das Link-Tag enthält (sinnvoll bei Ankerlinks).
 	 */
 	@Nullable
 	private final String pagePath;
 
 	/**
-	 * Anker (ohne führendes '#') innerhalb einer Wikiseite, auf die der Link
-	 * verweist. null -> keinen Anker verwenden.
+	 * Anker (ohne führendes '#') innerhalb einer Wikiseite, auf die der Link verweist.
+	 * null -> keinen Anker verwenden.
 	 */
 	@Nullable
 	private final String anchor;
@@ -55,12 +54,10 @@ public class LinkPage extends PageElementWithChild {
 	}
 
 	/**
-	 * Gibt den Namen der Wikiseite zurück, auf die der Link verweist.<br>
-	 * <br>
-	 * Wenn der Name nicht mit '/' beginnt, handelt es sich um eine relative
-	 * Adressierung zur Wikiseite, die den Link enthält. null -> der Link
-	 * verweist auf die Wikiseite, die den Link enthält (sinnvoll bei
-	 * Ankerlinks).
+	 * Gibt den Namen der Wikiseite zurück, auf die der Link verweist.
+	 *
+	 * Wenn der Name nicht mit '/' beginnt, handelt es sich um eine relative Adressierung zur Wikiseite, die den Link enthält.
+	 * null -> der Link verweist auf die Wikiseite, die den Link enthält (sinnvoll bei Ankerlinks).
 	 */
 	@Nullable
 	public String getPagePath() {
@@ -68,8 +65,8 @@ public class LinkPage extends PageElementWithChild {
 	}
 
 	/**
-	 * Gibt den Anker (ohne führendes '#') innerhalb einer Wikiseite zurück, auf
-	 * die der Link verweist. null -> keinen Anker verwenden.
+	 * Gibt den Anker (ohne führendes '#') innerhalb einer Wikiseite zurück, auf die der Link verweist.
+	 * null -> keinen Anker verwenden.
 	 */
 	@Nullable
 	public String getAnchor() {
@@ -77,8 +74,8 @@ public class LinkPage extends PageElementWithChild {
 	}
 
 	/**
-	 * Gibt den alternativen Text zurück, der anstelle des Seitennamens
-	 * angezeigt werden soll. null -> kein alternativer Text vorhanden.
+	 * Gibt den alternativen Text zurück, der anstelle des Seitennamens angezeigt werden soll.
+	 * null -> kein alternativer Text vorhanden.
 	 */
 	@Nullable
 	public PageElement getAlternativeText() {

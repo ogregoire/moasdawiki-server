@@ -22,22 +22,33 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Listet alle Kind-Seiten einer Wiki-Seite auf. Kind-Seiten haben die
- * angegebene Wiki-Seite als Vater angegeben.
+ * Listet alle Kind-Seiten einer Wiki-Seite auf.
+ * Kind-Seiten haben die angegebene Wiki-Seite als Vater angegeben.
  * 
  * @author Herbert Reiter
  */
 public class ListChildren extends PageElement implements Listable {
 
+	/**
+	 * null -> aktuelle Wikiseite
+	 */
 	@Nullable
-	private final String pagePath; // null -> aktuelle Wikiseite
+	private final String pagePath;
+
 	@NotNull
 	private final PageNameFormat pageNameFormat;
-	private final boolean showInline; // Listenelemente inline darstellen
+
+	/**
+	 * Listenelemente inline darstellen
+	 */
+	private final boolean showInline;
+
 	@Nullable
 	private final String inlineListseparator;
+
 	@Nullable
 	private final String outputOnEmpty;
+
 	private final boolean globalContext;
 
 	public ListChildren(@Nullable String pagePath, @NotNull PageNameFormat pageNameFormat, boolean showInline, @Nullable String inlineListseparator,

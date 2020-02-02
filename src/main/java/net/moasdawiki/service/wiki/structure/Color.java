@@ -22,11 +22,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Enthält einen Textbaustein, der in einer bestimmten Farbe dargestellt werden
- * soll.<br>
- * <br>
- * Beispiele: red, #ff0000
- * 
+ * Enthält einen Textbaustein, der in einer bestimmten Farbe dargestellt werden soll.
+ *
+ * Beispiele:
+ * {{color:red}}...{{/color}}
+ * {{color:#ff0000}}...{{/color}}
+ *
  * @author Herbert Reiter
  */
 public class Color extends PageElementWithChild {

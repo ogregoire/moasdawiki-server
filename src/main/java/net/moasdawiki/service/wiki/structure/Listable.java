@@ -22,8 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Dieses Interface definiert Parameter, mit denen die Darstellung einer Liste
- * beeinflusst werden können.
+ * Dieses Interface definiert Parameter, mit denen die Darstellung einer Liste beeinflusst werden können.
  * 
  * @author Herbert Reiter
  */

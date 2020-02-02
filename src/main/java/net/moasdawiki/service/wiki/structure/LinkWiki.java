@@ -22,8 +22,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Wiki-interner Link. Wird für Links auf virtuelle Seiten oder Wiki-Befehle
- * verwendet.
+ * Wiki-interner Link.
+ * Wird für Links auf virtuelle Seiten oder Wiki-Befehle verwendet.
  * 
  * @author Herbert Reiter
  */
@@ -49,8 +49,8 @@ public class LinkWiki extends PageElementWithChild {
 	}
 
 	/**
-	 * Gibt den alternativen Text zurück, der anstelle des Wikibefehls angezeigt
-	 * werden soll. null -> kein alternativer Text vorhanden.
+	 * Gibt den alternativen Text zurück, der anstelle des Wikibefehls angezeigt werden soll.
+	 * null -> kein alternativer Text vorhanden.
 	 */
 	@Nullable
 	public PageElement getAlternativeText() {

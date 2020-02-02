@@ -42,8 +42,7 @@ public class PageName extends PageElement {
 
 	/**
 	 * true -> Das Tag bezieht sich auf die Wurzel des Wikibaums.<br>
-	 * false -> Das Tag bezieht sich auf die Wikiseite, die dieses Tag direkt
-	 * enthält.
+	 * false -> Das Tag bezieht sich auf die Wikiseite, die dieses Tag direkt enthält.
 	 */
 	private final boolean globalContext;
 

@@ -22,8 +22,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Listet alle nicht vorhandenen Wikiseiten auf, auf die es mindestens einen
- * Link gibt. Diese Wikiseiten werden "wanted pages" bezeichnet.
+ * Listet alle nicht vorhandenen Wikiseiten auf, auf die es mindestens einen Link gibt.
+ * Diese Wikiseiten werden "wanted pages" bezeichnet.
  * 
  * @author Herbert Reiter
  */
@@ -31,9 +31,15 @@ public class ListWantedPages extends PageElement implements Listable {
 
 	@NotNull
 	private final PageNameFormat pageNameFormat;
-	private final boolean showInline; // Listenelemente inline darstellen?
+
+	/**
+	 * Listenelemente inline darstellen?
+	 */
+	private final boolean showInline;
+
 	@Nullable
 	private final String inlineListseparator;
+
 	@Nullable
 	private final String outputOnEmpty;
 

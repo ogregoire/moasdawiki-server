@@ -32,14 +32,14 @@ import java.util.List;
 public class Table extends PageElement {
 
 	/**
-	 * Tabellenzeilen. Nicht null.
+	 * Tabellenzeilen.
 	 */
 	@NotNull
 	private final List<TableRow> rows;
 
 	/**
-	 * CSS-Klassen zur Formatierung in HTML. Mehrere Klassen müssen durch
-	 * Leerzeichen getrennt sein.<br>
+	 * CSS-Klassen zur Formatierung in HTML.
+	 * Mehrere Klassen müssen durch Leerzeichen getrennt sein.
 	 * null -> keine Angaben.
 	 */
 	@Nullable
@@ -83,8 +83,8 @@ public class Table extends PageElement {
 	}
 
 	/**
-	 * CSS-Klassen zur Formatierung in HTML. Mehrere Klassen müssen durch
-	 * Leerzeichen getrennt sein.
+	 * CSS-Klassen zur Formatierung in HTML.
+	 * Mehrere Klassen müssen durch Leerzeichen getrennt sein.
 	 * 
 	 * @return <code>null</code> -> keine Angaben.
 	 */

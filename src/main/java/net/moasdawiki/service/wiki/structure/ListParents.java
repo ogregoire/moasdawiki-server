@@ -28,15 +28,26 @@ import org.jetbrains.annotations.Nullable;
  */
 public class ListParents extends PageElement implements Listable {
 
+	/**
+	 * null -> aktuelle Wikiseite
+	 */
 	@Nullable
-	private final String pagePath; // null -> aktuelle Wikiseite
+	private final String pagePath;
+
 	@NotNull
-	private final PageNameFormat pageNameFormat; // nicht null
-	private final boolean showInline; // Listenelemente inline darstellen
+	private final PageNameFormat pageNameFormat;
+
+	/**
+	 * Listenelemente inline darstellen
+	 */
+	private final boolean showInline;
+
 	@Nullable
 	private final String inlineListseparator;
+
 	@Nullable
 	private final String outputOnEmpty;
+
 	private final boolean globalContext;
 
 	public ListParents(@Nullable String pagePath, @NotNull PageNameFormat pageNameFormat, boolean showInline, @Nullable String inlineListseparator,

@@ -29,8 +29,8 @@ import org.jetbrains.annotations.Nullable;
 public class LinkLocalFile extends PageElementWithChild {
 
 	/**
-	 * Pfad der Datei. Wenn der Pfad nicht mit '/' beginnt, handelt es sich um
-	 * eine relative Adressierung zur Wikiseite, die den Link enthält.
+	 * Pfad der Datei.
+	 * Wenn der Pfad nicht mit '/' beginnt, handelt es sich um eine relative Adressierung zur Wikiseite, die den Link enthält.
 	 */
 	@NotNull
 	private final String filePath;
@@ -49,8 +49,8 @@ public class LinkLocalFile extends PageElementWithChild {
 	}
 
 	/**
-	 * Gibt den alternativen Text zurück, der anstelle des Dateinamens angezeigt
-	 * werden soll. null -> kein alternativer Text vorhanden.
+	 * Gibt den alternativen Text zurück, der anstelle des Dateinamens angezeigt werden soll.
+	 * null -> kein alternativer Text vorhanden.
 	 */
 	@Nullable
 	public PageElement getAlternativeText() {

@@ -37,7 +37,7 @@ public class TableCell {
 	/**
 	 * true -> th anstatt td verwenden.
 	 */
-	private final boolean isHeader;
+	private final boolean header;
 
 	/**
 	 * CSS-Klassen zur Formatierung in HTML. Mehrere Klassen müssen durch
@@ -53,10 +53,10 @@ public class TableCell {
 	@Nullable
 	private TableRow parentRow;
 
-	public TableCell(@Nullable PageElement content, boolean isHeader, @Nullable String params) {
+	public TableCell(@Nullable PageElement content, boolean header, @Nullable String params) {
 		super();
 		this.content = content;
-		this.isHeader = isHeader;
+		this.header = header;
 		this.params = params;
 		// Hinweis der Vaterknoten von "content" wird später gesetzt,
 		// da er noch nicht bekannt ist.
@@ -81,8 +81,8 @@ public class TableCell {
 		}
 	}
 
-	public boolean getIsHeader() {
-		return isHeader;
+	public boolean isHeader() {
+		return header;
 	}
 
 	/**
@@ -112,9 +112,9 @@ public class TableCell {
 	@NotNull
 	public TableCell cloneTyped() {
 		if (content != null) {
-			return new TableCell(content.clonePageElement(), isHeader, params);
+			return new TableCell(content.clonePageElement(), header, params);
 		} else {
-			return new TableCell(null, isHeader, params);
+			return new TableCell(null, header, params);
 		}
 	}
 }

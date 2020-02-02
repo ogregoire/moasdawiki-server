@@ -431,7 +431,7 @@ public class WikiPage2Html {
 					cellParameters = "class=\"" + EscapeUtils.escapeHtml(cell.getParams()) + '\"';
 				}
 				int cellTagLevel;
-				if (cell.getIsHeader()) {
+				if (cell.isHeader()) {
 					cellTagLevel = writer.openTag("th", cellParameters);
 				} else {
 					cellTagLevel = writer.openTag("td", cellParameters);

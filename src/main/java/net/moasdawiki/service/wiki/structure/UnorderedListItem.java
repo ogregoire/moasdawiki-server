@@ -22,8 +22,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Enthält einen einzelnen, unnummerierten Aufzählungspunkt. Ein
- * Aufzählungspunkt kann unterschiedliche Gliederungsebenen haben.
+ * Enthält einen einzelnen, unnummerierten Aufzählungspunkt.
+ * Ein Aufzählungspunkt kann unterschiedliche Gliederungsebenen haben.
  * 
  * @author Herbert Reiter
  */
@@ -32,14 +32,11 @@ public class UnorderedListItem extends PageElementWithChild {
 	/**
 	 * 1 = oberste Ebene. Muss >= 1 sein.
 	 */
-	private int level;
+	private final int level;
 
 	public UnorderedListItem(int level, @Nullable PageElement content, @Nullable Integer fromPos, @Nullable Integer toPos) {
 		super(content, fromPos, toPos);
-		this.level = level;
-		if (this.level < 1) {
-			this.level = 1;
-		}
+		this.level = Math.max(level, 1);
 	}
 
 	public int getLevel() {

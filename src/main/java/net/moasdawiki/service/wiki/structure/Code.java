@@ -39,8 +39,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public class Code extends PageElement {
 	/**
-	 * Name der Programmiersprache. <code>null</code> --> keine
-	 * Syntaxhervorhebung.
+	 * Name der Programmiersprache.
+	 * <code>null</code> --> keine Syntaxhervorhebung.
 	 */
 	@Nullable
 	private final String language;
@@ -60,8 +60,8 @@ public class Code extends PageElement {
 	}
 
 	/**
-	 * Gibt den Namen der Programmiersprache zurück. null -> automatisch
-	 * bestimmen.
+	 * Gibt den Namen der Programmiersprache zurück.
+	 * <code>null</code> --> keine Syntaxhervorhebung.
 	 */
 	@Nullable
 	public String getLanguage() {

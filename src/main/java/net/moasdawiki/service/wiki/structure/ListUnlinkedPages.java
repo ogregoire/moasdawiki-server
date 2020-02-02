@@ -22,33 +22,36 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Listet alle Wiki-Seiten im Repository auf, die sich im Ordner der Wikiseite
- * oder in einem Unterordner befinden. Alternativ kann der Pfad direkt
- * angegeben.
+ * Listet alle Wiki-Seiten im Repository auf, die sich im Ordner der Wikiseite oder in einem Unterordner befinden.
+ * Alternativ kann der Pfad direkt angegeben.
  * 
  * @author Herbert Reiter
  */
 public class ListUnlinkedPages extends PageElement implements Listable {
 
 	/**
-	 * Sollen alle Vater-Seiten ebenfalls als verlinkt behandelt und somit von
-	 * der Liste entfernt werden? Das ist sinnvoll, wenn die Liste der
-	 * Vater-Seiten z.B. im Seiten-Footer angegeben (und damit verlinkt) ist.
+	 * Sollen alle Vater-Seiten ebenfalls als verlinkt behandelt und somit von der Liste entfernt werden?
+	 * Das ist sinnvoll, wenn die Liste der Vater-Seiten z.B. im Seiten-Footer angegeben (und damit verlinkt) ist.
 	 */
 	private final boolean hideParents;
 
 	/**
-	 * Sollen alle Kind-Seiten ebenfalls als verlinkt behandelt und somit von
-	 * der Liste entfernt werden? Das ist sinnvoll, wenn die Liste der
-	 * Kind-Seiten z.B. im Seiten-Footer angegeben (und damit verlinkt) ist.
+	 * Sollen alle Kind-Seiten ebenfalls als verlinkt behandelt und somit von der Liste entfernt werden?
+	 * Das ist sinnvoll, wenn die Liste der Kind-Seiten z.B. im Seiten-Footer angegeben (und damit verlinkt) ist.
 	 */
 	private final boolean hideChildren;
 
 	@NotNull
 	private final PageNameFormat pageNameFormat;
-	private final boolean showInline; // Listenelemente inline darstellen?
+
+	/**
+	 * Listenelemente inline darstellen?
+	 */
+	private final boolean showInline;
+
 	@Nullable
 	private final String inlineListseparator;
+
 	@Nullable
 	private final String outputOnEmpty;
 

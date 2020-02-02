@@ -22,28 +22,34 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Listet alle Wiki-Seiten im Repository auf, die sich im Ordner der Wikiseite
- * oder in einem Unterordner befinden. Alternativ kann der Pfad direkt
- * angegeben.
+ * Listet alle Wiki-Seiten im Repository auf, die sich im Ordner der Wikiseite oder in einem Unterordner befinden.
+ * Alternativ kann der Pfad direkt angegeben.
  * 
  * @author Herbert Reiter
  */
 public class ListPages extends PageElement implements Listable {
 
 	/**
-	 * Nur Wikiseiten in diesem Ordner und allen Unterordnern auflisten. null ->
-	 * Ordner der Wikiseite verwenden.
+	 * Nur Wikiseiten in diesem Ordner und allen Unterordnern auflisten.
+	 * null -> Ordner der Wikiseite verwenden.
 	 */
 	@Nullable
 	private final String folder;
 
 	@NotNull
-	private final PageNameFormat pageNameFormat; // nicht null
-	private final boolean showInline; // Listenelemente inline darstellen?
+	private final PageNameFormat pageNameFormat;
+
+	/**
+	 * Listenelemente inline darstellen?
+	 */
+	private final boolean showInline;
+
 	@Nullable
 	private final String inlineListseparator;
+
 	@Nullable
 	private final String outputOnEmpty;
+
 	private final boolean globalContext;
 
 	public ListPages(@Nullable String folder, @NotNull PageNameFormat pageNameFormat, boolean showInline, @Nullable String inlineListseparator,

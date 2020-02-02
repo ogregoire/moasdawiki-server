@@ -22,8 +22,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Link auf eine URL im Internet.<br>
- * <br>
+ * Link auf eine URL im Internet.
+ *
  * Beispiel-URL: <tt>http://www.google.de/</tt>
  * 
  * @author Herbert Reiter
@@ -50,8 +50,8 @@ public class LinkExternal extends PageElementWithChild {
 	}
 
 	/**
-	 * Gibt den alternativen Text zurück, der anstelle der URL angezeigt werden
-	 * soll. null -> kein alternativer Text vorhanden.
+	 * Gibt den alternativen Text zurück, der anstelle der URL angezeigt werden soll.
+	 * null -> kein alternativer Text vorhanden.
 	 */
 	@Nullable
 	public PageElement getAlternativeText() {

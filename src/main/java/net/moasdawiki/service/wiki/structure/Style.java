@@ -22,15 +22,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Formatiert einen Textbaustein mit Hilfe von CSS-Klassen. Der Text wird dabei
- * mit einem &lt;span>-Tag umschlossen.
+ * Formatiert einen Textbaustein mit Hilfe von CSS-Klassen.
+ * Der Text wird dabei mit einem &lt;span>-Tag umschlossen.
  * 
  * @author Herbert Reiter
  */
 public class Style extends PageElementWithChild {
 
 	/**
-	 * CSS-Klassen für die Formatierung. Nicht <code>null</code>.
+	 * CSS-Klassen für die Formatierung.
 	 */
 	@NotNull
 	private final String[] cssClasses;
@@ -42,8 +42,6 @@ public class Style extends PageElementWithChild {
 
 	/**
 	 * Gibt die CSS-Klassen für die Formatierung zurück.
-	 * 
-	 * @return CSS-Klassen. Nicht <code>null</code>.
 	 */
 	@NotNull
 	public String[] getCssClasses() {

@@ -30,12 +30,22 @@ public class ListViewHistory extends PageElement implements Listable {
 
 	@NotNull
 	private final PageNameFormat pageNameFormat;
-	private final boolean showInline; // Listenelemente inline darstellen
+
+	/**
+	 * Listenelemente inline darstellen
+ 	 */
+	private final boolean showInline;
+
 	@Nullable
 	private final String inlineListseparator;
+
 	@Nullable
 	private final String outputOnEmpty;
-	private final int maxLength; // maximale Anzahl der Einträge, -1 = unbegrenzt
+
+	/**
+	 * maximale Anzahl der Einträge, -1 = unbegrenzt
+ 	 */
+	private final int maxLength;
 
 	public ListViewHistory(@NotNull PageNameFormat pageNameFormat, boolean showInline, @Nullable String inlineListseparator,
 						   @Nullable String outputOnEmpty, int maxLength, @Nullable Integer fromPos, @Nullable Integer toPos) {

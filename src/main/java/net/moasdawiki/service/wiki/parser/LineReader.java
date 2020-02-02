@@ -47,7 +47,8 @@ public class LineReader {
 	/**
 	 * Bei der Erkennung der Zeilenenden kann es vorkommen, dass ein Zeichen
 	 * zuviel aus dem Reader gelesen wurde. Dann kann es hier zurückgesetellt
-	 * werden.<br>
+	 * werden.
+	 *
 	 * <code>-1</code> -> kein Zeichen zurückgestellt, nächstes Zeichen muss aus
 	 * dem Reader gelesen werden.
 	 */
@@ -60,9 +61,8 @@ public class LineReader {
 	private int charsReadTotal;
 
 	/**
-	 * Zeichen die das Ende der aktuellen Zeile markieren. Kann "\r", "\n",
-	 * "\r\n" oder "" (bei EOF) sein. Nicht <code>null</code>.<br>
-	 * <br>
+	 * Zeichen die das Ende der aktuellen Zeile markieren. Kann "\r", "\n", "\r\n" oder "" (bei EOF) sein.
+	 *
 	 * Wird benötigt, um den Zähler {@link #charsReadTotal} korrekt hochzuzählen.
 	 */
 	@NotNull
@@ -75,8 +75,7 @@ public class LineReader {
 	private String line;
 
 	/**
-	 * Anzahl Zeichen der aktuellen Zeile in {@link #line}, die bereits gelesen
-	 * wurden.
+	 * Anzahl Zeichen der aktuellen Zeile in {@link #line}, die bereits gelesen wurden.
 	 */
 	private int charsReadLine;
 
@@ -193,9 +192,8 @@ public class LineReader {
 	}
 
 	/**
-	 * Setzt die Anzahl der Zeichen der aktuellen Zeile, die bereits gelesen
-	 * wurden. Wird aufgerufen, wenn zuviel gelesene Zeichen wieder als
-	 * "ungelesen" markiert werden sollen.
+	 * Setzt die Anzahl der Zeichen der aktuellen Zeile, die bereits gelesen wurden.
+	 * Wird auch aufgerufen, wenn zuviel gelesene Zeichen wieder als "ungelesen" markiert werden sollen, allerdings nur innerhalb der aktuellen Zeile.
 	 */
 	public void setCharsReadLine(int numRead) {
 		if (line != null && numRead >= 0 && numRead <= line.length()) {

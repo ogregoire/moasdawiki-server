@@ -36,7 +36,7 @@ public class OrderedListItem extends PageElementWithChild {
 
 	public OrderedListItem(int level, @Nullable PageElement content, @Nullable Integer fromPos, @Nullable Integer toPos) {
 		super(content, fromPos, toPos);
-		this.level = Math.min(level, 1);
+		this.level = Math.max(level, 1);
 	}
 
 	/**
