@@ -117,6 +117,7 @@ public abstract class EscapeUtils {
 		}
 
 		try {
+			//noinspection CharsetObjectCanBeUsed
 			return URLEncoder.encode(url, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			return url; // no escaping in case of an error

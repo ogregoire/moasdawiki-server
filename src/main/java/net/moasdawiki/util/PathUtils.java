@@ -137,8 +137,7 @@ public abstract class PathUtils {
 	 * In both cases the result path starts with '/'.
 	 *
 	 * @param path Path. null = "".
-	 * @param basePath Base path in case of a relative path. null
-	 *        = "".
+	 * @param basePath Base path in case of a relative path. null = "".
 	 * @return Absolute path.
 	 */
 	@NotNull
