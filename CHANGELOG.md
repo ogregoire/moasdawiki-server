@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.0 (2020-02-08)
+
+- Speed up full text search by searching only in the page titles in the first step
+- Add unit tests
+- Refactorings
+
 ## 2.1.0 (2020-01-04)
 
 - Code refactored to use the new language features of Java 1.8
