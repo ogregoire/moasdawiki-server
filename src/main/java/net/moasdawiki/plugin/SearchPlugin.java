@@ -81,7 +81,7 @@ public class SearchPlugin implements Plugin {
 		PageElementList pageContent = new PageElementList();
 
 		// Seitenname ausgeben
-		String pageTitle = messages.getMessage("SearchPlugin.title", searchResult.searchQuery.queryString);
+		String pageTitle = messages.getMessage("SearchPlugin.title", searchResult.searchQuery.getQueryString());
 		pageContent.add(new Heading(1, new TextOnly(pageTitle), null, null));
 
 		// Anzahl Suchergebnisse ausgeben

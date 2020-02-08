@@ -24,28 +24,48 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * DTO mit der Suchabfrage. Diese kann mehrere ein- und auszuschließende
- * Textphrasen enthalten.
+ * DTO mit der Suchabfrage. Diese kann mehrere ein- und auszuschließende Textphrasen enthalten.
  * 
  * @author Herbert Reiter
  */
 public class SearchQuery {
 	/**
-	 * Ursprünglicher Query-String. Nicht <code>null</code>.
+	 * Ursprünglicher Query-String.
 	 */
-	public String queryString;
+	@NotNull
+	private String queryString;
 	
 	/**
-	 * Textphrasen, die auf einer Wikiseite vorkommen müssen. Nicht
-	 * <code>null</code>.
+	 * Textphrasen, die auf einer Wikiseite vorkommen müssen.
 	 */
 	@NotNull
-	public final Set<String> included = new HashSet<>();
+	private final Set<String> included;
 
 	/**
-	 * Textphrasen, die nicht vorkommen dürfen. Diese haben eine höhere
-	 * Priorität als die in {@link #included}. Nicht <code>null</code>.
+	 * Textphrasen, die nicht vorkommen dürfen.
+	 * Diese haben eine höhere Priorität als die in {@link #included}.
 	 */
 	@NotNull
-	public final Set<String> excluded = new HashSet<>();
+	private final Set<String> excluded;
+
+	public SearchQuery(@NotNull String queryString, @NotNull Set<String> included, @NotNull Set<String> excluded) {
+		this.queryString = queryString;
+		this.included = included;
+		this.excluded = excluded;
+	}
+
+	@NotNull
+	public String getQueryString() {
+		return queryString;
+	}
+
+	@NotNull
+	public Set<String> getIncluded() {
+		return included;
+	}
+
+	@NotNull
+	public Set<String> getExcluded() {
+		return excluded;
+	}
 }
