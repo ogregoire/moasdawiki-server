@@ -26,7 +26,6 @@ import net.moasdawiki.plugin.Plugin;
 import net.moasdawiki.plugin.ServiceLocator;
 import net.moasdawiki.server.HttpRequest;
 import net.moasdawiki.server.HttpResponse;
-import net.moasdawiki.service.render.JsonHelper;
 import net.moasdawiki.service.repository.AnyFile;
 import net.moasdawiki.service.repository.RepositoryService;
 import net.moasdawiki.service.wiki.PageElementTransformer;
@@ -34,6 +33,7 @@ import net.moasdawiki.service.wiki.WikiHelper;
 import net.moasdawiki.service.wiki.structure.*;
 import net.moasdawiki.util.DateUtils;
 import net.moasdawiki.util.EscapeUtils;
+import net.moasdawiki.util.JavaScriptUtils;
 import net.moasdawiki.util.StringUtils;
 import net.moasdawiki.util.xml.XmlGenerator;
 import net.moasdawiki.util.xml.XmlParser;
@@ -200,7 +200,7 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 			return handleSessionDrop(request);
 		} else {
 			logger.write("Unknown command '" + urlPath + "'");
-			return JsonHelper.generateJsonResponse(1, "Unknown command");
+			return generateJsonResponse(1, "Unknown command");
 		}
 	}
 
@@ -254,17 +254,17 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 		// Session-ID prüfen
 		String sessionId = request.urlParameters.get("session-id");
 		if (sessionId == null) {
-			return JsonHelper.generateJsonResponse(1, "Parameter session-id missing");
+			return generateJsonResponse(1, "Parameter session-id missing");
 		}
 
 		// Session genehmigen
 		SessionData sessionData = sessionMap.get(sessionId);
 		if (sessionData == null) {
-			return JsonHelper.generateJsonResponse(1, "Session unknown: " + sessionId);
+			return generateJsonResponse(1, "Session unknown: " + sessionId);
 		}
 		sessionData.authorized = true;
 		writeSessionList();
-		return JsonHelper.generateJsonResponse(0);
+		return generateJsonResponse(0);
 	}
 
 	/**
@@ -292,16 +292,28 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 		// Session-ID prüfen
 		String sessionId = request.urlParameters.get("session-id");
 		if (sessionId == null) {
-			return JsonHelper.generateJsonResponse(1, "Parameter session-id missing");
+			return generateJsonResponse(1, "Parameter session-id missing");
 		}
 
 		// Session löschen
 		SessionData sessionData = sessionMap.remove(sessionId);
 		if (sessionData == null) {
-			return JsonHelper.generateJsonResponse(1, "Session unknown: " + sessionId);
+			return generateJsonResponse(1, "Session unknown: " + sessionId);
 		}
 		writeSessionList();
-		return JsonHelper.generateJsonResponse(0);
+		return generateJsonResponse(0);
+	}
+
+	@SuppressWarnings("SameParameterValue")
+	private HttpResponse generateJsonResponse(int code) {
+		return generateJsonResponse(code, null);
+	}
+
+	private HttpResponse generateJsonResponse(int code, @Nullable String jsonText) {
+		HttpResponse result = new HttpResponse();
+		result.setContentType(HttpResponse.CONTENT_TYPE_JSON_UTF8);
+		result.setContent(JavaScriptUtils.generateJson(code, jsonText));
+		return result;
 	}
 
 	/**

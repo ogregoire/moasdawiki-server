@@ -96,4 +96,39 @@ public abstract class JavaScriptUtils {
 
 		return sb.toString();
 	}
+
+	/**
+	 * Generates a JSON string with a message.
+	 *
+	 * @param message message.
+	 */
+	public static String generateJson(@NotNull String message) {
+		return generateJson(null, message);
+	}
+
+	/**
+	 * Generates a JSON string with a result code and a message.
+	 *
+	 * @param code    result code.
+	 * @param message message.
+	 */
+	@NotNull
+	public static String generateJson(@Nullable Integer code, @Nullable String message) {
+		StringBuilder result = new StringBuilder();
+		result.append('{');
+		if (code != null) {
+			result.append(" 'code': ");
+			result.append(code);
+		}
+		if (code != null && message != null) {
+			result.append(',');
+		}
+		if (message != null) {
+			result.append(" 'message': '");
+			result.append(JavaScriptUtils.escapeJavaScript(message));
+			result.append('\'');
+		}
+		result.append(" }");
+		return result.toString();
+	}
 }

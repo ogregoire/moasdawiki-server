@@ -29,6 +29,7 @@ import net.moasdawiki.service.wiki.WikiService;
 import net.moasdawiki.service.wiki.structure.WikiPage;
 import net.moasdawiki.util.EscapeUtils;
 import net.moasdawiki.util.PathUtils;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -85,12 +86,6 @@ public class HtmlService {
 		sb.append(EscapeUtils.escapeHtml(title));
 		sb.append("</title>\n");
 
-		for (String line : htmlWriter.getHeaderLines()) {
-			sb.append("  ");
-			sb.append(line);
-			sb.append('\n');
-		}
-
 		// konfigurierte HTML-Headerzeilen aus Wikidatei ausgeben
 		try {
 			String htmlHeaderPagePath = settings.getHtmlHeaderPagePath();
@@ -126,8 +121,7 @@ public class HtmlService {
 	}
 
 	/**
-	 * Wandelt eine Wikiseite inkl. Navigation in die HTML-Darstellung um und
-	 * gibt sie aus.
+	 * Wandelt eine Wikiseite inkl. Navigation in die HTML-Darstellung um und gibt sie aus.
 	 */
 	@NotNull
 	public HttpResponse convertPage(@NotNull WikiPage wikiPage) {

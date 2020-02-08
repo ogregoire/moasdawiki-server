@@ -44,4 +44,15 @@ public class JavaScriptUtilsTest {
     public void testEscapeJavaScriptNull() {
         assertNull(JavaScriptUtils.escapeJavaScript(null));
     }
+
+    @Test
+    public void testGenerateJson() {
+        assertEquals(JavaScriptUtils.generateJson("text"), "{ 'message': 'text' }");
+        assertEquals(JavaScriptUtils.generateJson("text'with\"special}characters"), "{ 'message': 'text\\'with\\\"special}characters' }");
+
+        assertEquals(JavaScriptUtils.generateJson(null, null), "{ }");
+        assertEquals(JavaScriptUtils.generateJson(5, null), "{ 'code': 5 }");
+        assertEquals(JavaScriptUtils.generateJson(null, "text"), "{ 'message': 'text' }");
+        assertEquals(JavaScriptUtils.generateJson(3, "text"), "{ 'code': 3, 'message': 'text' }");
+    }
 }

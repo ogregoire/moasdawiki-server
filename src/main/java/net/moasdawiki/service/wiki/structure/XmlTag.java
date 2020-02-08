@@ -55,8 +55,8 @@ public class XmlTag extends PageElementWithChild {
 	 */
 	private Map<String, String> options;
 
-	public XmlTag(@Nullable String prefix, @NotNull String name, @Nullable Map<String, String> options, PageElement content, Integer fromPos,
-			Integer toPos) {
+	public XmlTag(@Nullable String prefix, @NotNull String name, @Nullable Map<String, String> options, @Nullable PageElement content,
+				  @Nullable Integer fromPos, @Nullable Integer toPos) {
 		super(content, fromPos, toPos);
 		this.prefix = prefix;
 		this.name = name;

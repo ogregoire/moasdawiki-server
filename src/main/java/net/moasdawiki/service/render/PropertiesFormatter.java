@@ -24,8 +24,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Stellt eine Properties-Datei formatiert inkl. Syntaxhervorhebung in HTML dar.
- * Wird für das @@-Tag benötigt.<br>
- * <br>
+ * Wird für das @@-Tag benötigt.
+ *
  * Ist nicht Thread-safe.
  *
  * @author Herbert Reiter
@@ -85,7 +85,6 @@ public class PropertiesFormatter {
 				sb.append(escapeAndFormatHtml(token.tokenStr));
 			}
 		}
-
 		return sb.toString();
 	}
 
@@ -99,8 +98,8 @@ public class PropertiesFormatter {
 	}
 
 	/**
-	 * Liefert das nächste Token. Ein Zeilenumbruch wird stets normiert als '\n'
-	 * zurückgegeben, '\r' wird entfernt.
+	 * Liefert das nächste Token.
+	 * Ein Zeilenumbruch wird stets normiert als '\n' zurückgegeben, '\r' wird entfernt.
 	 * 
 	 * @return <code>null</code> --> Ende erreicht.
 	 */

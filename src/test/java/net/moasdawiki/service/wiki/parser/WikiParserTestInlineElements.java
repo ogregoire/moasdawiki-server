@@ -847,4 +847,32 @@ public class WikiParserTestInlineElements {
         assertEquals(wikiTag.getOptions().size(), 1);
         assertEquals(wikiTag.getOptions().get("option1"), "value1");
     }
+
+    @Test
+    public void testParseXmlTag() throws Exception {
+        {
+            String text = "<tag>content</tag>";
+            PageElementList pel = new WikiParser(new StringReader(text)).parse();
+            Paragraph paragraph = (Paragraph) pel.get(0);
+            PageElementList paragraphChild = (PageElementList) paragraph.getChild();
+            assertTrue(paragraphChild.get(0) instanceof XmlTag);
+            XmlTag xmlTag = (XmlTag) paragraphChild.get(0);
+            assertEquals(xmlTag.getName(), "tag");
+            assertNull(xmlTag.getPrefix());
+            assertEquals(xmlTag.getOptions().size(), 0);
+            assertEquals(WikiHelper.getStringContent(xmlTag.getChild()), "content");
+        }
+        {
+            String text = "<prefix:tag attr1=value1>content</prefix:tag>";
+            PageElementList pel = new WikiParser(new StringReader(text)).parse();
+            Paragraph paragraph = (Paragraph) pel.get(0);
+            PageElementList paragraphChild = (PageElementList) paragraph.getChild();
+            assertTrue(paragraphChild.get(0) instanceof XmlTag);
+            XmlTag xmlTag = (XmlTag) paragraphChild.get(0);
+            assertEquals(xmlTag.getName(), "tag");
+            assertEquals(xmlTag.getPrefix(), "prefix");
+            assertEquals(xmlTag.getOptions().size(), 1);
+            assertEquals(xmlTag.getOptions().get("attr1"), "value1");
+        }
+    }
 }

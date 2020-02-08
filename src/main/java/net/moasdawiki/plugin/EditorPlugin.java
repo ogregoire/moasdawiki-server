@@ -33,7 +33,6 @@ import net.moasdawiki.server.HttpResponse;
 import net.moasdawiki.service.render.HtmlService;
 import net.moasdawiki.service.render.HtmlWriter;
 import net.moasdawiki.service.render.HtmlWriter.Method;
-import net.moasdawiki.service.render.JsonHelper;
 import net.moasdawiki.service.render.WikiPage2Html;
 import net.moasdawiki.service.repository.AnyFile;
 import net.moasdawiki.service.repository.RepositoryService;
@@ -569,13 +568,13 @@ public class EditorPlugin implements Plugin {
 		if (filePath.length() == 0 || filePath.endsWith("/")) {
 			logger.write("Upload file name '" + filePath + "' is invalid");
 			String msg = messages.getMessage("EditorPlugin.upload.invalidName", filePath);
-			return JsonHelper.generateResponse(400, msg);
+			return generateJsonResponse(400, msg);
 		}
 		// auf Rückwärtsnavigation prüfen
 		if (filePath.contains("..")) {
 			logger.write("Upload file name '" + filePath + "' contains illegal parent navigation");
 			String msg = messages.getMessage("EditorPlugin.upload.parentNavigation", filePath);
-			return JsonHelper.generateResponse(400, msg);
+			return generateJsonResponse(400, msg);
 		}
 		if (filePath.charAt(0) != '/') {
 			filePath = '/' + filePath;
@@ -593,10 +592,18 @@ public class EditorPlugin implements Plugin {
 			logger.write("File '" + filePath + "' successfully uploaded");
 		} catch (Exception e) {
 			logger.write("Error uploading file '" + filePath + "'", e);
-			return JsonHelper.generateResponse(500, e.getMessage());
+			return generateJsonResponse(500, e.getMessage());
 		}
 
-		return JsonHelper.generateResponse(200, "File upload successful: " + filePath);
+		return generateJsonResponse(200, "File upload successful: " + filePath);
+	}
+
+	private HttpResponse generateJsonResponse(int statusCode, @NotNull String jsonText) {
+		HttpResponse result = new HttpResponse();
+		result.setStatusCode(statusCode);
+		result.setContentType(HttpResponse.CONTENT_TYPE_JSON_UTF8);
+		result.setContent(JavaScriptUtils.generateJson(jsonText));
+		return result;
 	}
 
 	/**

@@ -66,10 +66,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Wandelt eine Wiki-Seite in den entsprechenden HTML-Text um.<br>
- * <br>
+ * Wandelt eine Wiki-Seite in den entsprechenden HTML-Text um.
+ *
  * Ist nicht Thread-safe.
- * 
+ *
  * @author Herbert Reiter
  */
 public class WikiPage2Html {
@@ -94,8 +94,7 @@ public class WikiPage2Html {
 	/**
 	 * Konvertiert eine Wiki-Seite in die entsprechende HTML-Darstellung.
 	 * 
-	 * @param contentPage Wiki-Seite, deren Inhalt jetzt verarbeitet werden
-	 *        soll.
+	 * @param contentPage Wiki-Seite, deren Inhalt jetzt verarbeitet werden soll.
 	 */
 	@NotNull
 	public HtmlWriter generate(@NotNull PageElement contentPage) {
@@ -105,10 +104,10 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Übersetzt ein einzelnes Seitenelement.<br>
-	 * <br>
-	 * Wiki-interne Elemente werden hier ignoriert. Diese müssen vorher durch
-	 * Plugins in normale Elemente umgewandelt worden sein.
+	 * Übersetzt ein einzelnes Seitenelement.
+	 *
+	 * Wiki-interne Elemente werden hier ignoriert.
+	 * Diese müssen vorher durch Plugins in normale Elemente umgewandelt worden sein.
 	 * 
 	 * @param element Das zu übersetzende Seitenelement.
 	 */
@@ -117,8 +116,7 @@ public class WikiPage2Html {
 			return;
 		}
 
-		// falls eine Aufzählung oder Nummerierung offen ist,
-		// diese ggf. schließen
+		// falls eine Aufzählung oder Nummerierung offen ist, diese ggf. schließen
 		if (!(element instanceof UnorderedListItem) && !(element instanceof OrderedListItem)) {
 			setEnumerationLevel(0, false);
 		}
@@ -194,14 +192,12 @@ public class WikiPage2Html {
 		}
 
 		// Nach einem Block-Element eine neue HTML-Zeile beginnen,
-		// nach einem inline-Element darf in der selben Zeile weitergeschrieben
-		// werden
+		// nach einem inline-Element darf in der selben Zeile weitergeschrieben werden
 		if (!element.isInline()) {
 			writer.setContinueInNewLine();
 		}
 
-		// letztes Element merken, aber Anker ignorieren, weil die unsichtbar
-		// sind
+		// letztes Element merken, aber Anker ignorieren, weil die unsichtbar sind
 		if (!(element instanceof Anchor)) {
 			previousElement = element;
 		}
@@ -214,18 +210,17 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Gibt den Inhalt der Unterseite aus, ohne den Namen der Unterseite
-	 * anzuzeigen.
+	 * Gibt den Inhalt der Unterseite aus, ohne den Namen der Unterseite anzuzeigen.
 	 */
 	private void convertPageElement(@NotNull WikiPage wikiPage) {
 		convertGeneric(wikiPage.getChild());
 	}
 
 	/**
-	 * Erzeugt eine Überschrift.<br>
-	 * <br>
-	 * Eine Überschrift wird nicht automatisch verlinkt. Ein Anker muss ggf.
-	 * vorher generiert werden.
+	 * Erzeugt eine Überschrift.
+	 *
+	 * Eine Überschrift wird nicht automatisch verlinkt.
+	 * Ein Anker muss ggf. vorher generiert werden.
 	 */
 	private void convertPageElement(@NotNull Heading heading) {
 		// Tag-Typ bestimmen
@@ -247,7 +242,11 @@ public class WikiPage2Html {
 
 		// Überschrift-Tag öffnen
 		String contentString = WikiHelper.getStringContent(heading);
-		int depth = writer.openTag(tagName, "id=\"" + WikiHelper.getIdString(contentString) + "\"");
+		String param = null;
+		if (!contentString.isEmpty()) {
+			param = "id=\"" + WikiHelper.getIdString(contentString) + "\"";
+		}
+		int depth = writer.openTag(tagName, param);
 
 		// Editier-Symbol für Abschnitt generieren
 		WikiPage wikiPage = WikiHelper.getContextWikiPage(heading, false);
@@ -266,16 +265,14 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Bestimmt die Endeposition des Abschnitts, der mit der angegebenen
-	 * Überschrift beginnt. Ein Abschnitt geht bis zur nächsten Überschrift, die
-	 * nicht untergeordnet ist (der Level darf nicht größer sein), ansonsten bis
-	 * zum Ende der aktuellen Umgebung (z.B. Tabellenzelle oder Wikiseite).<br>
-	 * <br>
-	 * Hat die nächste Überschrift den Wert <code>fromPos</code> nicht gesetzt
-	 * hat oder das Ende der Wikiseite nicht ermittelt werden konnte, wird
-	 * <code>null</code> zurückgegeben.
+	 * Bestimmt die Endeposition des Abschnitts, der mit der angegebenen Überschrift beginnt.
+	 * Ein Abschnitt geht bis zur nächsten Überschrift, die nicht untergeordnet ist (der Level darf nicht größer sein),
+	 * ansonsten bis zum Ende der aktuellen Umgebung (z.B. Tabellenzelle oder Wikiseite).
+	 *
+	 * Hat die nächste Überschrift den Wert <code>fromPos</code> nicht gesetzt hat oder
+	 * das Ende der Wikiseite nicht ermittelt werden konnte, wird <code>null</code> zurückgegeben.
 	 * 
-	 * @param heading Überschrift, mit der der Abschnitt beginnt. Nicht null.
+	 * @param heading Überschrift, mit der der Abschnitt beginnt.
 	 * @return Endeposition des aktuellen Abschnitts. null -> unbekannt.
 	 */
 	@Nullable
@@ -377,8 +374,7 @@ public class WikiPage2Html {
 			currentLevel--;
 		}
 
-		// wenn der Typ des aktuellen Tags nicht stimmt, auch dieses Tag
-		// schließen
+		// wenn der Typ des aktuellen Tags nicht stimmt, auch dieses Tag schließen
 		if (currentLevel > 0 && currentLevel == level
 				&& ((unordered && !"ul".equals(writer.getCurrentTag())) || (!unordered && !"ol".equals(writer.getCurrentTag())))) {
 			writer.closeTag();
@@ -463,9 +459,9 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Gibt einen Absatz aus. Wenn das vorherige Seitenelement ein Absatz, eine
-	 * Aufzählung oder eine Tabelle ist, wird zusätzlich ein Abstand davor
-	 * eingefügt.
+	 * Gibt einen Absatz aus.
+	 * Wenn das vorherige Seitenelement ein Absatz, eine Aufzählung oder eine Tabelle ist,
+	 * wird zusätzlich ein Abstand davor eingefügt.
 	 */
 	private void convertPageElement(@NotNull Paragraph paragraph) {
 		// ggf. vertikalen Abstand zwischen zwei Absätze einfügen
@@ -486,11 +482,10 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Formatiert einen Codeblock, ggf. mit Syntaxhervorhebung.<br>
-	 * <br>
-	 * <tt>white-space: pre</tt> kann nicht verwendet werden, weil dann bei
-	 * Copy&Paste die Zeilenumbrüche fehlen. Die Formatierung muss daher per
-	 * HTML nachgebildet werden.
+	 * Formatiert einen Codeblock, ggf. mit Syntaxhervorhebung.
+	 *
+	 * <tt>white-space: pre</tt> kann nicht verwendet werden, weil dann bei Copy&Paste die Zeilenumbrüche fehlen.
+	 * Die Formatierung muss daher per HTML nachgebildet werden.
 	 */
 	private void convertPageElement(@NotNull Code code) {
 		int depth = writer.openDivTag("code");
@@ -527,15 +522,10 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Formatiert den Code unter Beibehaltung der Zeilenumbrüche und
-	 * Leerzeichen, jedoch ohne spezielle Syntaxhervorhebung.
+	 * Formatiert den Code unter Beibehaltung der Zeilenumbrüche und Leerzeichen, jedoch ohne spezielle Syntaxhervorhebung.
 	 */
-	@Nullable
-	private static String formatCode(@Nullable String codeText) {
-		if (codeText == null || codeText.isEmpty()) {
-			return null;
-		}
-
+	@NotNull
+	private static String formatCode(@NotNull String codeText) {
 		// zunächst alle HTML-Kommandos unschädlich machen
 		String str = EscapeUtils.escapeHtml(codeText);
 
@@ -612,8 +602,8 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Zeilenumbrüche werden *nicht* durch &lt;br&gt; ersetzt, weil "nowiki"
-	 * überhaupt keine Interpretation verursachen soll.
+	 * Zeilenumbrüche werden *nicht* durch &lt;br&gt; ersetzt,
+	 * weil "nowiki" überhaupt keine Interpretation verursachen soll.
 	 */
 	private void convertPageElement(@NotNull Nowiki nowiki) {
 		String text = EscapeUtils.escapeHtml(nowiki.getText());
@@ -628,9 +618,9 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Erzeugt einen Link auf eine Wiki-Seite. Ggf. wird ein Anker-Link
-	 * innerhalb einer Wiki-Seite erzeugt. Anker-Links beginnen mit dem Symbol
-	 * <code>#</code>.
+	 * Erzeugt einen Link auf eine Wiki-Seite.
+	 * Ggf. wird ein Anker-Link innerhalb einer Wiki-Seite erzeugt.
+	 * Anker-Links beginnen mit dem Symbol <code>#</code>.
 	 */
 	private void convertPageElement(@NotNull LinkPage link) {
 		// Kontext bestimmen
@@ -782,9 +772,8 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Erzeugt einen externen Link, der auf eine Seite außerhalb des Wiki
-	 * verweist. Hinter dem Link wird eine Weltkugel-Grafik angezeigt, damit der
-	 * Link als externer Link erkennbar ist.
+	 * Erzeugt einen externen Link, der auf eine Seite außerhalb des Wiki verweist.
+	 * Hinter dem Link wird eine Weltkugel-Grafik angezeigt, damit der Link als externer Link erkennbar ist.
 	 */
 	private void convertPageElement(@NotNull LinkExternal link) {
 		String cssClass;
@@ -809,9 +798,8 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Gibt den Inhalt des SemanticTag aus, ohne den Namen des semantischen Tags
-	 * selbst auszugeben. Offensichtlich war kein Plugin vorhanden, das dieses
-	 * Tag behandelt hat.
+	 * Gibt den Inhalt des SemanticTag aus, ohne den Namen des semantischen Tags selbst auszugeben.
+	 * Offensichtlich war kein Plugin vorhanden, das dieses Tag behandelt hat.
 	 */
 	private void convertPageElement(@NotNull XmlTag xmlTag) {
 		// XML-Tag selbst ist unsichtbar -> ignorieren

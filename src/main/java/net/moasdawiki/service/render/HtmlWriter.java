@@ -47,25 +47,19 @@ public class HtmlWriter {
 	private String title;
 
 	/**
-	 * Inhalt des HTML-Header. Nicht null.
-	 */
-	@NotNull
-	private final ArrayList<String> headText;
-
-	/**
 	 * Optionale Parameter des body-Tags. null -> keine Parameter.
 	 */
 	@Nullable
 	private String bodyParams;
 
 	/**
-	 * Inhalt des HTML-Body. Nicht null.
+	 * Inhalt des HTML-Body.
 	 */
 	@NotNull
 	private final ArrayList<String> bodyText;
 
 	/**
-	 * Stack der geöffneten HTML-Tags. Nicht null.
+	 * Stack der geöffneten HTML-Tags.
 	 */
 	@NotNull
 	private final Stack<String> tagStack;
@@ -77,7 +71,6 @@ public class HtmlWriter {
 
 	public HtmlWriter() {
 		super();
-		headText = new ArrayList<>();
 		bodyText = new ArrayList<>();
 		tagStack = new Stack<>();
 		// an Anfang muss eine neue Zeile erzeugt werden
@@ -99,43 +92,6 @@ public class HtmlWriter {
 	@Nullable
 	public String getTitle() {
 		return title;
-	}
-
-	/**
-	 * Fügt eine Weiterleitung auf eine andere URL in den HTML-Header ein.
-	 * 
-	 * @param url muss korrekten String enthalten.
-	 * @param sec Anzahl Sekunden, nach denen die Weiterleitung erfolgen soll.
-	 */
-	public void setRedirect(@NotNull String url, int sec) {
-		headText.add("<meta http-equiv=\"Refresh\" content=\"" + sec + "; URL=" + url + "\" />");
-	}
-
-	/**
-	 * Bindet eine CSS-Datei ein.
-	 * 
-	 * @param url Adresse der CSS-Datei.
-	 */
-	public void addStylesheet(@NotNull String url) {
-		headText.add("<link rel=\"stylesheet\"" + " type=\"text/css\" href=\"" + url + "\" />");
-	}
-
-	/**
-	 * Bindet eine JavaScript-Datei ein.
-	 * 
-	 * @param url Adresse der JavaScript-Datei.
-	 */
-	public void addJavaScript(@NotNull String url) {
-		headText.add("<script type=\"text/javascript\" src=\"" + url + "\"></script>");
-	}
-
-	/**
-	 * Gibt die Header-Zeilen zurück.
-	 * 
-	 * @return Liste der Header-Zeilen. Nicht null.
-	 */
-	public List<String> getHeaderLines() {
-		return headText;
 	}
 
 	/**
@@ -248,34 +204,42 @@ public class HtmlWriter {
 	}
 
 	public int openFormTag(@Nullable String name, @Nullable String action, @Nullable Method method) {
-		String methodName;
+		StringBuilder params = new StringBuilder();
+		params.append("method=\"");
 		if (method == Method.GET) {
-			methodName = "get";
+			params.append(EscapeUtils.escapeHtml("get"));
 		} else {
-			methodName = "post";
+			params.append(EscapeUtils.escapeHtml("post"));
 		}
-
-		String params = "method=\"" + EscapeUtils.escapeHtml(methodName)
-				+ "\" action=\"" + EscapeUtils.escapeHtml(action) + "\" "
-				+ "enctype=\"application/x-www-form-urlencoded; charset=utf-8\"";
+		params.append('"');
+		if (action != null) {
+			params.append(" action=\"");
+			params.append(EscapeUtils.escapeHtml(action));
+			params.append('"');
+		}
+		params.append(" enctype=\"application/x-www-form-urlencoded; charset=utf-8\"");
 		if (name != null) {
-			params += " name=\"" + EscapeUtils.escapeHtml(name) + '\"';
+			params.append(" name=\"");
+			params.append(EscapeUtils.escapeHtml(name));
+			params.append('"');
 		}
-		return openTag("form", params);
-	}
-
-	public void closeTag() {
-		String tag = tagStack.pop();
-		htmlText("</" + tag + ">");
-	}
-
-	public int getStackDepth() {
-		return tagStack.size();
+		return openTag("form", params.toString());
 	}
 
 	/**
-	 * Schließt offene Tags bis zur angegebenen Stacktiefe. 0 = alle Tags
-	 * schließen.
+	 * Schließt das zuletzt geöffnete Tag.
+	 * Wenn kein Tag offen ist, passiert nichts.
+	 */
+	public void closeTag() {
+		if (!tagStack.empty()) {
+			String tag = tagStack.pop();
+			htmlText("</" + tag + ">");
+		}
+	}
+
+	/**
+	 * Schließt offene Tags bis zur angegebenen Stacktiefe.
+	 * 0 = alle Tags schließen.
 	 */
 	public void closeTags(int stackDepth) {
 		while (tagStack.size() > stackDepth) {
@@ -284,14 +248,12 @@ public class HtmlWriter {
 	}
 
 	public void closeAllTags() {
-		while (!tagStack.isEmpty()) {
-			closeTag();
-		}
+		closeTags(0);
 	}
 
 	/**
-	 * Gibt das zuletzt geöffnete, noch offene Tag zurück. Wenn kein Tag offen
-	 * ist, wird null zurückgegeben.
+	 * Gibt das zuletzt geöffnete, noch offene Tag zurück.
+	 * Wenn kein Tag offen ist, wird null zurückgegeben.
 	 */
 	@Nullable
 	public String getCurrentTag() {
@@ -299,8 +261,9 @@ public class HtmlWriter {
 	}
 
 	/**
-	 * Gibt ein zuvor geöffnetes Tag zurück. Der Parameter downStack gibt an,
-	 * wie viele Schritte vorher das Tag geöffnet wurde.
+	 * Gibt ein zuvor geöffnetes Tag zurück.
+	 *
+	 * @param downStack Anzahl Stack-Ebenen tiefer nachschauen; 0 -> zuletzt geöffnetes Tag.
 	 */
 	@Nullable
 	public String getCurrentTag(int downStack) {
@@ -315,14 +278,12 @@ public class HtmlWriter {
 	/**
 	 * Fügt den Body des angegebenen HtmlWriter ein.
 	 */
-	public void addHtmlWriter(HtmlWriter htmlWriter) {
-		if (htmlWriter == null) {
-			return;
-		}
-		htmlWriter.closeAllTags(); // evtl. offene Tags schließen
-		for (int i = 0; i < htmlWriter.bodyText.size(); i++) {
+	public void addHtmlWriter(@NotNull HtmlWriter htmlWriter) {
+		// evtl. offene Tags schließen
+		htmlWriter.closeAllTags();
+		for (String line : htmlWriter.bodyText) {
 			setContinueInNewLine();
-			htmlText(htmlWriter.bodyText.get(i));
+			htmlText(line);
 		}
 		setContinueInNewLine();
 	}

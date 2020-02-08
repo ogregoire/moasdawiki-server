@@ -24,7 +24,9 @@ import net.moasdawiki.base.ServiceException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.List;
@@ -113,7 +115,8 @@ public class FilesystemRepositoryServiceTest {
     public void testGetLastModifiedFilesNoFilter() {
         List<AnyFile> files = frs.getLastModifiedFiles(1, anyFile -> true);
         assertEquals(files.size(), 1);
-        assertEquals(files.get(0).getFilePath(), "/file-2020-02-01.txt");
+        assertTrue(files.get(0).getFilePath().equals("/file-2020-02-01.txt") ||
+                files.get(0).getFilePath().equals("/filelist.cache"));
     }
 
     @Test

@@ -24,8 +24,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Stellt XML- und HTML-Code formatiert inkl. Syntaxhervorhebung in HTML dar.
- * Wird für das @@-Tag benötigt.<br>
- * <br>
+ * Wird für das @@-Tag benötigt.
+ *
  * Ist nicht Thread-safe.
  *
  * @author Herbert Reiter
@@ -111,7 +111,7 @@ public class XmlFormatter {
 	private Token nextToken() {
 		StringBuilder tokenText = null;
 		TokenType tokenType = null; // nur wenn tokenText != null
-		char stringQuote = '\0'; // '/", nur wenn tokenType == ATTRIBUTE_VALUE
+		char stringQuote = '\0'; // '"' oder '\''; nur relevant wenn tokenType == ATTRIBUTE_VALUE
 
 		while (readCount < codeText.length()) {
 			char ch = codeText.charAt(readCount);
