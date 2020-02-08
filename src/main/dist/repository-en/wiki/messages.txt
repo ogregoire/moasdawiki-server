@@ -1,11 +1,9 @@
 @@
 // MoasdaWiki message file
 //
-// Contains translations for hard coded messages in the wiki
-// server or plug-ins. This file has to be referred in config.txt
-// to load it. Changes take effect only after a server restart.
-// The characters "@@" on top and bottom of the file are
-// just for better readability as wiki page.
+// This file has to be referred in config.txt to load it.
+// The characters "@@" on top and bottom of the file are just for better readability as wiki page.
+// Changes take effect only after a server restart.
 
 wiki.errorpage.linkToStartpage = Back to <a href="/">start page</a>
 wiki.errorpage.message = Error message: {0}
@@ -53,6 +51,7 @@ FileDownloadPlugin.readError = Error reading file ''{0}''.
 FileDownloadPlugin.reverseNavigation = The file path ''{0}'' contains an invalid reverse navigation!
 
 SearchPlugin.error = Search cannot be performed
+SearchPlugin.includeWikiText = Search also in wiki page content
 SearchPlugin.relevance = Relevance: {0}
 SearchPlugin.summary.one = 1 page found.
 SearchPlugin.summary.more = {0} pages found.

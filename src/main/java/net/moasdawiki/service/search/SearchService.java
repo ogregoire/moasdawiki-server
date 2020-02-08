@@ -22,9 +22,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.Normalizer;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -78,7 +76,6 @@ public class SearchService {
 	 * @param query Query-String.
 	 * @return Suchbedingungen.
 	 */
-	@SuppressWarnings("ConstantConditions")
 	@NotNull
 	public SearchQuery parseQueryString(@NotNull String query) {
 		Set<String> included = new HashSet<>();
@@ -87,13 +84,13 @@ public class SearchService {
 		boolean includedPhrase = true;
 		boolean insideQuote = false;
 		StringBuilder phrase = new StringBuilder();
-		while (query != null && i < query.length()) {
+		while (i < query.length()) {
 			char ch = query.charAt(i);
 			if (phrase.length() == 0 && !insideQuote) {
 				// Steuerzeichen interpretieren
 				if (ch == '-' && includedPhrase) {
 					includedPhrase = false;
-				} else if (ch == '\"' && !insideQuote) {
+				} else if (ch == '\"') {
 					insideQuote = true;
 				} else if (ch == ' ' || ch == '\t') {
 					// zurücksetzen
@@ -142,14 +139,14 @@ public class SearchService {
 	 * Durchsucht alle Wiki-Seiten, die auf die SearchQuery passen.
 	 * Die SearchQuery muss dabei mindestens eine zu suchende Textphrase enthalten.
 	 * Der Stringvergleich behandelt ähnlich aussehende Zeichen gleich, siehe siehe {@link #generateNormalizedPattern(Set)}.
-	 * 
-	 * @return Suchergebnis.
+	 *
+	 * @param searchQuery the search query.
+	 * @param scanWikiText Scan also wiki text? If false, only the page title is scanned.
+	 * @return Search result
 	 */
 	@NotNull
-	public SearchResult searchInRepository(@NotNull SearchQuery searchQuery) throws ServiceException {
-		SearchResult searchResult = new SearchResult();
-		searchResult.searchQuery = searchQuery;
-
+	public SearchResult searchInRepository(@NotNull SearchQuery searchQuery, boolean scanWikiText) throws ServiceException {
+		SearchResult searchResult = new SearchResult(searchQuery);
 		if (searchQuery.getIncluded().size() == 0) {
 			// kein vorzukommender Suchtext angegeben --> leere Ergebnisliste
 			return searchResult;
@@ -170,15 +167,22 @@ public class SearchService {
 
 		// alle Wikiseiten durchsuchen
 		for (String filePath : wikiService.getWikiFilePaths()) {
-			WikiFile wikiFile = wikiService.getWikiFile(filePath);
-			if (isPageMatching(wikiFile.getWikiFilePath(), wikiFile.getWikiText(), includedPatterns, excludedPattern)) {
-				PageDetails pageDetails = scanPage(wikiFile.getWikiFilePath(), wikiFile.getWikiText(), includedPattern);
-				searchResult.resultList.add(pageDetails);
+			String wikiText;
+			if (scanWikiText) {
+				// loads wiki file if not in cache yet, might be time consuming
+				WikiFile wikiFile = wikiService.getWikiFile(filePath);
+				wikiText = wikiFile.getWikiText();
+			} else {
+				wikiText = ""; // nothing to find in page body
+			}
+			if (isPageMatching(filePath, wikiText, includedPatterns, excludedPattern)) {
+				PageDetails pageDetails = scanPage(filePath, wikiText, includedPattern);
+				searchResult.getResultList().add(pageDetails);
 			}
 		}
 
 		// Treffer nach absteigender Relevanz sortieren
-		searchResult.resultList.sort((p1, p2) -> Integer.compare(p2.relevance, p1.relevance));
+		searchResult.getResultList().sort((p1, p2) -> Integer.compare(p2.relevance, p1.relevance));
 
 		return searchResult;
 	}
@@ -224,27 +228,24 @@ public class SearchService {
 	 */
 	@Nullable
 	private PageDetails scanPage(@NotNull String pagePath, @NotNull String wikiText, @NotNull Pattern includedPattern) throws ServiceException {
-		PageDetails result = new PageDetails();
-		result.pagePath = pagePath;
-
 		// Fundstellen im Seitennamen aufsammeln
 		MatchingCategories mc = new MatchingCategories();
-		scanPageTitle(pagePath, includedPattern, mc, result);
+		MatchingLine titleLine = scanPageTitle(pagePath, includedPattern, mc);
 
 		// Fundstellen im Seitentext aufsammeln
-		scanPageText(pagePath, wikiText, includedPattern, mc, result);
+		List<MatchingLine> textLines = scanPageText(pagePath, wikiText, includedPattern, mc);
 
 		// Relevanz berechnen
-		result.relevance = calculateRelevance(mc);
-		if (result.relevance > 0) {
-			return result;
-		} else {
+		int relevance = calculateRelevance(mc);
+		if (relevance == 0) {
 			return null; // Seite enthält den Suchtext nicht
 		}
+		return new PageDetails(pagePath, titleLine, textLines, relevance);
 	}
 
-	private void scanPageTitle(@NotNull String pagePath, @NotNull Pattern includedPattern, @NotNull MatchingCategories mc, @NotNull PageDetails pageDetails) {
-		pageDetails.titleLine.line = pagePath;
+	@NotNull
+	private MatchingLine scanPageTitle(@NotNull String pagePath, @NotNull Pattern includedPattern, @NotNull MatchingCategories mc) {
+		MatchingLine result = new MatchingLine(pagePath);
 
 		// Wikiseite normalisieren
 		String pagePathNorm = unicodeNormalize(pagePath);
@@ -258,7 +259,7 @@ public class SearchService {
 			mc.titleComplete = true;
 			mc.titleWord++;
 			if (mPath.start() < mPath.end()) {
-				pageDetails.titleLine.positions.add(new Marker(mPath.start(), mPath.end()));
+				result.getPositions().add(new Marker(mPath.start(), mPath.end()));
 			}
 
 		} else if (mName.matches()) {
@@ -267,7 +268,7 @@ public class SearchService {
 			mc.titleWord++;
 			int prefixLen = pagePath.length() - pageName.length();
 			if (mName.start() < mName.end()) {
-				pageDetails.titleLine.positions.add(new Marker(prefixLen + mName.start(), prefixLen + mName.end()));
+				result.getPositions().add(new Marker(prefixLen + mName.start(), prefixLen + mName.end()));
 			}
 
 		} else {
@@ -280,15 +281,17 @@ public class SearchService {
 					mc.titleSubstring++;
 				}
 				if (mPath.start() < mPath.end()) {
-					pageDetails.titleLine.positions.add(new Marker(mPath.start(), mPath.end()));
+					result.getPositions().add(new Marker(mPath.start(), mPath.end()));
 				}
 			}
 		}
+		return result;
 	}
 
-	private void scanPageText(@NotNull String pagePath, @NotNull String wikiText, @NotNull Pattern includedPattern, @NotNull MatchingCategories mc, @NotNull PageDetails pageDetails)
-			throws ServiceException {
+	@NotNull
+	private List<MatchingLine> scanPageText(@NotNull String pagePath, @NotNull String wikiText, @NotNull Pattern includedPattern, @NotNull MatchingCategories mc) throws ServiceException {
 		try {
+			List<MatchingLine> textLines = new ArrayList<>();
 			BufferedReader reader = new BufferedReader(new StringReader(wikiText));
 			String line = reader.readLine();
 			while (line != null) {
@@ -314,17 +317,17 @@ public class SearchService {
 						}
 
 						if (matchingLine == null) {
-							matchingLine = new MatchingLine();
-							matchingLine.line = line;
-							pageDetails.textLines.add(matchingLine);
+							matchingLine = new MatchingLine(line);
+							textLines.add(matchingLine);
 						}
 						if (m.start() < m.end()) {
-							matchingLine.positions.add(new Marker(m.start(), m.end()));
+							matchingLine.getPositions().add(new Marker(m.start(), m.end()));
 						}
 					}
 				}
 				line = reader.readLine();
 			}
+			return textLines;
 		} catch (IOException e) {
 			// kann eigentlich nicht auftreten
 			String message = "Fehler beim Durchsuchen der Wiki-Seite '" + pagePath + "'";

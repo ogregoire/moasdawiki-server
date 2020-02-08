@@ -30,15 +30,8 @@ import net.moasdawiki.service.search.SearchResult.Marker;
 import net.moasdawiki.service.search.SearchResult.MatchingLine;
 import net.moasdawiki.service.search.SearchResult.PageDetails;
 import net.moasdawiki.service.wiki.WikiHelper;
-import net.moasdawiki.service.wiki.structure.Bold;
-import net.moasdawiki.service.wiki.structure.Heading;
-import net.moasdawiki.service.wiki.structure.LineBreak;
-import net.moasdawiki.service.wiki.structure.LinkPage;
-import net.moasdawiki.service.wiki.structure.PageElementList;
-import net.moasdawiki.service.wiki.structure.TextOnly;
-import net.moasdawiki.service.wiki.structure.UnorderedListItem;
-import net.moasdawiki.service.wiki.structure.VerticalSpace;
-import net.moasdawiki.service.wiki.structure.WikiPage;
+import net.moasdawiki.service.wiki.structure.*;
+import net.moasdawiki.util.EscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,11 +57,12 @@ public class SearchPlugin implements Plugin {
 	@Nullable
 	@PathPattern("/search/.*")
 	public HttpResponse handleRequest(@NotNull HttpRequest request) {
+		String query = request.urlParameters.get("text");
+		boolean scanWikiText = Boolean.parseBoolean(request.urlParameters.get("scanWikiText"));
+		SearchQuery searchQuery = searchService.parseQueryString(query);
 		try {
-			String query = request.urlParameters.get("text");
-			SearchQuery searchQuery = searchService.parseQueryString(query);
-			SearchResult searchResult = searchService.searchInRepository(searchQuery);
-			WikiPage wikiPage = generateSearchResultPage(searchResult);
+			SearchResult searchResult = searchService.searchInRepository(searchQuery, scanWikiText);
+			WikiPage wikiPage = generateSearchResultPage(searchResult, scanWikiText);
 			wikiPage = WikiHelper.extendWikiPage(wikiPage, true, false, false, serviceLocator);
 			return htmlService.convertPage(wikiPage);
 		} catch (ServiceException e) {
@@ -77,15 +71,22 @@ public class SearchPlugin implements Plugin {
 	}
 
 	@NotNull
-	private WikiPage generateSearchResultPage(@NotNull SearchResult searchResult) {
+	private WikiPage generateSearchResultPage(@NotNull SearchResult searchResult, boolean scanWikiText) {
 		PageElementList pageContent = new PageElementList();
 
 		// Seitenname ausgeben
-		String pageTitle = messages.getMessage("SearchPlugin.title", searchResult.searchQuery.getQueryString());
+		String pageTitle = messages.getMessage("SearchPlugin.title", searchResult.getSearchQuery().getQueryString());
 		pageContent.add(new Heading(1, new TextOnly(pageTitle), null, null));
 
+		if (!scanWikiText) {
+			String url = "/search/?text=" + EscapeUtils.encodeUrlParameter(searchResult.getSearchQuery().getQueryString()) + "&scanWikiText=true";
+			String extendedSearch = messages.getMessage("SearchPlugin.includeWikiText");
+			LinkExternal linkExternal = new LinkExternal(url, new TextOnly(extendedSearch), null, null);
+			pageContent.add(new Paragraph(false, 0, false,  linkExternal, null, null));
+		}
+
 		// Anzahl Suchergebnisse ausgeben
-		int count = searchResult.resultList.size();
+		int count = searchResult.getResultList().size();
 		String countText;
 		if (count == 1) {
 			countText = messages.getMessage("SearchPlugin.summary.one");
@@ -95,7 +96,7 @@ public class SearchPlugin implements Plugin {
 		pageContent.add(new TextOnly(countText));
 
 		// Suchergebnisse ausgeben
-		for (PageDetails pageDetails : searchResult.resultList) {
+		for (PageDetails pageDetails : searchResult.getResultList()) {
 			PageElementList formattedpageDetails = generate(pageDetails);
 			pageContent.add(new UnorderedListItem(1, formattedpageDetails, null, null));
 		}
@@ -111,13 +112,13 @@ public class SearchPlugin implements Plugin {
 		PageElementList pageElementList = new PageElementList();
 
 		// Seitenname verlinkt anzeigen
-		PageElementList pageName = highlightMatching(pageDetails.titleLine);
-		pageElementList.add(new LinkPage(pageDetails.pagePath, pageName));
+		PageElementList pageName = highlightMatching(pageDetails.getTitleLine());
+		pageElementList.add(new LinkPage(pageDetails.getPagePath(), pageName));
 		pageElementList.add(new LineBreak());
 
 		// Treffer im Seitentext anzeigen
-		for (int i = 0; i < pageDetails.textLines.size() && i < 5; i++) {
-			MatchingLine matchingLine = pageDetails.textLines.get(i);
+		for (int i = 0; i < pageDetails.getTextLines().size() && i < 5; i++) {
+			MatchingLine matchingLine = pageDetails.getTextLines().get(i);
 			PageElementList formattedLine = highlightMatching(matchingLine);
 			pageElementList.add(formattedLine);
 			pageElementList.add(new LineBreak());
@@ -138,21 +139,21 @@ public class SearchPlugin implements Plugin {
 		PageElementList pageElementList = new PageElementList();
 
 		int lastIndex = 0;
-		for (Marker marker : matchingLine.positions) {
+		for (Marker marker : matchingLine.getPositions()) {
 			// Text vor der Markierung übernehmen
-			String textBefore = matchingLine.line.substring(lastIndex, marker.from);
+			String textBefore = matchingLine.getLine().substring(lastIndex, marker.getFrom());
 			pageElementList.add(new TextOnly(textBefore));
 
 			// Suchstring hervorheben
-			String textHighlighted = matchingLine.line.substring(marker.from, marker.to);
+			String textHighlighted = matchingLine.getLine().substring(marker.getFrom(), marker.getTo());
 			pageElementList.add(new Bold(new TextOnly(textHighlighted), null, null));
 
 			// Index nachziehen
-			lastIndex = marker.to;
+			lastIndex = marker.getTo();
 		}
 
 		// Rest komplett übernehmen
-		String textAfter = matchingLine.line.substring(lastIndex);
+		String textAfter = matchingLine.getLine().substring(lastIndex);
 		pageElementList.add(new TextOnly(textAfter));
 
 		return pageElementList;
