@@ -18,6 +18,9 @@ repositories {
     mavenCentral()
 }
 
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
 dependencies {
     compileOnly "org.jetbrains:annotations:18.0.0"
     testCompile "org.jetbrains:annotations:18.0.0"
@@ -52,3 +55,11 @@ distributions {
     }
 }
 distTar.enabled = false
+
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
+}

@@ -29,12 +29,10 @@ import net.moasdawiki.service.wiki.WikiFile;
 import net.moasdawiki.service.wiki.WikiService;
 import net.moasdawiki.service.wiki.structure.TextOnly;
 import net.moasdawiki.service.wiki.structure.WikiPage;
-import org.mockito.internal.matchers.Any;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -145,7 +143,7 @@ public class HtmlServiceTest {
         HttpResponse httpResponse = htmlService.generateRedirectToWikiPage("/pagePath");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpResponse.writeResponse(out);
-        String response = out.toString(StandardCharsets.UTF_8);
+        String response = out.toString("UTF-8");
         assertTrue(response.contains("HTTP/1.1 302 Moved Temporarily"));
         assertTrue(response.contains("Location: /view/pagePath"));
     }
@@ -155,7 +153,7 @@ public class HtmlServiceTest {
         HttpResponse httpResponse = htmlService.generateMessagePage("key", "arg");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpResponse.writeResponse(out);
-        String response = out.toString(StandardCharsets.UTF_8);
+        String response = out.toString("UTF-8");
         String expectedBody = "<body>\n" +
                 "  <b>key_arg</b>\n" +
                 "</body>";
@@ -168,7 +166,7 @@ public class HtmlServiceTest {
         HttpResponse httpResponse = htmlService.generateErrorPage(404, "key", "arg");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpResponse.writeResponse(out);
-        String response = out.toString(StandardCharsets.UTF_8);
+        String response = out.toString("UTF-8");
         String expectedBody = "<body>\n" +
                 "  <b>wiki.errorpage.message_key_arg</b><br>\n" +
                 "  <br>\n" +
@@ -185,7 +183,7 @@ public class HtmlServiceTest {
         HttpResponse httpResponse = htmlService.generateErrorPage(500, new ServiceException("error message"), "key", "arg");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpResponse.writeResponse(out);
-        String response = out.toString(StandardCharsets.UTF_8);
+        String response = out.toString("UTF-8");
         String expectedBody = "<body>\n" +
                 "  <b>wiki.errorpage.message_key_arg</b><br>\n" +
                 "  net.moasdawiki.base.ServiceException: error message<br>\n" +

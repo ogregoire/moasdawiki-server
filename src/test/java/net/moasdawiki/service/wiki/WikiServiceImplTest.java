@@ -165,12 +165,12 @@ public class WikiServiceImplTest {
         verify(repositoryServiceMock, never()).readTextFile(any());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testDeleteWikiFile() throws Exception {
         // prepare internal caches
         wikiService.wikiFileMap.put("/page-in-cache", mock(WikiFile.class));
         WikiFile parentWikiFile = mock(WikiFile.class);
-        //noinspection unchecked
         Set<String> parentChilds = mock(Set.class);
         when(parentWikiFile.getChildren()).thenReturn(parentChilds);
         wikiService.wikiFileMap.put("/parent-page", parentWikiFile);
@@ -217,17 +217,16 @@ public class WikiServiceImplTest {
         verify(repositoryServiceMock, times(1)).writeTextFile(any(), eq("testcontent"));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testWriteWikiTextWithCacheUpdate() throws Exception {
         // prepare internal caches
-        //noinspection unchecked
         Set<String> parent1Childs = mock(Set.class);
         {
             WikiFile parent1WikiFile = mock(WikiFile.class);
             when(parent1WikiFile.getChildren()).thenReturn(parent1Childs);
             wikiService.wikiFileMap.put("/parent-page1", parent1WikiFile);
         }
-        //noinspection unchecked
         Set<String> parent2Childs = mock(Set.class);
         {
             WikiFile parent2WikiFile = mock(WikiFile.class);

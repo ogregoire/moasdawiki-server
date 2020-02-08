@@ -29,7 +29,6 @@ import net.moasdawiki.service.wiki.WikiService;
 import net.moasdawiki.service.wiki.structure.WikiPage;
 import net.moasdawiki.util.EscapeUtils;
 import net.moasdawiki.util.PathUtils;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

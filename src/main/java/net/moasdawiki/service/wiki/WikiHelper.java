@@ -99,8 +99,7 @@ public abstract class WikiHelper {
                                                                        boolean recurseIntoMatchingNodes) {
         if (nodeType.isInstance(pageElement)) {
             // Call consumer method
-			//noinspection unchecked
-			consumer.consume((T) pageElement, context);
+			consumer.consume(nodeType.cast(pageElement), context);
 
             if (!recurseIntoMatchingNodes) {
                 // cancel recursion

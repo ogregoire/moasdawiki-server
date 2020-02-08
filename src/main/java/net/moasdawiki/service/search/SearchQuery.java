@@ -20,7 +20,6 @@ package net.moasdawiki.service.search;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -33,7 +32,7 @@ public class SearchQuery {
 	 * Ursprünglicher Query-String.
 	 */
 	@NotNull
-	private String queryString;
+	private final String queryString;
 	
 	/**
 	 * Textphrasen, die auf einer Wikiseite vorkommen müssen.
