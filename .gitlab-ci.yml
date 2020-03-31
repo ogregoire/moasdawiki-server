@@ -26,6 +26,8 @@ test:
     - ./gradlew check
   artifacts:
     expire_in: 1 day
+    paths:
+      - build
     reports:
       junit: build/reports/tests/test/junitreports/**/TEST-*.xml
 
