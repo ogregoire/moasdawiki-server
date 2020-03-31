@@ -14,6 +14,7 @@ build:
   script:
     - ./gradlew assemble
   artifacts:
+    expire_in: 1 day
     paths:
       - build/distributions/*.zip
   only:
@@ -24,6 +25,7 @@ test:
   script:
     - ./gradlew check
   artifacts:
+    expire_in: 1 day
     reports:
       junit: build/reports/tests/test/junitreports/**/TEST-*.xml
 
