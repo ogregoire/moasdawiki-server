@@ -14,7 +14,6 @@ build:
   script:
     - ./gradlew assemble
   artifacts:
-    expire_in: 1 day
     paths:
       - build/distributions/*.zip
   only:
@@ -29,7 +28,7 @@ test:
     paths:
       - build
     reports:
-      junit: build/reports/tests/test/junitreports/**/TEST-*.xml
+      junit: build/reports/tests/test/junitreports/*
 
 after_script:
   - echo "CI finished"
