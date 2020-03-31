@@ -56,6 +56,13 @@ distributions {
 }
 distTar.enabled = false
 
+test{
+    useTestNG() {
+        useDefaultListeners = true
+    }
+    reports.html.enabled = false
+}
+
 allprojects {
     gradle.projectsEvaluated {
         tasks.withType(JavaCompile) {

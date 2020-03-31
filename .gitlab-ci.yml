@@ -23,6 +23,9 @@ test:
   stage: test
   script:
     - ./gradlew check
+  artifacts:
+    reports:
+      junit: build/test-results/test/**/TEST-*.xml
 
 after_script:
   - echo "CI finished"
