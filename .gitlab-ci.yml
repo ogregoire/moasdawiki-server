@@ -25,7 +25,7 @@ test:
     - ./gradlew check
   artifacts:
     reports:
-      junit: build/test-results/test/**/TEST-*.xml
+      junit: build/reports/tests/test/junitreports/**/TEST-*.xml
 
 after_script:
   - echo "CI finished"
