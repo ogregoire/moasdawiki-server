@@ -40,8 +40,17 @@ The latest version is available at https://moasdawiki.net/.
 MoasdaWiki server requires Java 1.8 or higher and is running on several
 operating systems and platforms.
 
-MoasdaWiki server is provided as a ZIP file `moasdawiki-server-<version>.zip`
-that has to be unzipped. No special installation steps necessary.
+### Download / Build
+
+You can **download** MoasdaWiki server from https://gitlab.com/moasdawiki/moasdawiki-server/-/tags.
+Unzip the file `moasdawiki-server-<version>.zip` in any folder.
+No special installation steps necessary.
+
+Alternatively, you can clone and **build** the project locally:
+```
+gradle build
+```
+Afterwards, you will find the target ZIP file in the folder ```build/distributions/```.
 
 ### Running manually
 
