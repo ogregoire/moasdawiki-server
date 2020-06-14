@@ -75,6 +75,11 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 	 */
 	private static final int MAX_READ_FILE_SIZE = 10 * 1000 * 1000; // 10 MB
 
+	/**
+	 * File paths to be excluded from synchronization.
+	 */
+	private static final String[] EXLUDE_FILEPATHS = { SESSION_LIST_FILEPATH };
+
 	private Logger logger;
 	private Settings settings;
 	private RepositoryService repositoryService;
@@ -516,7 +521,6 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 				return generateErrorResponse("Session not authorized: " + listModifiedFiles.serverSessionId);
 			}
 			sessionData.lastSyncTimestamp = new Date();
-			writeSessionList();
 
 			// geänderte Dateien abfragen
 			Date lastSyncServerTime = parseUtcDateOrNull(listModifiedFiles.lastSyncServerTime);
@@ -553,8 +557,11 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 	 * der Liste entfernt.
 	 */
 	private Set<AnyFile> getModifiedFiles(Date lastSyncServerTime) {
-		Set<AnyFile> files = repositoryService.getModifiedAfter(lastSyncServerTime);
-		return new HashSet<>(files); // Kopie erstellen
+		Set<AnyFile> filesModified = repositoryService.getModifiedAfter(lastSyncServerTime);
+		for (String filePath : EXLUDE_FILEPATHS) {
+			filesModified.remove(new AnyFile(filePath));
+		}
+		return filesModified;
 	}
 
 	/**
@@ -720,7 +727,7 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 			int count = 0;
 			while ((line = reader.readLine()) != null) {
 				String[] token = line.split("\t", 8);
-				if (token.length != 8) {
+				if (token.length < 7) {
 					// Zeile ignorieren
 					continue;
 				}
@@ -733,7 +740,6 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 				sessionData.clientVersion = StringUtils.emptyToNull(token[4]);
 				sessionData.clientHost = StringUtils.emptyToNull(token[5]);
 				sessionData.authorized = Boolean.parseBoolean(token[6]);
-				sessionData.lastSyncTimestamp = DateUtils.parseUtcDate(StringUtils.emptyToNull(token[7]));
 				sessionMap.put(sessionData.serverSessionId, sessionData);
 				count++;
 			}
@@ -765,8 +771,6 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 			sb.append(StringUtils.nullToEmpty(sessionData.clientHost));
 			sb.append('\t');
 			sb.append(sessionData.authorized);
-			sb.append('\t');
-			sb.append(StringUtils.nullToEmpty(DateUtils.formatUtcDate(sessionData.lastSyncTimestamp)));
 			sb.append('\n');
 		}
 		String fileContent = sb.toString();
