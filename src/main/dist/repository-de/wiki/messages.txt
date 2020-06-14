@@ -51,7 +51,6 @@ FileDownloadPlugin.readError = Fehler beim Lesen der Datei ''{0}''.
 FileDownloadPlugin.reverseNavigation = Der Dateipfad ''{0}'' enthält eine unerlaubte Rückwärtsnavigation!
 
 SearchPlugin.error = Suche konnte nicht durchgeführt werden
-SearchPlugin.includeWikiText = Auch den Inhalt der Wikiseiten durchsuchen
 SearchPlugin.relevance = Relevanzpunkte: {0}
 SearchPlugin.summary.one = 1 Seite gefunden.
 SearchPlugin.summary.more = {0} Seiten gefunden.

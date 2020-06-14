@@ -51,7 +51,6 @@ FileDownloadPlugin.readError = Error reading file ''{0}''.
 FileDownloadPlugin.reverseNavigation = The file path ''{0}'' contains an invalid reverse navigation!
 
 SearchPlugin.error = Search cannot be performed
-SearchPlugin.includeWikiText = Search also in wiki page content
 SearchPlugin.relevance = Relevance: {0}
 SearchPlugin.summary.one = 1 page found.
 SearchPlugin.summary.more = {0} pages found.

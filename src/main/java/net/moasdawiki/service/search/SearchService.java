@@ -21,25 +21,27 @@ package net.moasdawiki.service.search;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.text.Normalizer;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+import java.util.stream.IntStream;
 
 import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.ServiceException;
+import net.moasdawiki.service.repository.RepositoryService;
 import net.moasdawiki.service.search.SearchResult.Marker;
 import net.moasdawiki.service.search.SearchResult.MatchingLine;
 import net.moasdawiki.service.search.SearchResult.PageDetails;
 import net.moasdawiki.service.wiki.WikiFile;
 import net.moasdawiki.service.wiki.WikiService;
 import net.moasdawiki.util.PathUtils;
+import net.moasdawiki.util.StringUtils;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Implementiert die Volltextsuche im Repository.
+ * Implements a full-text search for the wiki repository.
  * 
  * @author Herbert Reiter
  */
@@ -51,84 +53,68 @@ public class SearchService {
 	@NotNull
 	private final WikiService wikiService;
 
+	@NotNull
+	private final SearchIndex searchIndex;
+
 	/**
-	 * Konstruktor.
+	 * Constructor.
 	 */
-	public SearchService(@NotNull Logger logger, @NotNull WikiService wikiService) {
+	public SearchService(@NotNull Logger logger, @NotNull RepositoryService repositoryService, @NotNull WikiService wikiService) {
 		super();
 		this.logger = logger;
 		this.wikiService = wikiService;
+		this.searchIndex = new SearchIndex(logger, repositoryService, wikiService);
+		this.searchIndex.readCacheFile();
 	}
 
 	/**
-	 * Liest die Suchbedingungen aus einem Query-String. Unterstützt werden
-	 * folgende Angaben:
-	 * 
+	 * Parses a query string. Supported use cases:
+	 *
 	 * <ul>
-	 * <li>Wort: sucht nach einem Wort</li>
-	 * <li>"mehrere Wörter": sucht nach einer Textphrase, die auch Leerzeichen
-	 * enthält</li>
-	 * <li>-Wort: ein Wort, das nicht vorkommen darf</li>
-	 * <li>-"mehrere Wörter": Textphrase mit Leerzeichen, die nicht vorkommen
-	 * darf</li>
+	 * <li><code>Word</code>: Search for a single word</li>
+	 * <li><code>Word1 word2</code>: Search for several words, all of them must match</li>
+	 * <li><code>Word1 -word2</code>: Search with excluded word that must not match</li>
 	 * </ul>
 	 * 
-	 * @param query Query-String.
-	 * @return Suchbedingungen.
+	 * @param query Query string.
+	 * @return Parsed search query.
 	 */
+	@Contract(pure = true)
 	@NotNull
 	public SearchQuery parseQueryString(@NotNull String query) {
 		Set<String> included = new HashSet<>();
 		Set<String> excluded = new HashSet<>();
-		int i = 0;
-		boolean includedPhrase = true;
-		boolean insideQuote = false;
-		StringBuilder phrase = new StringBuilder();
-		while (i < query.length()) {
-			char ch = query.charAt(i);
-			if (phrase.length() == 0 && !insideQuote) {
-				// Steuerzeichen interpretieren
-				if (ch == '-' && includedPhrase) {
-					includedPhrase = false;
-				} else if (ch == '\"') {
-					insideQuote = true;
-				} else if (ch == ' ' || ch == '\t') {
-					// zurücksetzen
-					includedPhrase = true;
-					insideQuote = false;
-				} else {
-					phrase.append(ch);
-				}
-			} else if (insideQuote && ch == '\"' || !insideQuote && (ch == ' ' || ch == '\t')) {
-				// Phrasenende erreicht
-				if (includedPhrase) {
-					included.add(phrase.toString());
-				} else {
-					excluded.add(phrase.toString());
-				}
-				includedPhrase = true;
-				insideQuote = false;
-				phrase.setLength(0);
+
+		StringBuilder sb = new StringBuilder();
+		boolean excludeWord = false;
+		IntStream codePointStream = query.codePoints();
+		PrimitiveIterator.OfInt it = codePointStream.iterator();
+		while (it.hasNext()) {
+			int codePoint = it.nextInt();
+			if (Character.isLetterOrDigit(codePoint)) {
+				// inside word
+				sb.appendCodePoint(codePoint);
 			} else {
-				// Phrase einlesen
-				phrase.append(ch);
-				if (i + 1 == query.length()) {
-					if (includedPhrase) {
-						included.add(phrase.toString());
+				// separator found -> end of word
+				if (sb.length() > 0) {
+					if (excludeWord) {
+						excluded.add(sb.toString());
 					} else {
-						excluded.add(phrase.toString());
+						included.add(sb.toString());
 					}
+					sb.setLength(0);
 				}
+				// check for exclude character
+				excludeWord = (codePoint == (int) '-');
 			}
-			i++;
 		}
 
-		if (phrase.length() > 0) {
-			// Phrasenende erreicht
-			if (includedPhrase) {
-				included.add(phrase.toString());
+		// add last word
+		if (sb.length() > 0) {
+			if (excludeWord) {
+				excluded.add(sb.toString());
 			} else {
-				excluded.add(phrase.toString());
+				included.add(sb.toString());
 			}
 		}
 
@@ -136,23 +122,26 @@ public class SearchService {
 	}
 
 	/**
-	 * Durchsucht alle Wiki-Seiten, die auf die SearchQuery passen.
-	 * Die SearchQuery muss dabei mindestens eine zu suchende Textphrase enthalten.
-	 * Der Stringvergleich behandelt ähnlich aussehende Zeichen gleich, siehe siehe {@link #generateNormalizedPattern(Set)}.
+	 * Find all wiki pages that match the search query.
+	 * The search query must have at least one "included" word.
+	 * The string match considers similar looking characters as identical, see {@link #generateNormalizedPattern(Set)}.
 	 *
-	 * @param searchQuery the search query.
-	 * @param scanWikiText Scan also wiki text? If false, only the page title is scanned.
+	 * @param searchQuery search query.
 	 * @return Search result
 	 */
 	@NotNull
-	public SearchResult searchInRepository(@NotNull SearchQuery searchQuery, boolean scanWikiText) throws ServiceException {
+	public SearchResult searchInRepository(@NotNull SearchQuery searchQuery) throws ServiceException {
 		SearchResult searchResult = new SearchResult(searchQuery);
 		if (searchQuery.getIncluded().size() == 0) {
-			// kein vorzukommender Suchtext angegeben --> leere Ergebnisliste
+			// No included word specified --> return empty result
 			return searchResult;
 		}
 
-		// Suchstrings normalisieren und zu einem Pattern kombinieren
+		// get wiki page candidates from search index
+		searchIndex.updateIndex();
+		Set<String> wikiFilePathCandidates = searchIndex.searchWikiFilePathCandidates(searchQuery.getIncluded());
+
+		// Normalize search string and combine to a single pattern
 		Pattern[] includedPatterns = new Pattern[searchQuery.getIncluded().size()];
 		int i = 0;
 		for (String findStr : searchQuery.getIncluded()) {
@@ -165,80 +154,65 @@ public class SearchService {
 			excludedPattern = generateNormalizedPattern(searchQuery.getExcluded());
 		}
 
-		// alle Wikiseiten durchsuchen
-		for (String filePath : wikiService.getWikiFilePaths()) {
+		// scan wiki pages
+		for (String wikiFilePath : wikiService.getWikiFilePaths()) {
+			// scan wiki page content only if page is in candidates list
 			String wikiText;
-			if (scanWikiText) {
+			if (wikiFilePathCandidates.contains(wikiFilePath)) {
 				// loads wiki file if not in cache yet, might be time consuming
-				WikiFile wikiFile = wikiService.getWikiFile(filePath);
+				WikiFile wikiFile = wikiService.getWikiFile(wikiFilePath);
 				wikiText = wikiFile.getWikiText();
 			} else {
 				wikiText = ""; // nothing to find in page body
 			}
-			if (isPageMatching(filePath, wikiText, includedPatterns, excludedPattern)) {
-				PageDetails pageDetails = scanPage(filePath, wikiText, includedPattern);
+			if (isPageMatching(wikiFilePath, wikiText, includedPatterns, excludedPattern)) {
+				PageDetails pageDetails = scanPage(wikiFilePath, wikiText, includedPattern);
 				searchResult.getResultList().add(pageDetails);
 			}
 		}
 
-		// Treffer nach absteigender Relevanz sortieren
+		// Sort matches by descending relevance
 		searchResult.getResultList().sort((p1, p2) -> Integer.compare(p2.relevance, p1.relevance));
 
 		return searchResult;
 	}
 
 	/**
-	 * Überprüft, ob die angegebene Wikiseite den Suchbedingungen entspricht.
-	 * Alle einzuschließenden Textphrasen müssen vorkommen, von den
-	 * auszuschließenden Textphrasen darf keine einzige vorkommen (soweit welche
-	 * angegeben wurden). Der Stringvergleich behandelt ähnlich aussehende
-	 * Zeichen gleich, siehe {@link #generateNormalizedPattern(Set)}.
-	 * 
-	 * @param pagePath Pfad der Wikiseite.
-	 * @param wikiText Text der Wikiseite.
-	 * @param includedPatterns Zu suchende Textphrasen.
-	 * @param excludedPattern Textphrasen, die nicht vorkommen dürfen. <code>null</code> --> nicht relevant.
-	 * @return <code>true</code>, wenn die Wikiseite die Suchbedingungen erfüllt.
+	 * Checks if a wiki page matches the search conditions.
 	 */
 	private boolean isPageMatching(@NotNull String pagePath, @NotNull String wikiText, @NotNull Pattern[] includedPatterns, @Nullable Pattern excludedPattern) {
 		// Wikiseite normalisieren
-		String pagePathNorm = unicodeNormalize(pagePath);
-		String wikiTextNorm = unicodeNormalize(wikiText);
+		String pagePathNorm = StringUtils.unicodeNormalize(pagePath);
+		String wikiTextNorm = StringUtils.unicodeNormalize(wikiText);
 
-		// alle einzuschließenden Textphrasen müssen vorkommen
+		// all "included" words must match
 		for (Pattern pattern : includedPatterns) {
 			if (!pattern.matcher(pagePathNorm).find() && !pattern.matcher(wikiTextNorm).find()) {
-				// Text nicht gefunden
+				// does not match
 				return false;
 			}
 		}
 
-		// es darf keine auszuschließende Textphrase geben
-		// Ausschluss-Text gefunden --> Seite ignorieren
+		// the "excluded" words must not match
 		return excludedPattern == null || (!excludedPattern.matcher(pagePathNorm).find() && !excludedPattern.matcher(wikiTextNorm).find());
 	}
 
 	/**
-	 * Sammelt alle Trefferzeilen in der angegebenen Wikiseite auf.
-	 * 
-	 * @param pagePath Pfad der Wikiseite.
-	 * @param wikiText Text der Wikiseite.
-	 * @param includedPattern Zu suchende Textphrasen.
-	 * @return Trefferdetails zur Wikiseite. null -> Suchtext nicht enthalten
+	 * Collects all matching positions in a wiki page.
 	 */
 	@Nullable
 	private PageDetails scanPage(@NotNull String pagePath, @NotNull String wikiText, @NotNull Pattern includedPattern) throws ServiceException {
-		// Fundstellen im Seitennamen aufsammeln
+		// Collect matches in page name
 		MatchingCategories mc = new MatchingCategories();
 		MatchingLine titleLine = scanPageTitle(pagePath, includedPattern, mc);
 
-		// Fundstellen im Seitentext aufsammeln
+		// Collect matches in page content
 		List<MatchingLine> textLines = scanPageText(pagePath, wikiText, includedPattern, mc);
 
-		// Relevanz berechnen
+		// Calculate relevance
 		int relevance = calculateRelevance(mc);
 		if (relevance == 0) {
-			return null; // Seite enthält den Suchtext nicht
+			return null; // Page content does not match
 		}
 		return new PageDetails(pagePath, titleLine, textLines, relevance);
 	}
@@ -247,15 +221,15 @@ public class SearchService {
 	private MatchingLine scanPageTitle(@NotNull String pagePath, @NotNull Pattern includedPattern, @NotNull MatchingCategories mc) {
 		MatchingLine result = new MatchingLine(pagePath);
 
-		// Wikiseite normalisieren
-		String pagePathNorm = unicodeNormalize(pagePath);
+		// Normalize wiki page
+		String pagePathNorm = StringUtils.unicodeNormalize(pagePath);
 		String pageName = PathUtils.extractWebName(pagePath);
-		String pageNameNorm = unicodeNormalize(pageName);
+		String pageNameNorm = StringUtils.unicodeNormalize(pageName);
 
 		Matcher mPath = includedPattern.matcher(pagePathNorm);
 		Matcher mName = includedPattern.matcher(pageNameNorm);
 		if (mPath.matches()) {
-			// kompletter Seitentitel mit Pfadangabe passt
+			// Page name including path matches
 			mc.titleComplete = true;
 			mc.titleWord++;
 			if (mPath.start() < mPath.end()) {
@@ -263,7 +237,7 @@ public class SearchService {
 			}
 
 		} else if (mName.matches()) {
-			// kompletter Seitenname (nach letztem '/') passt
+			// Page name (after last '/') matches
 			mc.titleComplete = true;
 			mc.titleWord++;
 			int prefixLen = pagePath.length() - pageName.length();
@@ -272,7 +246,7 @@ public class SearchService {
 			}
 
 		} else {
-			// Substring-Treffer
+			// Substring match
 			mPath.reset();
 			while (mPath.find()) {
 				if (isWordAligned(pagePathNorm, mPath)) {
@@ -296,19 +270,19 @@ public class SearchService {
 			String line = reader.readLine();
 			while (line != null) {
 				MatchingLine matchingLine = null;
-				String lineNorm = unicodeNormalize(line);
+				String lineNorm = StringUtils.unicodeNormalize(line);
 				Matcher m = includedPattern.matcher(lineNorm);
 				while (m.find()) {
 					if (m.start() < m.end()) {
 						if (isHeading(lineNorm)) {
-							// Treffer in einer Überschrift
+							// Match in heading
 							if (isWordAligned(lineNorm, m)) {
 								mc.headingWord++;
 							} else {
 								mc.headingSubstring++;
 							}
 						} else {
-							// Treffer im normalen Text
+							// Match in normal paragraph
 							if (isWordAligned(lineNorm, m)) {
 								mc.paragraphWord++;
 							} else {
@@ -329,59 +303,42 @@ public class SearchService {
 			}
 			return textLines;
 		} catch (IOException e) {
-			// kann eigentlich nicht auftreten
-			String message = "Fehler beim Durchsuchen der Wiki-Seite '" + pagePath + "'";
+			// shouldn't occur
+			String message = "Error scanning wiki page '" + pagePath + "'";
 			logger.write(message, e);
 			throw new ServiceException(message, e);
 		}
 	}
 
 	/**
-	 * Generiert ein kombiniertes Pattern aus den angegebenen Suchstrings.
-	 * Dabei werden ähnlich aussehende Zeichen gleich behandelt und
-	 * diakritische Zeichen sowie die Groß-/Kleinschreibung ignoriert,
-	 * d.h. ä=ae, ö=oe, ü=ue, ß=ss, a=à=á=â=A=À=Á=Â usw.
+	 * Combines the search strings to a regular expression.
+	 * Similar looking characters are considered to be identical,
+	 * diacritical characters and upper/lower case are ignored.
+	 * Example: ä=ae, ö=oe, ü=ue, ß=ss, a=à=á=â=A=À=Á=Â, etc.
 	 * 
-	 * @param findStrings Suchstrings, darf nicht leer sein
-	 * @return Pattern-Objekt.
+	 * @param findStrings Search strings, must not be empty.
+	 * @return Pattern object.
 	 */
 	@NotNull
 	private Pattern generateNormalizedPattern(@NotNull Set<String> findStrings) throws ServiceException {
 		StringBuilder combined = new StringBuilder();
 		for (String findStr : findStrings) {
-			if (findStr.startsWith("regex:")) {
-				// regulären Ausdruck unverändert übernehmen
-				findStr = findStr.substring(6);
+			// Umlaute and ß/ss to be similar
+			findStr = expandUmlaute(findStr);
 
-				// Pattern testweise kompilieren, um Fehler zu melden
-				try {
-					Pattern.compile(findStr);
-				} catch (PatternSyntaxException e) {
-					throw new ServiceException("Fehlerhafter regulärer Ausdruck bei der Wiki-Suche: " + findStr, e);
-				}
+			// Normalize unicode characters
+			findStr = StringUtils.unicodeNormalize(findStr);
 
-			} else {
-				// RegEx-Sonderzeichen unschädlich machen
-				findStr = escapeRegEx(findStr);
+			// Ignore upper/lower case, with unicode handling
+			findStr = "?iu:" + findStr;
 
-				// Umlaute und ß/ss als gleich behandeln
-				findStr = expandUmlaute(findStr);
-
-				// Unicodezeichen normalisieren
-				findStr = unicodeNormalize(findStr);
-
-				// Groß-/Kleinschreibung ignorieren und mit Unicodebehandlung
-				findStr = "?iu:" + findStr;
-			}
-
-			// an kombinierten Ausdruck anhängen
+			// combine expressions
 			if (combined.length() > 0) {
 				combined.append('|');
 			}
 			combined.append('(').append(findStr).append(')');
 		}
 
-		// Pattern kompilieren
 		try {
 			return Pattern.compile(combined.toString());
 		} catch (Exception e) {
@@ -390,32 +347,8 @@ public class SearchService {
 	}
 
 	/**
-	 * Escaped alle Zeichen, die in einem regulären Ausdruck eine Sonderbedeutung haben.
-	 * Im Unterschied zu {@link Pattern#quote(String)} wird der String nicht einfach mit \Q und \E umschlossen,
-	 * sondern alle Sonderzeichen einzeln mit '\' escaped,
-	 * damit später noch einzelne Zeichen durch Logik ersetzt werden können.
-	 *
-	 * Hinweis: Das Zeichen '^' wird ignoriert, weil es später durch
-	 * {@link #unicodeNormalize(String)} als diakritisches Zeichen gelöscht wird
-	 * und dann nur noch das Escapezeichen stehen bleiben würde.
-	 */
-	@NotNull
-	static String escapeRegEx(@NotNull String str) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < str.length(); i++) {
-			char ch = str.charAt(i);
-			if (ch == '\\' || ch == '.' || ch == '-' || ch == '[' || ch == ']' || ch == '(' || ch == ')' || ch == '{' || ch == '}' || ch == '|' || ch == '&'
-					|| ch == '$' || ch == '*' || ch == '+' || ch == '?') {
-				sb.append('\\');
-			}
-			sb.append(ch);
-		}
-		return sb.toString();
-	}
-
-	/**
-	 * Ergänzt Umlaute und ausgewählte Sonderzeichen durch eine Auswahl mit Alternativen,
-	 * so dass ähnlich aussehende Zeichen (ohne diakritische Zeichen) als gleich behandelt werden.
+	 * Adds alternative spellings for Umlaute and special characters
+	 * to make them considered as identical (without diacritical characters).
 	 */
 	@NotNull
 	static String expandUmlaute(@NotNull String str) {
@@ -455,25 +388,12 @@ public class SearchService {
 	}
 
 	/**
-	 * Führt eine Unicode-Normalisierung durch und entfernt diakritische Zeichen.
-	 * Die Länge des Strings bleibt dabei unverändert.
+	 * Checks if the match is aligned at word boundaries.
+	 * Otherwise, it is a substring match.
 	 *
-	 * Beispiele: Résumé --> Resume, Säure --> Saure
-	 */
-	@NotNull
-	static String unicodeNormalize(@NotNull String str) {
-		str = Normalizer.normalize(str, Normalizer.Form.NFKD);
-		// "IsLm" und "IsSk" sind unter Android unbekannt, daher "Lm" und "Sk"
-		return str.replaceAll("[\\p{InCombiningDiacriticalMarks}\\p{Lm}\\p{Sk}]+", "");
-	}
-
-	/**
-	 * Gibt zurück, ob sich die aktuelle Fundstelle des Matchers an einer Wortgrenze befindet.
-	 * Ansonsten handelt es sich um einen Teilstring-Fund.
-	 * 
-	 * @param text Text, in dem der Treffer gefunden wurde.
-	 * @param matcher Matcher, der auf eine Fundstelle verweist.
-	 * @return <code>true</code>, wenn sich die Fundstelle an einer Wortgrenze befindet.
+	 * @param text Matching text.
+	 * @param matcher Corresponding Matcher.
+	 * @return <code>true</code> if match is aligned at word boundaries.
 	 */
 	private boolean isWordAligned(@NotNull String text, @NotNull Matcher matcher) {
 		int start = matcher.start();
@@ -482,36 +402,34 @@ public class SearchService {
 	}
 
 	/**
-	 * Gibt zurück, ob die angegebene Textzeile eine Überschrift darstellt,
-	 * d.h. z.B. mit "= " beginnt.
+	 * Checks if the paragraph is a heading.
+	 * I.e. starts with "= ".
 	 * 
-	 * @param text Textzeile.
-	 * @return <code>true</code>, wenn es sich um eine Überschrift handelt.
+	 * @param text Paragraph.
+	 * @return <code>true</code> if paragraph is a heading.
 	 */
 	private boolean isHeading(@NotNull String text) {
 		return text.startsWith("=");
 	}
 
 	/**
-	 * Berechnet aus den Trefferanzahlen nach Kategorien eine Relevanzzahl.
-	 * Dabei werden folgende Regeln angewandt:
+	 * Calculates the relevance from the number of occurrences by category.
+	 * Rules to be applied:
 	 * 
 	 * <ul>
-	 * <li><code>titleComplete</code> zählt mehr als <code>titleWord</code></li>
-	 * <li><code>titleWord</code> zählt mehr als <code>headingWord</code></li>
-	 * <li><code>headingWord</code> zählt mehr als <code>paragraphWord</code></li>
-	 * <li><code>paragraphWord</code> zählt mehr als <code>titleSubstring</code>
+	 * <li><code>titleComplete</code> counts more than <code>titleWord</code></li>
+	 * <li><code>titleWord</code> counts more than <code>headingWord</code></li>
+	 * <li><code>headingWord</code> counts more than <code>paragraphWord</code></li>
+	 * <li><code>paragraphWord</code> counts more than <code>titleSubstring</code>
 	 * </li>
-	 * <li><code>titleSubstring</code> zählt mehr als
-	 * <code>headingSubstring</code></li>
-	 * <li><code>headingSubstring</code> zählt mehr als
-	 * <code>paragraphSubstring</code></li>
-	 * <li>innerhalb derselben Kategorie zählt eine höhere Trefferanzahl mehr</li>
-	 * <li>eine Trefferanzahl > 9 wird wie 9 gewertet</li>
+	 * <li><code>titleSubstring</code> counts more than <code>headingSubstring</code></li>
+	 * <li><code>headingSubstring</code> counts more than <code>paragraphSubstring</code></li>
+	 * <li>within a single category the match count is used</li>
+	 * <li>a match count > 9 is considered as 9</li>
 	 * </ul>
 	 * 
-	 * @param mc Trefferanzahlen nach Kategorien.
-	 * @return Relevanzzahl >= <code>0</code>. <code>0</code> = kein Treffer.
+	 * @param mc Match cound by category.
+	 * @return Relevance >= <code>0</code>. <code>0</code> = no match.
 	 */
 	private int calculateRelevance(@NotNull MatchingCategories mc) {
 		int result = 0;
@@ -528,12 +446,11 @@ public class SearchService {
 	}
 
 	/**
-	 * DTO mit den Trefferanzahl nach Kategorien.
-	 * Diese werden anschließend in eine einzelne Relevanzzahl umgerechnet, um einfacher sortierbar zu sein.
-	 *
-	 * <code>...Complete</code> = Übereinstimmung mit dem gesamten Absatz<br>
-	 * <code>...Word</code> = Übereinstimmung mit Wortgrenzen<br>
-	 * <code>...Substring</code> = Übereinstimmung nur als Substring, nicht an Wortgrenzen
+	 * Match counts by category.
+	 * <br>
+	 * <code>...Complete</code> = Matches whole paragraph<br>
+	 * <code>...Word</code> = Matches word boundaries<br>
+	 * <code>...Substring</code> = Matches substring
 	 */
 	private static class MatchingCategories {
 		public boolean titleComplete;

@@ -18,51 +18,63 @@
 
 package net.moasdawiki.service.search;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
 /**
- * DTO mit der Suchabfrage. Diese kann mehrere ein- und auszuschließende Textphrasen enthalten.
+ * Search request data.
  * 
  * @author Herbert Reiter
  */
 public class SearchQuery {
 	/**
-	 * Ursprünglicher Query-String.
+	 * Original search query string.
 	 */
 	@NotNull
 	private final String queryString;
 	
 	/**
-	 * Textphrasen, die auf einer Wikiseite vorkommen müssen.
+	 * Words that must match.
 	 */
 	@NotNull
 	private final Set<String> included;
 
 	/**
-	 * Textphrasen, die nicht vorkommen dürfen.
-	 * Diese haben eine höhere Priorität als die in {@link #included}.
+	 * Words that must not match.
+	 * They have a higher priority than those in {@link #included}.
 	 */
 	@NotNull
 	private final Set<String> excluded;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param queryString Original search query string.
+	 * @param included Words that must match.
+	 * @param excluded Words that must not match.
+	 */
+	@Contract(pure = true)
 	public SearchQuery(@NotNull String queryString, @NotNull Set<String> included, @NotNull Set<String> excluded) {
 		this.queryString = queryString;
 		this.included = included;
 		this.excluded = excluded;
 	}
 
+	@Contract(pure = true)
 	@NotNull
 	public String getQueryString() {
 		return queryString;
 	}
 
+	@Contract(pure = true)
 	@NotNull
 	public Set<String> getIncluded() {
 		return included;
 	}
 
+	@Contract(pure = true)
 	@NotNull
 	public Set<String> getExcluded() {
 		return excluded;

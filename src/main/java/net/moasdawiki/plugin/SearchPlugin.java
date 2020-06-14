@@ -31,7 +31,6 @@ import net.moasdawiki.service.search.SearchResult.MatchingLine;
 import net.moasdawiki.service.search.SearchResult.PageDetails;
 import net.moasdawiki.service.wiki.WikiHelper;
 import net.moasdawiki.service.wiki.structure.*;
-import net.moasdawiki.util.EscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,11 +57,10 @@ public class SearchPlugin implements Plugin {
 	@PathPattern("/search/.*")
 	public HttpResponse handleRequest(@NotNull HttpRequest request) {
 		String query = request.urlParameters.get("text");
-		boolean scanWikiText = Boolean.parseBoolean(request.urlParameters.get("scanWikiText"));
 		SearchQuery searchQuery = searchService.parseQueryString(query);
 		try {
-			SearchResult searchResult = searchService.searchInRepository(searchQuery, scanWikiText);
-			WikiPage wikiPage = generateSearchResultPage(searchResult, scanWikiText);
+			SearchResult searchResult = searchService.searchInRepository(searchQuery);
+			WikiPage wikiPage = generateSearchResultPage(searchResult);
 			wikiPage = WikiHelper.extendWikiPage(wikiPage, true, false, false, serviceLocator);
 			return htmlService.convertPage(wikiPage);
 		} catch (ServiceException e) {
@@ -71,19 +69,12 @@ public class SearchPlugin implements Plugin {
 	}
 
 	@NotNull
-	private WikiPage generateSearchResultPage(@NotNull SearchResult searchResult, boolean scanWikiText) {
+	private WikiPage generateSearchResultPage(@NotNull SearchResult searchResult) {
 		PageElementList pageContent = new PageElementList();
 
 		// Seitenname ausgeben
 		String pageTitle = messages.getMessage("SearchPlugin.title", searchResult.getSearchQuery().getQueryString());
 		pageContent.add(new Heading(1, new TextOnly(pageTitle), null, null));
-
-		if (!scanWikiText) {
-			String url = "/search/?text=" + EscapeUtils.encodeUrlParameter(searchResult.getSearchQuery().getQueryString()) + "&scanWikiText=true";
-			String extendedSearch = messages.getMessage("SearchPlugin.includeWikiText");
-			LinkExternal linkExternal = new LinkExternal(url, new TextOnly(extendedSearch), null, null);
-			pageContent.add(new Paragraph(false, 0, false,  linkExternal, null, null));
-		}
 
 		// Anzahl Suchergebnisse ausgeben
 		int count = searchResult.getResultList().size();

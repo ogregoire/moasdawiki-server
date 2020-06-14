@@ -18,75 +18,84 @@
 
 package net.moasdawiki.service.search;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DTO mit dem Suchergebnis.
- * Die Liste ist absteigend nach Relevanz sortiert.
- * 
+ * Search result.
+ * The list is sorted ascending by relevance.
+ *
  * @author Herbert Reiter
  */
 public class SearchResult {
 
 	/**
-	 * Suchbedingungen, die den Suchergebnissen zugrunde liegen.
+	 * Search query.
 	 */
 	@NotNull
 	private final SearchQuery searchQuery;
 
 	/**
-	 * Trefferliste.
+	 * Matching wiki pages.
 	 */
 	@NotNull
 	private final List<PageDetails> resultList;
 
+	/**
+	 * Constructor.
+	 */
 	public SearchResult(@NotNull SearchQuery searchQuery) {
 		this.searchQuery = searchQuery;
 		this.resultList = new ArrayList<>();
 	}
 
+	@Contract(pure = true)
 	@NotNull
 	public SearchQuery getSearchQuery() {
 		return searchQuery;
 	}
 
+	@Contract(pure = true)
 	@NotNull
 	public List<PageDetails> getResultList() {
 		return resultList;
 	}
 
 	/**
-	 * Enthält die Suchergebnisse für eine einzelne Wiki-Seite.
-	 * Als Suchergebnis werden die Absätze eingetragen, die den Suchstring enthalten.
+	 * Search result for a single wiki page.
+	 * Contains the paragraphs with a matching word.
 	 */
 	public static class PageDetails {
 
 		/**
-		 * Wikiseite. Nicht <code>null</code>.
+		 * Wiki page path.
 		 */
 		@NotNull
 		private final String pagePath;
 
 		/**
-		 * Treffer im Seitennamen der Wikiseite.
+		 * Matching words in the page title.
 		 */
 		@NotNull
 		private final MatchingLine titleLine;
 
 		/**
-		 * Trefferzeilen im Text der Wikiseite.
+		 * Matching paragraphs in the wiki page content.
 		 */
 		@NotNull
 		private final List<MatchingLine> textLines;
 
 		/**
-		 * Trefferrelevanz. Positive Zahl.
+		 * Matching relevance. Positive integer.
 		 */
 		public final int relevance;
 
+		/**
+		 * Constructor.
+		 */
 		public PageDetails(@NotNull String pagePath, @NotNull MatchingLine titleLine, @NotNull List<MatchingLine> textLines, int relevance) {
 			this.pagePath = pagePath;
 			this.titleLine = titleLine;
@@ -94,55 +103,64 @@ public class SearchResult {
 			this.relevance = relevance;
 		}
 
+		@Contract(pure = true)
 		@NotNull
 		public String getPagePath() {
 			return pagePath;
 		}
 
+		@Contract(pure = true)
 		@NotNull
 		public MatchingLine getTitleLine() {
 			return titleLine;
 		}
 
+		@Contract(pure = true)
 		@NotNull
 		public List<MatchingLine> getTextLines() {
 			return textLines;
 		}
 
+		@Contract(pure = true)
 		public int getRelevance() {
 			return relevance;
 		}
 	}
 
 	/**
-	 * Enthält eine Zeile einer Wikiseite mit einem Suchtreffer.
+	 * Represents a single paragraph that matches.
 	 */
 	public static class MatchingLine {
 
 		/**
-		 * Textzeile, in der mindestens eine Fundstelle enthalten ist.
+		 * Paragraph with at least one match.
 		 */
 		@NotNull
 		private final String line;
 
 		/**
-		 * Fundstellen in der Textzeile.
-		 * Hat i.d.R. mindestens einen Eintrag, muss aber nicht (z.B. im Titel).
-		 * Die Einträge sind in aufsteigender Positon sortiert.
+		 * Matching text positions.
+		 * Can be empty (e.g. for page title).
+		 * The entries are ordered by ascending position.
 		 */
 		@NotNull
 		private final List<Marker> positions;
 
+		/**
+		 * Constructor.
+		 */
 		public MatchingLine(@NotNull String line) {
 			this.line = line;
 			this.positions = new ArrayList<>();
 		}
 
+		@Contract(pure = true)
 		@NotNull
 		public String getLine() {
 			return line;
 		}
 
+		@Contract(pure = true)
 		@NotNull
 		public List<Marker> getPositions() {
 			return positions;
@@ -150,30 +168,35 @@ public class SearchResult {
 	}
 
 	/**
-	 * Gibt an, wo in einem String der gefundene Text ist.
+	 * Matching position in a paragraph.
 	 */
 	public static class Marker {
 
 		/**
-		 * Index des ersten Zeichen.
+		 * Index of first character.
 		 */
 		private final int from;
 		
 		/**
-		 * Index hinter dem letzten Zeichen.
+		 * Index after last character.
 		 */
 		private final int to;
 
+		/**
+		 * Constructor.
+		 */
 		public Marker(int from, int to) {
 			super();
 			this.from = from;
 			this.to = to;
 		}
 
+		@Contract(pure = true)
 		public int getFrom() {
 			return from;
 		}
 
+		@Contract(pure = true)
 		public int getTo() {
 			return to;
 		}
