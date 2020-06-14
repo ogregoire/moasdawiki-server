@@ -122,6 +122,7 @@ public class FilesystemRepositoryService implements RepositoryService {
 		}
 	}
 
+	@Contract(value = "_ -> new", pure = true)
 	@NotNull
 	protected Map<String, AnyFile> parseCacheContent(@NotNull String cacheContent) throws ServiceException {
 		try {
@@ -230,18 +231,21 @@ public class FilesystemRepositoryService implements RepositoryService {
 		}
 	}
 
+	@Contract(pure = true)
 	@Nullable
 	@Override
 	public synchronized AnyFile getFile(@NotNull String filePath) {
 		return fileMap.get(filePath);
 	}
 
+	@Contract(value = "-> new", pure = true)
 	@NotNull
 	@Override
 	public synchronized Set<AnyFile> getFiles() {
 		return new HashSet<>(fileMap.values());
 	}
 
+	@Contract(value = "_ -> new", pure = true)
 	@NotNull
 	@Override
 	public synchronized Set<AnyFile> getModifiedAfter(Date modifiedAfter) {
@@ -254,6 +258,7 @@ public class FilesystemRepositoryService implements RepositoryService {
 		return result;
 	}
 
+	@Contract(pure = true)
 	@NotNull
 	@Override
 	public List<AnyFile> getLastModifiedFiles(int count, @NotNull Predicate<AnyFile> filter) {
@@ -382,11 +387,9 @@ public class FilesystemRepositoryService implements RepositoryService {
 	 * Legt alle Unterordner im Repository an, falls sie noch nicht existieren,
 	 * damit die angegebene Datei angelegt werden kann.
 	 * 
-	 * @param file Datei, deren Ordner angelegt werden soll. Nicht
-	 *        <code>null</code>.
-	 * @throws ServiceException Wenn ein Fehler auftitt
+	 * @param file Datei, deren Ordner angelegt werden soll.
 	 */
-	protected void createFolders(File file) throws ServiceException {
+	protected void createFolders(@NotNull File file) throws ServiceException {
 		File fileFolder = file.getParentFile();
 		if (!fileFolder.exists() && !fileFolder.mkdirs()) {
 			String message = "Error creating folder '" + fileFolder.getAbsolutePath() + "'";
