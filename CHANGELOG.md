@@ -3,6 +3,8 @@
 ## 2.3.0 (2020-06-14)
 
 - Speed up full text search by a search index
+- Do not store last synchronization timestamp in session list to avoid file modification on every synchronization attempt
+- Bugfix: Exclude session list from synchronization with App
 - Refactorings
 
 ## 2.2.0 (2020-02-08)
