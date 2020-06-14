@@ -19,11 +19,13 @@
 package net.moasdawiki.util;
 
 import net.moasdawiki.base.ServiceException;
+import net.moasdawiki.service.search.SearchService;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.*;
 
 import static org.testng.Assert.*;
 
@@ -97,5 +99,58 @@ public class StringUtilsTest {
         assertEquals(StringUtils.emptyToNull("abc"), "abc");
         assertNull(StringUtils.emptyToNull(""));
         assertNull(StringUtils.emptyToNull(null));
+    }
+
+    @Test
+    public void testUnicodeNormalize() {
+        assertEquals(StringUtils.unicodeNormalize("content"), "content");
+        assertEquals(StringUtils.unicodeNormalize("Résumé-Säure"), "Resume-Saure");
+    }
+
+    @Test
+    public void testSerializeMap() {
+        {
+            // emtpy map
+            assertEquals(StringUtils.serializeMap(Collections.emptyMap()), "");
+        }
+        {
+            // empty values set
+            Map<String, Set<String>> map = Collections.singletonMap("a", Collections.emptySet());
+            assertEquals(StringUtils.serializeMap(map), "a\n");
+        }
+        {
+            // with values
+            Map<String, Set<String>> map = new HashMap<>();
+            map.put("b", Collections.singleton("v4"));
+            map.put("a", new HashSet<>(Arrays.asList("v3", "v1", "v2")));
+            assertEquals(StringUtils.serializeMap(map), "a\tv1\tv2\tv3\nb\tv4\n");
+        }
+    }
+
+    @Test
+    public void testParseMap() throws Exception {
+        {
+            // empty map
+            assertTrue(StringUtils.parseMap(new BufferedReader(new StringReader(""))).isEmpty());
+        }
+        {
+            // empty values set
+            Map<String, Set<String>> map = StringUtils.parseMap(new BufferedReader(new StringReader("a\n")));
+            assertTrue(map.containsKey("a"));
+            assertTrue(map.get("a").isEmpty());
+        }
+        {
+            // with values
+            Map<String, Set<String>> map = StringUtils.parseMap(new BufferedReader(new StringReader("a\tv1\tv2\tv3\nb\tv4\n")));
+            assertEquals(map.size(), 2);
+            assertEquals(map.get("a").size(), 3);
+
+            assertTrue(map.get("a").contains("v1"));
+            assertTrue(map.get("a").contains("v2"));
+            assertTrue(map.get("a").contains("v3"));
+
+            assertEquals(map.get("b").size(), 1);
+            assertTrue(map.get("b").contains("v4"));
+        }
     }
 }

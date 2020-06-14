@@ -23,8 +23,10 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.text.Normalizer;
+import java.util.*;
 
 /**
  * Helper methods to modify Strings.
@@ -189,5 +191,61 @@ public abstract class StringUtils {
 			return null;
 		}
 		return str;
+	}
+
+	/**
+	 * Normalizes unicode and remove diacritical characters.
+	 * The string length remains unchanged.
+	 *
+	 * Examples: Résumé --> Resume, Säure --> Saure
+	 */
+	@NotNull
+	public static String unicodeNormalize(@NotNull String str) {
+		str = Normalizer.normalize(str, Normalizer.Form.NFKD);
+		// "IsLm" and "IsSk" are unknown in Android, so use "Lm" and "Sk"
+		return str.replaceAll("[\\p{InCombiningDiacriticalMarks}\\p{Lm}\\p{Sk}]+", "");
+	}
+
+	/**
+	 * Serializes a map.
+	 * Each key is on a separate line, followed by the values, separated by tab.
+	 */
+	@NotNull
+	public static String serializeMap(@NotNull Map<String, Set<String>> map) {
+		StringBuilder sb = new StringBuilder();
+		List<String> keyList = new ArrayList<>(map.keySet());
+		Collections.sort(keyList);
+
+		for (String key : keyList) {
+			List<String> valuesList = new ArrayList<>(map.get(key));
+			Collections.sort(valuesList);
+			sb.append(key);
+			for (String value : valuesList) {
+				sb.append('\t');
+				sb.append(value);
+			}
+			sb.append('\n');
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * Parses a map that was serialized with {@link #serializeMap(Map)}.
+	 */
+	@NotNull
+	public static Map<String, Set<String>> parseMap(BufferedReader reader) throws IOException {
+		Map<String, Set<String>> result = new HashMap<>();
+		String line;
+		while ((line = reader.readLine()) != null) {
+			String[] token = line.split("\\t");
+			if (token.length == 0) {
+				// Ignore empty line (e.g. at end of file)
+				continue;
+			}
+			String key = token[0].trim();
+			Set<String> valueSet = new HashSet<>(Arrays.asList(token).subList(1, token.length));
+			result.put(key, valueSet);
+		}
+		return result;
 	}
 }

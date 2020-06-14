@@ -25,6 +25,7 @@ import net.moasdawiki.service.repository.RepositoryService;
 import net.moasdawiki.service.wiki.parser.WikiParser;
 import net.moasdawiki.service.wiki.structure.*;
 import net.moasdawiki.util.DateUtils;
+import net.moasdawiki.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -97,7 +98,7 @@ public class WikiServiceImpl implements WikiService {
 		this.wikiFileMap = new HashMap<>();
 		this.viewHistory = new LinkedList<>();
 
-		// Cache initialisieren
+		// Initialize cache
 		reset();
 	}
 
@@ -111,8 +112,7 @@ public class WikiServiceImpl implements WikiService {
 	}
 
 	/**
-	 * Liest die Cachedatei mit den Kind-Vater-Beziehungen ein und aktualisiert die
-	 * Einträge in der wikiFileMap.
+	 * Read the cache file and update the wikiFileMap.
 	 */
 	private boolean readChildParentCacheFile() {
 		// Read cache file content
@@ -127,26 +127,13 @@ public class WikiServiceImpl implements WikiService {
 
 		// Parse cache content
 		try (BufferedReader reader = new BufferedReader(new StringReader(cacheContent))) {
-			int numLines = 0;
-
-			// Zeitstempel in erster Zeile, für Rückwärtskompatibilität
+			// Read timestamp from first line, for backwards compatibility only
 			reader.readLine();
-			numLines++;
 
-			// Parent-Mappings in nachfolgenden Zeilen
-			String line;
-			while ((line = reader.readLine()) != null) {
-				numLines++;
-				String[] token = line.split("\\t");
-				if (token.length == 0) {
-					// Zeile ignorieren, evtl. Leerzeile am Dateiende
-					continue;
-				}
-				String wikiFilePath = token[0].trim();
-				Set<String> children = new HashSet<>(Arrays.asList(token).subList(1, token.length));
-				childParentMap.put(wikiFilePath, children);
-			}
-			logger.write(numLines + " lines read from parent relations cache file");
+			// Parse parent mappings
+			Map<String, Set<String>> parsedMap = StringUtils.parseMap(reader);
+			childParentMap.putAll(parsedMap);
+			logger.write(parsedMap.size() + " keys read from parent relations cache file");
 		} catch (Exception e) {
 			logger.write("Error reading cache file " + parentRelationsCacheFile.getFilePath(), e);
 			return false;
@@ -155,34 +142,24 @@ public class WikiServiceImpl implements WikiService {
 	}
 
 	/**
-	 * Schreibt alle Kind-Vater-Beziehungen in die Cachedatei.
+	 * Write the content in wikiFileMap into the cache file.
 	 */
 	private void writeChildParentCacheFile() {
-		// Zeitstempel in erste Zeile schreiben
+		// Write timestamp in first line
 		StringBuilder sb = new StringBuilder();
 		String timestampStr = DateUtils.formatUtcDate(new Date());
 		sb.append(timestampStr).append('\n');
 
-		// Liste alphabetisch sortiert ausgeben
-		List<String> filePathList = new ArrayList<>(childParentMap.keySet());
-		Collections.sort(filePathList);
-		for (String wikiFilePath : filePathList) {
-			Set<String> parents = childParentMap.get(wikiFilePath);
-			sb.append(wikiFilePath);
-			for (String parentFilePath : parents) {
-				sb.append('\t');
-				sb.append(parentFilePath);
-			}
-			sb.append('\n');
-		}
-		String cacheContent = sb.toString();
+		// Write list sorted alphabetically
+		String mapStr = StringUtils.serializeMap(childParentMap);
+		sb.append(mapStr);
 
-		// Datei schreiben
+		// Write file
 		AnyFile parentRelationsCacheFile = new AnyFile(CHILD_PARENT_CACHE_FILEPATH);
 		try {
-			repositoryService.writeTextFile(parentRelationsCacheFile, cacheContent);
+			repositoryService.writeTextFile(parentRelationsCacheFile, sb.toString());
 		} catch (ServiceException e) {
-			// nur Fehlermeldung loggen, dieser Fehler kann ansonsten toleriert werden
+			// in case of error only log error
 			logger.write("Error writing cache file " + parentRelationsCacheFile.getFilePath(), e);
 		}
 	}
@@ -324,8 +301,9 @@ public class WikiServiceImpl implements WikiService {
 		wikiFileMap.put(wikiFilePath, newWikiFile);
 
 		// Vater- und Kind-Verweise setzen
-		installParentAndChildLinks(newWikiFile);
-		writeChildParentCacheFile();
+		if (installParentAndChildLinks(newWikiFile)) {
+			writeChildParentCacheFile();
+		}
 
 		logger.write("Wiki file '" + wikiFilePath + "' successfully written, " + newText.length() + " characters");
 		return newWikiFile;
@@ -392,7 +370,7 @@ public class WikiServiceImpl implements WikiService {
 	}
 
 	/**
-	 * Returns the requestes wiki page. Takes it from the internal cache if available, otherwise
+	 * Returns the requested wiki page. Takes it from the internal cache if available, otherwise
 	 * tries to read the file from the repository and updates the cache.
 	 */
 	@NotNull
@@ -408,10 +386,7 @@ public class WikiServiceImpl implements WikiService {
 
 		// Update wikiFileMap
 		wikiFileMap.put(wikiFilePath, newWikiFile);
-		installParentAndChildLinks(newWikiFile);
-
-		// Persist parent child cache
-		if (persistParentChildCache) {
+		if (installParentAndChildLinks(newWikiFile) && persistParentChildCache) {
 			writeChildParentCacheFile();
 		}
 
@@ -474,8 +449,10 @@ public class WikiServiceImpl implements WikiService {
 	 * Durchsucht die angegebene Wikiseite nach Parent-Beziehungen und fügt
 	 * diese in die Liste der Parent-Links und im Child-Parent-Cache ein.
 	 * Ergänzt zudem die Children-Links in anderen Wikiseiten.
+	 *
+	 * @return true if the childParentMap cache was changed.
 	 */
-	private void installParentAndChildLinks(@NotNull WikiFile wikiFile) {
+	private boolean installParentAndChildLinks(@NotNull WikiFile wikiFile) {
 		// Vater-Verweise aus der Wikiseite extrahieren
 		Set<String> parentFilePaths = new HashSet<>();
 		PageElementConsumer<Parent, Set<String>> consumer = (parent, context) -> {
@@ -493,7 +470,10 @@ public class WikiServiceImpl implements WikiService {
 
 		// Vater-Verweise im Kind-Vater-Cache eintragen
 		String wikiFilePath = wikiFile.getWikiFilePath();
-		childParentMap.put(wikiFilePath, parentFilePaths);
+		boolean cacheModified = !childParentMap.containsKey(wikiFilePath) || !parentFilePaths.containsAll(childParentMap.get(wikiFilePath));
+		if (cacheModified) {
+			childParentMap.put(wikiFilePath, parentFilePaths);
+		}
 
 		// Children-Links in anderen Wikiseiten aktualisieren
 		for (String parentFilePath : parentFilePaths) {
@@ -511,6 +491,8 @@ public class WikiServiceImpl implements WikiService {
 				wikiFile.getChildren().add(childFilePath);
 			}
 		}
+
+		return cacheModified;
 	}
 
 	/**
