@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.0 (2020-06-14)
+
+- Speed up full text search by a search index
+- Refactorings
+
 ## 2.2.0 (2020-02-08)
 
 - Speed up full text search by searching only in the page titles in the first step
