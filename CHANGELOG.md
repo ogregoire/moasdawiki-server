@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.1 (2020-06-21)
+
+- Update search index to find also upper case words with 3 characters
+
 ## 2.3.0 (2020-06-14)
 
 - Speed up full text search by a search index
