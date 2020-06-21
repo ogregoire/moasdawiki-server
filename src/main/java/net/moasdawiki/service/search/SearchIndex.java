@@ -51,12 +51,6 @@ public class SearchIndex {
 
     private static final String SEARCH_INDEX_FILEPATH = "/search-index.cache";
 
-    /**
-     * Minimum word length for word to be indexed.
-     * Short words are ignored to keep the index small.
-     */
-    private static final int MIN_WORD_LENGTH = 4;
-
     @NotNull
     private final Logger logger;
 
@@ -231,7 +225,7 @@ public class SearchIndex {
         List<String> words = splitStringToWords(text);
         for (String word : words) {
             // ignore short words
-            if (word.length() >= MIN_WORD_LENGTH) {
+            if (isWordRelevant(word)) {
                 addWordMapping(word, wikiFilePath);
             }
         }
@@ -267,6 +261,16 @@ public class SearchIndex {
     @NotNull
     Map<String, Set<String>> getWord2WikiFilePathMap() {
         return word2WikiFilePathMap;
+    }
+
+    /**
+     * Check if the given word is relevant to be added to the search index.
+     * Relevant words are longer than 3 characters or in upper case.
+     */
+    @Contract(pure = true)
+    boolean isWordRelevant(@NotNull String word) {
+        return word.length() >= 4 ||
+                (word.length() == 3 && Character.isUpperCase(word.codePointAt(1)));
     }
 
     /**

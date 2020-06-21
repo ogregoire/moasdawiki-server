@@ -118,6 +118,16 @@ public class SearchIndexTest {
     }
 
     @Test
+    public void testIsWordRelevant() {
+        assertFalse(searchIndex.isWordRelevant(""));
+        assertFalse(searchIndex.isWordRelevant("a"));
+        assertFalse(searchIndex.isWordRelevant("abc"));
+        assertFalse(searchIndex.isWordRelevant("A"));
+        assertTrue(searchIndex.isWordRelevant("ABC"));
+        assertTrue(searchIndex.isWordRelevant("abcd"));
+    }
+
+    @Test
     public void testAddWordMapping_Single() {
         searchIndex.addWordMapping("a", "/file/path");
         assertEquals(searchIndex.getWord2WikiFilePathMap().keySet().size(), 1);
