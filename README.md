@@ -5,7 +5,7 @@
 MoasdaWiki is a web based knowledge management application that allows you to
 create and modify its content by a web browser.
 
-The latest version is available at https://moasdawiki.net/.
+For documentation see https://moasdawiki.net/.
 
 ### Key features
 
@@ -14,7 +14,7 @@ The latest version is available at https://moasdawiki.net/.
 - No special system requirements like database or application server
 - Runs on any system with a Java VM 1.8 or higher
 - Extendable by plugins
-- App available, always have a copy of the Wiki content on your mobile device
+- App available, always have a copy of the Wiki content on your mobile device, see https://gitlab.com/moasdawiki/moasdawiki-app.
 - Free of charge, open source
 
 ### Feature list
