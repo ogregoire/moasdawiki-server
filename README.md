@@ -20,7 +20,7 @@ For documentation see https://moasdawiki.net/.
 ### Feature list
 
 - Store pages as text files on the file system, no database required
-- Fast and powerful full text search, supports regular expressions
+- Fast full text search
 - Built-in lightweight web server, no external web server required
 - Powerful syntax, includes tables and images
 - Page templates to create uniform looking pages
