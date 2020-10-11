@@ -1,8 +1,13 @@
 # Changelog
 
+## 2.3.2 (2020-10-11)
+
+- Extend wiki search to find also numbers
+- Small code changes
+
 ## 2.3.1 (2020-06-21)
 
-- Update search index to find also upper case words with 3 characters
+- Extend wiki search to find also upper case words with 3 characters
 
 ## 2.3.0 (2020-06-14)
 
