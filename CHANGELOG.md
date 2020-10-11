@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.3 (2020-10-11)
+
+- Add SearchService read-only mode for App
+
 ## 2.3.2 (2020-10-11)
 
 - Extend wiki search to find also numbers
