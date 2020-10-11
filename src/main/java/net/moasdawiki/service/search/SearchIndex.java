@@ -265,22 +265,21 @@ public class SearchIndex {
 
     /**
      * Check if the given word is relevant to be added to the search index.
-     * Relevant words are longer than 3 characters or in upper case.
      */
     @Contract(pure = true)
-    boolean isWordRelevant(@NotNull String word) {
-        return word.length() >= 4 ||
-                (word.length() == 3 && Character.isUpperCase(word.codePointAt(1)));
+    static boolean isWordRelevant(@NotNull String word) {
+        return word.length() >= 4
+                || (word.length() == 3 && !Character.isLowerCase(word.codePointAt(1)));
     }
 
     /**
      * Splits a string into a list of words.
-     * Words contain only alphabetic characters,
+     * Words contain only alphabetic und numeric characters,
      * everything else is seen as separator characters.
      */
     @Contract(pure = true, value = "_ -> new")
     @NotNull
-    List<String> splitStringToWords(@NotNull String text) {
+    static List<String> splitStringToWords(@NotNull String text) {
         List<String> result = new ArrayList<>();
 
         StringBuilder sb = new StringBuilder();
@@ -288,7 +287,7 @@ public class SearchIndex {
         PrimitiveIterator.OfInt it = codePointStream.iterator();
         while (it.hasNext()) {
             int codePoint = it.nextInt();
-            if (Character.isAlphabetic(codePoint)) {
+            if (Character.isLetterOrDigit(codePoint)) {
                 // inside word
                 sb.appendCodePoint(codePoint);
             } else if (sb.length() > 0) {
@@ -312,7 +311,7 @@ public class SearchIndex {
      */
     @Contract(pure = true)
     @NotNull
-    String cutWordPrefixAndNormalize(@NotNull String str) {
+    static String cutWordPrefixAndNormalize(@NotNull String str) {
         // cut first 3 characters
         int codePointNum = Math.min(3, str.codePointCount(0, str.length()));
         str = str.substring(0, str.offsetByCodePoints(0, codePointNum));
@@ -327,7 +326,7 @@ public class SearchIndex {
      */
     @Contract(pure = true)
     @NotNull
-    String normalizeUmlaute(@NotNull String str) {
+    static String normalizeUmlaute(@NotNull String str) {
         StringBuilder sb = new StringBuilder(str.length());
         IntStream codePointStream = str.codePoints();
         PrimitiveIterator.OfInt it = codePointStream.iterator();
