@@ -84,7 +84,7 @@ import org.jetbrains.annotations.Nullable;
 public class WikiParser {
 
 	@NotNull
-	private LineReader lineReader;
+	private final LineReader lineReader;
 
 	/**
 	 * Anzahl gerade offener Tabellen (geschachtelt)

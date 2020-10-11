@@ -153,11 +153,9 @@ public class PluginService {
 
 				Set<String> patternSet = new HashSet<>();
 				if (pathPattern != null) {
-					pathPattern.value();
 					patternSet.add(pathPattern.value());
 				}
 				if (pathPattern != null) {
-					pathPattern.multiValue();
 					Collections.addAll(patternSet, pathPattern.multiValue());
 				}
 

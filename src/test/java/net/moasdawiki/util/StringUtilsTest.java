@@ -19,11 +19,9 @@
 package net.moasdawiki.util;
 
 import net.moasdawiki.base.ServiceException;
-import net.moasdawiki.service.search.SearchService;
 import org.testng.annotations.Test;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
 

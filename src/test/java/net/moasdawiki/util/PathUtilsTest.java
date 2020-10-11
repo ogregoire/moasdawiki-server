@@ -45,13 +45,9 @@ public class PathUtilsTest {
 
     @Test
     public void testConvertFilePath2WebPath() {
-        if (File.separatorChar == '/') {
-            String result = PathUtils.convertFilePath2WebPath("/a/path/");
-            assertEquals(result, "/a/path/");
-        } else {
-            String result = PathUtils.convertFilePath2WebPath("\\a\\path\\");
-            assertEquals(result, "/a/path/");
-        }
+        String filePath = File.separatorChar == '/' ? "/a/path/" : "\\a\\path\\";
+        String result = PathUtils.convertFilePath2WebPath(filePath);
+        assertEquals(result, "/a/path/");
     }
 
     @Test

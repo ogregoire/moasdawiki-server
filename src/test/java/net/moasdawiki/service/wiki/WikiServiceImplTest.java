@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
+@SuppressWarnings("SameReturnValue")
 public class WikiServiceImplTest {
 
     private static final String[] REPOSITORY_FILE_PATHS = {"/page.txt", "/page-with-parent.txt", "/c.dat"};

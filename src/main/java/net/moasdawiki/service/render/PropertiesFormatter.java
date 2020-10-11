@@ -103,6 +103,7 @@ public class PropertiesFormatter {
 	 * 
 	 * @return <code>null</code> --> Ende erreicht.
 	 */
+	@SuppressWarnings("ConstantConditions")
 	@Nullable
 	private Token nextToken() {
 		StringBuilder tokenText = null;
