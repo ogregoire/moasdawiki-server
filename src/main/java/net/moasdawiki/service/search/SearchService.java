@@ -18,14 +18,6 @@
 
 package net.moasdawiki.service.search;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.IntStream;
-
 import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.ServiceException;
 import net.moasdawiki.service.repository.RepositoryService;
@@ -39,6 +31,14 @@ import net.moasdawiki.util.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 /**
  * Implements a full-text search for the wiki repository.
@@ -57,14 +57,22 @@ public class SearchService {
 	private final SearchIndex searchIndex;
 
 	/**
+	 * If true, only read index from cache file, don't update from wiki changes.
+	 * This is used by the App to ensure fast search.
+	 */
+	private final boolean cacheOnlyMode;
+
+	/**
 	 * Constructor.
 	 */
-	public SearchService(@NotNull Logger logger, @NotNull RepositoryService repositoryService, @NotNull WikiService wikiService) {
+	public SearchService(@NotNull Logger logger, @NotNull RepositoryService repositoryService,
+						 @NotNull WikiService wikiService, boolean cacheOnlyMode) {
 		super();
 		this.logger = logger;
 		this.wikiService = wikiService;
 		this.searchIndex = new SearchIndex(logger, repositoryService, wikiService);
 		this.searchIndex.readCacheFile();
+		this.cacheOnlyMode = cacheOnlyMode;
 	}
 
 	/**
@@ -81,7 +89,7 @@ public class SearchService {
 	 */
 	@Contract(pure = true)
 	@NotNull
-	public SearchQuery parseQueryString(@NotNull String query) {
+	public static SearchQuery parseQueryString(@NotNull String query) {
 		Set<String> included = new HashSet<>();
 		Set<String> excluded = new HashSet<>();
 
@@ -131,16 +139,32 @@ public class SearchService {
 	 */
 	@NotNull
 	public SearchResult searchInRepository(@NotNull SearchQuery searchQuery) throws ServiceException {
-		SearchResult searchResult = new SearchResult(searchQuery);
 		if (searchQuery.getIncluded().size() == 0) {
 			// No included word specified --> return empty result
-			return searchResult;
+			return new SearchResult(searchQuery);
 		}
 
-		// get wiki page candidates from search index
-		searchIndex.updateIndex();
-		Set<String> wikiFilePathCandidates = searchIndex.searchWikiFilePathCandidates(searchQuery.getIncluded());
+		Set<String> wikiFilePathCandidates = searchWikiFilePathCandidates(searchQuery.getIncluded());
 
+		return scanWikiPages(wikiFilePathCandidates, searchQuery);
+	}
+
+	/**
+	 * Get wiki page candidates from search index.
+	 */
+	@NotNull
+	Set<String> searchWikiFilePathCandidates(@NotNull Set<String> words) {
+		if (!cacheOnlyMode) {
+			searchIndex.updateIndex();
+		}
+		return searchIndex.searchWikiFilePathCandidates(words);
+	}
+
+	/**
+	 * Scans all wiki page candidates for the search query.
+	 */
+	@NotNull
+	SearchResult scanWikiPages(@NotNull Set<String> wikiFilePathCandidates, @NotNull SearchQuery searchQuery) throws ServiceException {
 		// Normalize search string and combine to a single pattern
 		Pattern[] includedPatterns = new Pattern[searchQuery.getIncluded().size()];
 		int i = 0;
@@ -155,6 +179,7 @@ public class SearchService {
 		}
 
 		// scan wiki pages
+		SearchResult searchResult = new SearchResult(searchQuery);
 		for (String wikiFilePath : wikiService.getWikiFilePaths()) {
 			// scan wiki page content only if page is in candidates list
 			String wikiText;
@@ -173,7 +198,6 @@ public class SearchService {
 
 		// Sort matches by descending relevance
 		searchResult.getResultList().sort((p1, p2) -> Integer.compare(p2.relevance, p1.relevance));
-
 		return searchResult;
 	}
 

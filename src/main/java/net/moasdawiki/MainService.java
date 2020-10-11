@@ -75,7 +75,7 @@ public class MainService {
 		settings = new Settings(logger, repositoryService, Settings.getConfigFileServer());
 		messages = new Messages(logger, settings, repositoryService);
 		wikiService = new WikiServiceImpl(logger, repositoryService);
-		searchService = new SearchService(logger, repositoryService, wikiService);
+		searchService = new SearchService(logger, repositoryService, wikiService, false);
 		pluginService = new PluginService(logger, settings);
 		htmlService = new HtmlService(logger, settings, messages, wikiService, pluginService);
 		serviceLocator = new ServiceLocator(logger, settings, messages, repositoryService, wikiService, htmlService, searchService, pluginService);
