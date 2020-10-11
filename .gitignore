@@ -15,7 +15,7 @@ build/
 # Git
 local.properties
 
-# Others
+# Project
 repository-test/
 src/main/dist/**/*.cache
 src/main/dist/**/*.config
