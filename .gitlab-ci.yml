@@ -1,9 +1,16 @@
 image: java:8-jdk
 
+include:
+  - template: Dependency-Scanning.gitlab-ci.yml
+
 before_script:
   - echo `pwd`
   - export GRADLE_USER_HOME=`pwd`/.gradle
   - chmod +x ./gradlew
+
+after_script:
+  - echo "CI finished"
+  - sleep 1h
 
 stages:
   - build
@@ -12,7 +19,7 @@ stages:
 build:
   stage: build
   script:
-    - ./gradlew assemble
+    - ./gradlew --no-daemon assemble
   artifacts:
     expire_in: never
     paths:
@@ -23,13 +30,10 @@ build:
 test:
   stage: test
   script:
-    - ./gradlew check
+    - ./gradlew --no-daemon check
   artifacts:
     expire_in: 1 week
     paths:
       - build
     reports:
       junit: build/reports/tests/test/junitreports/*
-
-after_script:
-  - echo "CI finished"
