@@ -22,8 +22,8 @@ import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.Messages;
 import net.moasdawiki.base.ServiceException;
 import net.moasdawiki.base.Settings;
-import net.moasdawiki.plugin.PluginService;
-import net.moasdawiki.server.HttpResponse;
+import net.moasdawiki.service.HttpResponse;
+import net.moasdawiki.service.transform.TransformerService;
 import net.moasdawiki.service.wiki.WikiFile;
 import net.moasdawiki.service.wiki.WikiService;
 import net.moasdawiki.service.wiki.structure.WikiPage;
@@ -45,18 +45,19 @@ public class HtmlService {
 	private final Settings settings;
 	private final Messages messages;
 	private final WikiService wikiService;
-	private final PluginService pluginService;
+	private final TransformerService transformerService;
 
 	/**
 	 * Konstruktor.
 	 */
-	public HtmlService(@NotNull Logger logger, @NotNull Settings settings, @NotNull Messages messages, @NotNull WikiService wikiService, @NotNull PluginService pluginService) {
+	public HtmlService(@NotNull Logger logger, @NotNull Settings settings, @NotNull Messages messages,
+					   @NotNull WikiService wikiService, @NotNull TransformerService transformerService) {
 		super();
 		this.logger = logger;
 		this.settings = settings;
 		this.messages = messages;
 		this.wikiService = wikiService;
-		this.pluginService = pluginService;
+		this.transformerService = transformerService;
 	}
 
 	/**
@@ -125,7 +126,7 @@ public class HtmlService {
 	@NotNull
 	public HttpResponse convertPage(@NotNull WikiPage wikiPage) {
 		// Platzhalter füllen und weitere Transformationen durch Plugins
-		wikiPage = pluginService.applyTransformations(wikiPage);
+		wikiPage = transformerService.applyTransformations(wikiPage);
 
 		// in HTML umwandeln
 		WikiPage2Html html = new WikiPage2Html(settings, messages, wikiService, true);
@@ -190,7 +191,7 @@ public class HtmlService {
 		writer.htmlText(messages.getMessage("wiki.errorpage.linkToStartpage"));
 
 		HttpResponse result = convertHtml(writer);
-		result.setStatusCode(statusCode);
+		result.statusCode = statusCode;
 		return result;
 	}
 }

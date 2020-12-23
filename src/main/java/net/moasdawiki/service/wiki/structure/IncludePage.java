@@ -21,44 +21,41 @@ package net.moasdawiki.service.wiki.structure;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Fügt eine komplette Wiki-Seite an dieser Stelle ein. Das Include-Tag wird
- * durch das WikiPage-Objekt ersetzt, an dem der Inhalt der Unterseite hängt.
- * 
- * @author Herbert Reiter
+ * Includes a complete wiki page.
+ * <p>
+ * The tag will be replaced by the WikiPage object of the sub page.
+ * <p>
+ * Syntax: <code>{{includepage:pagePath}}</code>
  */
 public class IncludePage extends PageElement {
-	/**
-	 * Name der Wikiseite, auf die der Link verweist. Wenn der Name nicht mit
-	 * '/' beginnt, handelt es sich um eine relative Adressierung zur Wikiseite,
-	 * die den Link enthält. Nicht null.
-	 */
-	@NotNull
-	private final String pagePath;
 
-	public IncludePage(@NotNull String pagePath, Integer fromPos, Integer toPos) {
-		super();
-		this.pagePath = pagePath;
-		this.fromPos = fromPos;
-		this.toPos = toPos;
-	}
+    /**
+     * Name of the wiki page the tag refers to.
+     * <p>
+     * If the value doesn't start with '/' the reference is relative to the
+     * surrounding wiki page.
+     */
+    @NotNull
+    private final String pagePath;
 
-	@NotNull
-	public String getPagePath() {
-		return pagePath;
-	}
+    public IncludePage(@NotNull String pagePath, Integer fromPos, Integer toPos) {
+        super();
+        this.pagePath = pagePath;
+        this.fromPos = fromPos;
+        this.toPos = toPos;
+    }
 
-	/**
-	 * Rückgabewert ist egal, weil dieses Objekt sowieso vom Standard-Plugin
-	 * ersetzt wird.
-	 * 
-	 * @see net.moasdawiki.service.wiki.structure.PageElement#isInline()
-	 */
-	public boolean isInline() {
-		return false;
-	}
+    @NotNull
+    public String getPagePath() {
+        return pagePath;
+    }
 
-	@NotNull
-	public PageElement clonePageElement() {
-		return new IncludePage(pagePath, fromPos, toPos);
-	}
+    public boolean isInline() {
+        return false;
+    }
+
+    @NotNull
+    public PageElement clonePageElement() {
+        return new IncludePage(pagePath, fromPos, toPos);
+    }
 }

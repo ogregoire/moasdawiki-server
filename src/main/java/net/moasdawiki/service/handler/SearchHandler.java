@@ -16,55 +16,68 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin;
+package net.moasdawiki.service.handler;
 
+import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.Messages;
 import net.moasdawiki.base.ServiceException;
-import net.moasdawiki.server.HttpRequest;
-import net.moasdawiki.server.HttpResponse;
+import net.moasdawiki.base.Settings;
+import net.moasdawiki.service.HttpResponse;
 import net.moasdawiki.service.render.HtmlService;
 import net.moasdawiki.service.search.SearchQuery;
 import net.moasdawiki.service.search.SearchResult;
-import net.moasdawiki.service.search.SearchService;
 import net.moasdawiki.service.search.SearchResult.Marker;
 import net.moasdawiki.service.search.SearchResult.MatchingLine;
 import net.moasdawiki.service.search.SearchResult.PageDetails;
+import net.moasdawiki.service.search.SearchService;
 import net.moasdawiki.service.wiki.WikiHelper;
+import net.moasdawiki.service.wiki.WikiService;
 import net.moasdawiki.service.wiki.structure.*;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Einfache Volltextsuche in allen Wikiseiten im Repository.
- * 
- * @author Herbert Reiter
  */
-public class SearchPlugin implements Plugin {
+public class SearchHandler {
 
-	private ServiceLocator serviceLocator;
-	private Messages messages;
-	private SearchService searchService;
-	private HtmlService htmlService;
+	private static final String ERROR_KEY = "SearchHandler.error";
+	private static final String RELEVANCE_KEY = "SearchHandler.relevance";
+	private static final String SUMMARY_ONE_KEY = "SearchHandler.summary.one";
+	private static final String SUMMARY_MANY_KEY = "SearchHandler.summary.more";
+	private static final String TITLE_KEY = "SearchHandler.title";
 
-	public void setServiceLocator(@NotNull ServiceLocator serviceLocator) {
-		this.serviceLocator = serviceLocator;
-		this.messages = serviceLocator.getMessages();
-		this.searchService = serviceLocator.getSearchService();
-		this.htmlService = serviceLocator.getHtmlService();
+	private final Logger logger;
+	private final Settings settings;
+	private final Messages messages;
+	private final WikiService wikiService;
+	private final SearchService searchService;
+	private final HtmlService htmlService;
+
+	/**
+	 * Constructor.
+	 */
+	public SearchHandler(@NotNull Logger logger, @NotNull Settings settings, @NotNull Messages messages,
+						 @NotNull WikiService wikiService, @NotNull SearchService searchService,
+						 @NotNull HtmlService htmlService) {
+		this.logger = logger;
+		this.settings = settings;
+		this.messages = messages;
+		this.wikiService = wikiService;
+		this.searchService = searchService;
+		this.htmlService = htmlService;
 	}
 
-	@Nullable
-	@PathPattern("/search/.*")
-	public HttpResponse handleRequest(@NotNull HttpRequest request) {
-		String query = request.urlParameters.get("text");
-		SearchQuery searchQuery = searchService.parseQueryString(query);
+	@NotNull
+	public HttpResponse handleSearchRequest(@NotNull String query) {
+		SearchQuery searchQuery = SearchService.parseQueryString(query);
 		try {
 			SearchResult searchResult = searchService.searchInRepository(searchQuery);
 			WikiPage wikiPage = generateSearchResultPage(searchResult);
-			wikiPage = WikiHelper.extendWikiPage(wikiPage, true, false, false, serviceLocator);
+			wikiPage = WikiHelper.extendWikiPage(wikiPage, true, false, false,
+					logger, settings, wikiService);
 			return htmlService.convertPage(wikiPage);
 		} catch (ServiceException e) {
-			return htmlService.generateErrorPage(500, e, "SearchPlugin.error");
+			return htmlService.generateErrorPage(500, e, ERROR_KEY);
 		}
 	}
 
@@ -73,16 +86,16 @@ public class SearchPlugin implements Plugin {
 		PageElementList pageContent = new PageElementList();
 
 		// Seitenname ausgeben
-		String pageTitle = messages.getMessage("SearchPlugin.title", searchResult.getSearchQuery().getQueryString());
+		String pageTitle = messages.getMessage(TITLE_KEY, searchResult.getSearchQuery().getQueryString());
 		pageContent.add(new Heading(1, new TextOnly(pageTitle), null, null));
 
 		// Anzahl Suchergebnisse ausgeben
 		int count = searchResult.getResultList().size();
 		String countText;
 		if (count == 1) {
-			countText = messages.getMessage("SearchPlugin.summary.one");
+			countText = messages.getMessage(SUMMARY_ONE_KEY);
 		} else {
-			countText = messages.getMessage("SearchPlugin.summary.more", count);
+			countText = messages.getMessage(SUMMARY_MANY_KEY, count);
 		}
 		pageContent.add(new TextOnly(countText));
 
@@ -116,7 +129,7 @@ public class SearchPlugin implements Plugin {
 		}
 
 		// Relevanz anzeigen
-		String relevanceText = messages.getMessage("SearchPlugin.relevance", pageDetails.relevance);
+		String relevanceText = messages.getMessage(RELEVANCE_KEY, pageDetails.relevance);
 		pageElementList.add(new TextOnly(relevanceText));
 		pageElementList.add(new VerticalSpace());
 

@@ -16,13 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin;
+package net.moasdawiki.service.handler;
 
 import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.ServiceException;
 import net.moasdawiki.base.Settings;
-import net.moasdawiki.server.HttpRequest;
-import net.moasdawiki.server.HttpResponse;
+import net.moasdawiki.service.HttpResponse;
 import net.moasdawiki.service.render.HtmlService;
 import net.moasdawiki.service.wiki.WikiFile;
 import net.moasdawiki.service.wiki.WikiHelper;
@@ -30,7 +29,6 @@ import net.moasdawiki.service.wiki.WikiService;
 import net.moasdawiki.service.wiki.structure.WikiPage;
 import net.moasdawiki.util.EscapeUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Stellt eine Wikiseite als HTML-Seite dar. Dieses Plugin wird über die URLs
@@ -44,40 +42,46 @@ import org.jetbrains.annotations.Nullable;
  * die Einstellungen <tt>page.index.name</tt> und <tt>page.index.default</tt>
  * konfiguriert werden. Sind beide Einstellungen nicht definiert, ist das
  * Ordnerlisting abgeschaltet.
- * 
- * @author Herbert Reiter
  */
-public class ViewPagePlugin implements Plugin {
+public class ViewPageHandler {
 
-	private Logger logger;
-	private ServiceLocator serviceLocator;
-	private Settings settings;
-	private WikiService wikiService;
-	private HtmlService htmlService;
+	private static final String INDEX_DISABLED_KEY = "ViewPageHandler.index.disabled";
+	private static final String INDEX_NOT_FOUND_KEY = "ViewPageHandler.index.notfound";
+	private static final String PAGE_NOT_FOUND_KEY = "ViewPageHandler.page.notfound";
 
-	public void setServiceLocator(@NotNull ServiceLocator serviceLocator) {
-		this.serviceLocator = serviceLocator;
-		this.logger = serviceLocator.getLogger();
-		this.settings = serviceLocator.getSettings();
-		this.wikiService = serviceLocator.getWikiService();
-		this.htmlService = serviceLocator.getHtmlService();
+	private final Logger logger;
+	private final Settings settings;
+	private final WikiService wikiService;
+	private final HtmlService htmlService;
+
+	/**
+	 * Constructor.
+	 */
+	public ViewPageHandler(@NotNull Logger logger, @NotNull Settings settings,
+						   @NotNull WikiService wikiService, @NotNull HtmlService htmlService) {
+		this.logger = logger;
+		this.settings = settings;
+		this.wikiService = wikiService;
+		this.htmlService = htmlService;
 	}
 
-	@Nullable
-	@PathPattern(multiValue = { "/view/.*", "/" })
-	public HttpResponse handleRequest(@NotNull HttpRequest request) {
-		// Wikiseite bestimmen
-		String filePath;
-		String urlPath = request.urlPath;
-		if ("/".equals(urlPath)) {
-			filePath = settings.getStartpagePath();
-		} else if (urlPath.startsWith("/view/")) {
-			filePath = urlPath.substring(5);
-			filePath = EscapeUtils.url2PagePath(filePath);
-		} else {
-			// unbekannte URL
-			return null;
-		}
+	/**
+	 * Is called for URL path "/".
+	 */
+	@NotNull
+	public HttpResponse handleRootPath() {
+		String filePath = settings.getStartpagePath();
+		return showWikiPage(filePath);
+	}
+
+	/**
+	 * Is called for URL path starting with "/view/".
+	 */
+	@NotNull
+	public HttpResponse handleViewPath(@NotNull String urlPath) {
+		// extract wiki page path
+		String filePath = urlPath.substring(5);
+		filePath = EscapeUtils.url2PagePath(filePath);
 
 		// Ordner-Index und Wikiseite unterscheiden
 		if (filePath.endsWith("/")) {
@@ -101,7 +105,7 @@ public class ViewPagePlugin implements Plugin {
 		String indexName = settings.getIndexPageName();
 		String indexDefaultPagePath = settings.getIndexFallbackPagePath();
 		if (indexName == null || indexDefaultPagePath == null) {
-			return htmlService.generateErrorPage(403, "ViewPagePlugin.index.disabled");
+			return htmlService.generateErrorPage(403, INDEX_DISABLED_KEY);
 		}
 
 		// Indexseite für den Ordner vorhanden?
@@ -119,14 +123,14 @@ public class ViewPagePlugin implements Plugin {
 			WikiPage wikiPage = new WikiPage(folderPath + indexName, indexWikiFile.getWikiPage(), null, null);
 
 			// Navigation, Header und Footer hinzufügen
-			wikiPage = WikiHelper.extendWikiPage(wikiPage, true, true, true, serviceLocator);
+			wikiPage = WikiHelper.extendWikiPage(wikiPage, true, true, true, logger, settings, wikiService);
 
 			// Seite ausgeben
 			return htmlService.convertPage(wikiPage);
 		}
 		catch (ServiceException e) {
 			logger.write("Error reading default index page, sending 404", e);
-			return htmlService.generateErrorPage(404, "ViewPagePlugin.index.notfound", folderPath);
+			return htmlService.generateErrorPage(404, INDEX_NOT_FOUND_KEY, folderPath);
 		}
 	}
 
@@ -143,7 +147,8 @@ public class ViewPagePlugin implements Plugin {
 			WikiFile wikiFile = wikiService.getWikiFile(filePath);
 
 			// Navigation, Header und Footer hinzufügen
-			WikiPage wikiPage = WikiHelper.extendWikiPage(wikiFile.getWikiPage(), true, true, true, serviceLocator);
+			WikiPage wikiPage = WikiHelper.extendWikiPage(wikiFile.getWikiPage(), true, true, true,
+					logger, settings, wikiService);
 
 			// in Liste der zuletzt besuchten Seiten aufnehmen
 			if (wikiPage.getPagePath() != null) {
@@ -155,7 +160,7 @@ public class ViewPagePlugin implements Plugin {
 		}
 		catch (ServiceException e) {
 			logger.write("Error reading wiki page, sending 404", e);
-			return htmlService.generateErrorPage(404, "ViewPagePlugin.page.notfound", filePath);
+			return htmlService.generateErrorPage(404, PAGE_NOT_FOUND_KEY, filePath);
 		}
 	}
 }

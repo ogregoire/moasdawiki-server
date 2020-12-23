@@ -16,31 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin.sync;
+package net.moasdawiki.service.sync;
 
 import net.moasdawiki.util.xml.XmlAttribute;
 import net.moasdawiki.util.xml.XmlElement;
 import net.moasdawiki.util.xml.XmlRootElement;
 
 /**
- * JAXB-Bean für eine Session-Anfrage.
+ * JAXB-Bean mit einer Fehlermeldung, falls der Aufruf nicht erfolgreich
+ * beantwortet werden kann.
  *
  * @author Herbert Reiter
  */
-@XmlRootElement(name = "create-session")
-public class CreateSessionXml extends AbstractSyncXml {
+@XmlRootElement(name = "error")
+public class ErrorResponseXml extends AbstractSyncXml {
 	@XmlAttribute
 	public String version;
-	
-	@XmlElement(name = "client-session-id")
-	public String clientSessionId;
 
-	@XmlElement(name = "client-name")
-	public String clientName;
-
-	@XmlElement(name = "client-version")
-	public String clientVersion;
-
-	@XmlElement(name = "client-host")
-	public String clientHost;
+	@XmlElement
+	public String message;
 }

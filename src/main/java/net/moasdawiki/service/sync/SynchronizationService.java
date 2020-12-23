@@ -16,21 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin.sync;
+package net.moasdawiki.service.sync;
 
 import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.ServiceException;
 import net.moasdawiki.base.Settings;
-import net.moasdawiki.plugin.PathPattern;
-import net.moasdawiki.plugin.Plugin;
-import net.moasdawiki.plugin.ServiceLocator;
-import net.moasdawiki.server.HttpRequest;
-import net.moasdawiki.server.HttpResponse;
+import net.moasdawiki.service.HttpResponse;
 import net.moasdawiki.service.repository.AnyFile;
 import net.moasdawiki.service.repository.RepositoryService;
-import net.moasdawiki.service.wiki.PageElementTransformer;
-import net.moasdawiki.service.wiki.WikiHelper;
-import net.moasdawiki.service.wiki.structure.*;
 import net.moasdawiki.util.DateUtils;
 import net.moasdawiki.util.EscapeUtils;
 import net.moasdawiki.util.JavaScriptUtils;
@@ -45,8 +38,6 @@ import java.io.StringReader;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -57,10 +48,8 @@ import java.util.*;
  * 
  * Bezüglich der Aufruf-URLs und Datensyntax siehe die Doku der jeweiligen
  * Methoden in dieser Klasse.
- *
- * @author Herbert Reiter
  */
-public class SynchronizationPlugin implements Plugin, PageElementTransformer {
+public class SynchronizationService {
 
 	/**
 	 * Pfad der Cachedatei mit der Liste aller Repository-Dateien.
@@ -80,159 +69,34 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 	 */
 	private static final String[] EXLUDE_FILEPATHS = { SESSION_LIST_FILEPATH };
 
-	private Logger logger;
-	private Settings settings;
-	private RepositoryService repositoryService;
+	private final Logger logger;
+	private final Settings settings;
+	private final RepositoryService repositoryService;
 	private final SecureRandom random = new SecureRandom();
 
 	/**
-	 * Map: Session-ID --> Session-Daten.
+	 * Map: Session ID --> session data.
 	 */
-	private final Map<String, SessionData> sessionMap = new HashMap<>();
+	private final Map<String, SessionData> sessionMap;
 
-	@Override
-	public void setServiceLocator(@NotNull ServiceLocator serviceLocator) {
-		this.logger = serviceLocator.getLogger();
-		this.settings = serviceLocator.getSettings();
-		this.repositoryService = serviceLocator.getRepositoryService();
+	/**
+	 * Constructor.
+	 */
+	public SynchronizationService(@NotNull Logger logger, @NotNull Settings settings,
+								  @NotNull RepositoryService repositoryService) {
+		this.logger = logger;
+		this.settings = settings;
+		this.repositoryService = repositoryService;
+		this.sessionMap = new HashMap<>();
 		readSessionList();
 	}
 
+	/**
+	 * Returns the session list.
+	 */
 	@NotNull
-	@Override
-	public WikiPage transformWikiPage(@NotNull WikiPage wikiPage) {
-		return WikiHelper.transformPageElements(wikiPage, this);
-	}
-
-	/**
-	 * Wertet das Tag {{sync-status}} aus und zeigt die Liste aller bekannten
-	 * Client-Sessions an.
-	 */
-	@Override
-	public PageElement transformPageElement(@NotNull PageElement pageElement) {
-		if (pageElement instanceof WikiTag) {
-			WikiTag wikiTag = (WikiTag) pageElement;
-			if ("sync-status".equals(wikiTag.getTagname())) {
-				Table table = new Table(null, null, null);
-				// Überschrift
-				table.newRow(null);
-				table.addCell(new TableCell(new TextOnly("Gerätename"), true, null));
-				table.addCell(new TableCell(new TextOnly("Client"), true, null));
-				table.addCell(new TableCell(new Html("Server-Session-ID /<br>Client-Session-ID"), true, null));
-				table.addCell(new TableCell(new TextOnly("Erzeugt"), true, null));
-				table.addCell(new TableCell(new TextOnly("Letzte Synchronisierung"), true, null));
-				table.addCell(new TableCell(new TextOnly("Aktion"), true, null));
-
-				// Sessions auflisten
-				List<SessionData> sessionList = new ArrayList<>(sessionMap.values());
-				sessionList.sort((sessionData1, sessionData2) -> {
-					int comp;
-					if (sessionData1.clientHost == null && sessionData2.clientHost == null) {
-						comp = 0;
-					} else if (sessionData2.clientHost == null) {
-						comp = -1;
-					} else if (sessionData1.clientHost == null) {
-						comp = 1;
-					} else {
-						comp = sessionData1.clientHost.compareTo(sessionData2.clientHost);
-					}
-					if (comp == 0) {
-						comp = sessionData1.createTimestamp.compareTo(sessionData2.createTimestamp);
-					}
-					return comp;
-				});
-				DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-				for (SessionData sessionData : sessionList) {
-					table.newRow(null);
-					table.addCell(new TableCell(new TextOnly(sessionData.clientHost), false, null));
-					table.addCell(new TableCell(new TextOnly(sessionData.clientName + " " + sessionData.clientVersion), false, null));
-					table.addCell(new TableCell(new Html(sessionData.serverSessionId + " /<br>" + sessionData.clientSessionId), false, null));
-					String timestamp = df.format(sessionData.createTimestamp);
-					table.addCell(new TableCell(new TextOnly(timestamp), false, null));
-					String lastSync = "";
-					if (sessionData.lastSyncTimestamp != null) {
-						lastSync = df.format(sessionData.lastSyncTimestamp);
-					} else if (sessionData.authorized) {
-						lastSync = "Erlaubnis erteilt";
-					}
-					table.addCell(new TableCell(new TextOnly(lastSync), false, null));
-					String buttonHtml = "<form>";
-					if (!sessionData.authorized) {
-						buttonHtml += "<button type=\"button\" class=\"save\" onclick=\"syncPermitSession('" + sessionData.serverSessionId
-								+ "')\">Erlauben</button> ";
-					}
-					buttonHtml += "<button type=\"button\" class=\"cancel\" onclick=\"syncDropSession('" + sessionData.serverSessionId
-							+ "')\">Löschen</button>";
-					buttonHtml += "</form>";
-					table.addCell(new TableCell(new Html(buttonHtml), false, null));
-				}
-
-				return table;
-			}
-		}
-		return pageElement;
-	}
-
-	@Nullable
-	@Override
-	@PathPattern(multiValue = { "/sync/.*", "/sync-gui/.*" })
-	public HttpResponse handleRequest(@NotNull HttpRequest request) {
-		String urlPath = request.urlPath;
-		if (urlPath.startsWith("/sync-gui/")) {
-			return handleGuiRequest(request);
-		} else if (urlPath.startsWith("/sync/")) {
-			return handleSyncRequest(request);
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Behandelt GUI-Anfragen von einer Wiki-Seite.
-	 */
-	private HttpResponse handleGuiRequest(HttpRequest request) {
-		String urlPath = request.urlPath;
-		String sessionId = request.urlParameters.get("session-id");
-		String msg = "Incoming request '" + urlPath + "' from " + request.clientIP;
-		if (sessionId != null) {
-			msg += ", session '" + sessionId + "'";
-		}
-		logger.write(msg);
-
-		if ("/sync-gui/session-permit".equals(urlPath)) {
-			return handleSessionPermit(request);
-		} else if ("/sync-gui/session-drop".equals(urlPath)) {
-			return handleSessionDrop(request);
-		} else {
-			logger.write("Unknown command '" + urlPath + "'");
-			return generateJsonResponse(1, "Unknown command");
-		}
-	}
-
-	/**
-	 * Behandelt Anfragen von einem Wiki-Client.
-	 */
-	private HttpResponse handleSyncRequest(HttpRequest request) {
-		String urlPath = request.urlPath;
-		String sessionId = request.urlParameters.get("session-id");
-		String msg = "Incoming request '" + urlPath + "' from " + request.clientIP;
-		if (sessionId != null) {
-			msg += ", session '" + sessionId + "'";
-		}
-		logger.write(msg);
-
-		if ("/sync/create-session".equals(urlPath)) {
-			return handleCreateSession(request);
-		} else if ("/sync/check-session".equals(urlPath)) {
-			return handleCheckSession(request);
-		} else if ("/sync/list-modified-files".equals(urlPath)) {
-			return handleListModifiedFiles(request);
-		} else if ("/sync/read-file".equals(urlPath)) {
-			return handleReadFile(request);
-		} else {
-			logger.write("Unknown command '" + urlPath + "'");
-			return generateErrorResponse("Unknown command '" + urlPath + "'");
-		}
+	public List<SessionData> getSessions() {
+		return new ArrayList<>(sessionMap.values());
 	}
 
 	/**
@@ -255,9 +119,9 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 	 * }
 	 * </pre>
 	 */
-	private HttpResponse handleSessionPermit(HttpRequest request) {
+	@NotNull
+	public HttpResponse handleSessionPermit(@Nullable String sessionId) {
 		// Session-ID prüfen
-		String sessionId = request.urlParameters.get("session-id");
 		if (sessionId == null) {
 			return generateJsonResponse(1, "Parameter session-id missing");
 		}
@@ -293,9 +157,9 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 	 * }
 	 * </pre>
 	 */
-	private HttpResponse handleSessionDrop(HttpRequest request) {
+	@NotNull
+	public HttpResponse handleSessionDrop(@Nullable String sessionId) {
 		// Session-ID prüfen
-		String sessionId = request.urlParameters.get("session-id");
 		if (sessionId == null) {
 			return generateJsonResponse(1, "Parameter session-id missing");
 		}
@@ -316,7 +180,7 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 
 	private HttpResponse generateJsonResponse(int code, @Nullable String jsonText) {
 		HttpResponse result = new HttpResponse();
-		result.setContentType(HttpResponse.CONTENT_TYPE_JSON_UTF8);
+		result.contentType = HttpResponse.CONTENT_TYPE_JSON_UTF8;
 		result.setContent(JavaScriptUtils.generateJson(code, jsonText));
 		return result;
 	}
@@ -365,10 +229,10 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 	 * &lt;/create-session-response>
 	 * </pre>
 	 */
-	private HttpResponse handleCreateSession(HttpRequest request) {
+	public HttpResponse handleCreateSession(@NotNull byte[] httpBody) {
 		try {
 			// XML einlesen
-			String requestXml = fromUtf8Bytes(request.httpBody);
+			String requestXml = fromUtf8Bytes(httpBody);
 			logger.write("Received XML: " + requestXml);
 			CreateSessionXml createSession = parseXml(requestXml, CreateSessionXml.class);
 
@@ -394,7 +258,7 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 			logger.write("Sending XML: " + responseXml);
 
 			HttpResponse response = new HttpResponse();
-			response.setContentType(HttpResponse.CONTENT_TYPE_XML);
+			response.contentType = HttpResponse.CONTENT_TYPE_XML;
 			response.setContent(responseXml);
 			return response;
 		} catch (ServiceException e) {
@@ -434,10 +298,10 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 	 * &lt;/check-session-response>
 	 * </pre>
 	 */
-	private HttpResponse handleCheckSession(HttpRequest request) {
+	public HttpResponse handleCheckSession(@NotNull byte[] httpBody) {
 		try {
 			// XML einlesen
-			String requestXml = fromUtf8Bytes(request.httpBody);
+			String requestXml = fromUtf8Bytes(httpBody);
 			logger.write("Received XML: " + requestXml);
 			CheckSessionXml checkSession = parseXml(requestXml, CheckSessionXml.class);
 
@@ -459,7 +323,7 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 			logger.write("Sending XML: " + responseXml);
 
 			HttpResponse response = new HttpResponse();
-			response.setContentType(HttpResponse.CONTENT_TYPE_XML);
+			response.contentType = HttpResponse.CONTENT_TYPE_XML;
 			response.setContent(responseXml);
 			return response;
 		} catch (ServiceException e) {
@@ -503,10 +367,11 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 	 * &lt;/list-modified-files-response>
 	 * </pre>
 	 */
-	private HttpResponse handleListModifiedFiles(HttpRequest request) {
+	@NotNull
+	public HttpResponse handleListModifiedFiles(@NotNull byte[] httpBody) {
 		try {
 			// XML einlesen
-			String requestXml = fromUtf8Bytes(request.httpBody);
+			String requestXml = fromUtf8Bytes(httpBody);
 			logger.write("Received XML: " + requestXml);
 			ListModifiedFilesXml listModifiedFiles = parseXml(requestXml, ListModifiedFilesXml.class);
 
@@ -541,7 +406,7 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 			String responseXml = generateXml(xmlResponse);
 			logger.write("Sending XML: " + responseXml);
 			HttpResponse response = new HttpResponse();
-			response.setContentType(HttpResponse.CONTENT_TYPE_XML);
+			response.contentType = HttpResponse.CONTENT_TYPE_XML;
 			response.setContent(responseXml);
 			return response;
 		} catch (ServiceException e) {
@@ -599,10 +464,11 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 	 * <code>content</code> Inhalt der Datei in binärer Form, base64-kodiert.
 	 * Nicht <code>null</code>.
 	 */
-	private HttpResponse handleReadFile(HttpRequest request) {
+	@NotNull
+	public HttpResponse handleReadFile(@NotNull byte[] httpBody) {
 		try {
 			// XML einlesen
-			String requestXml = fromUtf8Bytes(request.httpBody);
+			String requestXml = fromUtf8Bytes(httpBody);
 			logger.write("Received XML: " + requestXml);
 			ReadFileXml readFileXml = parseXml(requestXml, ReadFileXml.class);
 
@@ -637,7 +503,7 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 			String responseXml = generateXml(xmlResponse);
 			logger.write("Sending XML: " + truncateLogText(responseXml));
 			HttpResponse response = new HttpResponse();
-			response.setContentType(HttpResponse.CONTENT_TYPE_XML);
+			response.contentType = HttpResponse.CONTENT_TYPE_XML;
 			response.setContent(responseXml);
 			return response;
 		} catch (ServiceException e) {
@@ -669,13 +535,13 @@ public class SynchronizationPlugin implements Plugin, PageElementTransformer {
 			logger.write("Sending error XML: " + responseXml);
 
 			HttpResponse response = new HttpResponse();
-			response.setContentType(HttpResponse.CONTENT_TYPE_XML);
+			response.contentType = HttpResponse.CONTENT_TYPE_XML;
 			response.setContent(responseXml);
 			return response;
 		} catch (ServiceException e) {
 			logger.write("Cannot generate error response XML, sending 500", e);
 			HttpResponse response = new HttpResponse();
-			response.setStatusCode(500); // internal error
+			response.statusCode = 500; // internal error
 			return response;
 		}
 	}

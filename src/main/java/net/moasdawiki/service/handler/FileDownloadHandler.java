@@ -16,19 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin;
+package net.moasdawiki.service.handler;
 
 import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.ServiceException;
 import net.moasdawiki.base.Settings;
-import net.moasdawiki.server.HttpRequest;
-import net.moasdawiki.server.HttpResponse;
+import net.moasdawiki.service.HttpResponse;
 import net.moasdawiki.service.render.HtmlService;
 import net.moasdawiki.service.repository.AnyFile;
 import net.moasdawiki.service.repository.RepositoryService;
 import net.moasdawiki.util.PathUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Bearbeitet Anfragen zum Download von statischen Dateien. Anhand der
@@ -45,44 +43,56 @@ import org.jetbrains.annotations.Nullable;
  * <br>
  * Mit <tt>/file/...</tt> können beliebige Dateien aus dem Repository zum
  * Download angeboten werden.
- * 
- * @author Herbert Reiter
  */
-public class FileDownloadPlugin implements Plugin {
+public class FileDownloadHandler {
 
-	private Logger logger;
-	private Settings settings;
-	private RepositoryService repositoryService;
-	private HtmlService htmlService;
+	private static final String FILE_NOT_FOUND_KEY = "FileDownloadHandler.fileNotFound";
+	private static final String REVERSE_NAVIGATION_KEY = "FileDownloadHandler.reverseNavigation";
 
-	public void setServiceLocator(@NotNull ServiceLocator serviceLocator) {
-		this.logger = serviceLocator.getLogger();
-		this.settings = serviceLocator.getSettings();
-		this.repositoryService = serviceLocator.getRepositoryService();
-		this.htmlService = serviceLocator.getHtmlService();
+	private final Logger logger;
+	private final Settings settings;
+	private final RepositoryService repositoryService;
+	private final HtmlService htmlService;
+
+	/**
+	 * Constructor.
+	 */
+	public FileDownloadHandler(@NotNull Logger logger, @NotNull Settings settings,
+							   @NotNull RepositoryService repositoryService, @NotNull HtmlService htmlService) {
+		this.logger = logger;
+		this.settings = settings;
+		this.repositoryService = repositoryService;
+		this.htmlService = htmlService;
 	}
 
-	@PathPattern(multiValue = { "/[^/]+", "/img/.*", "/file/.*" })
-	@Nullable
-	public HttpResponse handleRequest(@NotNull HttpRequest request) {
-		String urlPath = request.urlPath;
-		if (urlPath.startsWith("/img/")) {
-			String absolutePath = urlPath.substring(4);
-			return generateFileResponse(absolutePath);
+	/**
+	 * Handle file downloads for URL paths starting with "/img/".
+	 */
+	@NotNull
+	public HttpResponse handleDownloadImg(@NotNull String urlPath) {
+		String absolutePath = urlPath.substring(4); // cut off "/img"
+		return generateFileResponse(absolutePath);
+	}
 
-		} else if (urlPath.startsWith("/file/")) {
-			String absolutePath = urlPath.substring(5);
-			return generateFileResponse(absolutePath);
+	/**
+	 * Handle file downloads for URL paths starting with "/file/".
+	 */
+	@NotNull
+	public HttpResponse handleDownloadFile(@NotNull String urlPath) {
+		String absolutePath = urlPath.substring(5); // cut off "/file"
+		return generateFileResponse(absolutePath);
+	}
 
-		} else if (urlPath.startsWith("/") && urlPath.lastIndexOf('/') == 0) {
-			String rootPath = PathUtils.makeWebPathAbsolute(null, settings.getRootPath());
-			String absolutePath = PathUtils.concatWebPaths(rootPath, urlPath);
-			return generateFileResponse(absolutePath);
-
-		} else {
-			// unbekannte URL
-			return null;
-		}
+	/**
+	 * Handle file downloads for the URL paths starting with "/..." (no second "/").
+	 *
+	 * Example: /favicon.ico
+	 */
+	@NotNull
+	public HttpResponse handleDownloadRoot(@NotNull String urlPath) {
+		String rootPath = PathUtils.makeWebPathAbsolute(null, settings.getRootPath());
+		String absolutePath = PathUtils.concatWebPaths(rootPath, urlPath);
+		return generateFileResponse(absolutePath);
 	}
 
 	/**
@@ -98,7 +108,7 @@ public class FileDownloadPlugin implements Plugin {
 		// auf Rückwärtsnavigation prüfen
 		if (filePath.contains("..")) {
 			logger.write("File path '" + filePath + "' contains invalid reverse navigation, sending response 403 access denied.");
-			return htmlService.generateErrorPage(403, "FileDownloadPlugin.reverseNavigation", filePath);
+			return htmlService.generateErrorPage(403, REVERSE_NAVIGATION_KEY, filePath);
 		}
 
 		// Datei einlesen
@@ -108,13 +118,13 @@ public class FileDownloadPlugin implements Plugin {
 			fileContent = repositoryService.readBinaryFile(anyFile);
 		} catch (ServiceException e) {
 			logger.write("File '" + filePath + "' not found, sending response 404", e);
-			return htmlService.generateErrorPage(404, "FileDownloadPlugin.fileNotFound", filePath);
+			return htmlService.generateErrorPage(404, FILE_NOT_FOUND_KEY, filePath);
 		}
 
 		// Datei in Antwort verpacken
 		HttpResponse response = new HttpResponse();
-		response.setContentType(getContentType(filePath));
-		response.setContent(fileContent);
+		response.contentType = getContentType(filePath);
+		response.content = fileContent;
 		return response;
 	}
 

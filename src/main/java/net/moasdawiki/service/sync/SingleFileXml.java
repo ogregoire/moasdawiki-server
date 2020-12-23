@@ -16,31 +16,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin.sync;
+package net.moasdawiki.service.sync;
 
 import net.moasdawiki.util.xml.XmlAttribute;
-import net.moasdawiki.util.xml.XmlElement;
 import net.moasdawiki.util.xml.XmlRootElement;
+import net.moasdawiki.util.xml.XmlValue;
 
 /**
- * JAXB-Bean mit der zugewiesenen Session-ID.
+ * Enthält die Angaben für eine einzelne Repository-Datei.
  *
  * @author Herbert Reiter
  */
-@XmlRootElement(name = "create-session-response")
-public class CreateSessionResponseXml extends AbstractSyncXml {
+@XmlRootElement(name = "file")
+public class SingleFileXml extends AbstractSyncXml {
+
+	/**
+	 * Zeitstempel der letzten Inhaltsänderung der Datei. Nicht
+	 * <code>null</code>.
+	 */
 	@XmlAttribute
-	public String version;
+	public String timestamp;
 
-	@XmlElement(name = "server-session-id")
-	public String serverSessionId;
-
-	@XmlElement(name = "server-name")
-	public String serverName;
-
-	@XmlElement(name = "server-version")
-	public String serverVersion;
-
-	@XmlElement(name = "server-host")
-	public String serverHost;
+	/**
+	 * Der absolute Pfad der Datei innerhalb des Repositories inkl. Dateiendung.
+	 * Nicht <code>null</code>.
+	 */
+	@XmlValue
+	public String filePath;
 }

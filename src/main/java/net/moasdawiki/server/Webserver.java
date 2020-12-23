@@ -18,7 +18,19 @@
 
 package net.moasdawiki.server;
 
+import net.moasdawiki.base.Logger;
+import net.moasdawiki.base.ServiceException;
+import net.moasdawiki.base.Settings;
+import net.moasdawiki.service.HttpResponse;
+import net.moasdawiki.service.render.HtmlService;
+import net.moasdawiki.service.render.HtmlWriter;
+import net.moasdawiki.util.EscapeUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -26,16 +38,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import net.moasdawiki.base.Logger;
-import net.moasdawiki.base.Settings;
-import net.moasdawiki.plugin.Plugin;
-import net.moasdawiki.plugin.PluginService;
-import net.moasdawiki.plugin.ServiceLocator;
-import net.moasdawiki.service.render.HtmlService;
-import net.moasdawiki.service.render.HtmlWriter;
-import net.moasdawiki.util.EscapeUtils;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Öffnet einen Webserver und nimmt HTTP-Anfragen entgegen. Der Port wird aus
@@ -58,11 +60,12 @@ public class Webserver {
 	 * Sekunden bei seinen "speculative requests", daher sollten es mehr sein.
 	 */
 	private static final int REQUEST_READ_TIMEOUT = 10000; // 10 Sekunden
+	private static final String CRLF = "\r\n";
 
-	private final Settings settings;
 	private final Logger log;
+	private final Settings settings;
 	private final HtmlService htmlService;
-	private final PluginService pluginService;
+	private final RequestDispatcher requestDispatcher;
 
 	private boolean shutdownRequestAllowed;
 	private boolean shutdownRequested;
@@ -70,12 +73,13 @@ public class Webserver {
 	private ExecutorService threadPool; // wird von run() gesetzt
 	private final Object synchronizationLock = new Object();
 
-	public Webserver(ServiceLocator serviceLocator) {
+	public Webserver(@NotNull Logger log, @NotNull Settings settings,
+					 @NotNull HtmlService htmlService, @NotNull RequestDispatcher requestDispatcher) {
 		super();
-		this.settings = serviceLocator.getSettings();
-		this.log = serviceLocator.getLogger();
-		this.htmlService = serviceLocator.getHtmlService();
-		this.pluginService = serviceLocator.getPluginService();
+		this.log = log;
+		this.settings = settings;
+		this.htmlService = htmlService;
+		this.requestDispatcher = requestDispatcher;
 	}
 
 	/**
@@ -178,7 +182,7 @@ public class Webserver {
 			try {
 				// Antwort an Client zurücksenden
 				if (response != null && !client.isClosed() && !client.isOutputShutdown()) {
-					response.writeResponse(client.getOutputStream());
+					writeResponse(response, client.getOutputStream());
 				}
 			} catch (Exception e) {
 				log.write("Error sending the response of a request", e);
@@ -218,18 +222,8 @@ public class Webserver {
 			return generateStatusPage();
 		}
 
-		// per URL-Mapping das zuständige Plugin aufrufen
-		Plugin plugin = pluginService.getPluginByUrl(httpRequest.urlPath);
-		if (plugin != null) {
-			HttpResponse response = plugin.handleRequest(httpRequest);
-			if (response != null) {
-				return response;
-			}
-			return htmlService.generateErrorPage(404, "wiki.plugin.handleRequest.notsupported", plugin.getClass().getName());
-		}
-
-		// unbekannte URL
-		return htmlService.generateErrorPage(404, "wiki.server.url.unmapped", httpRequest.urlPath);
+		// dispatch request to corresponding service
+		return requestDispatcher.handleRequest(httpRequest);
 	}
 
 	private HttpResponse generateStatusPage() {
@@ -307,5 +301,163 @@ public class Webserver {
 		writer.closeTag(); // ul
 
 		return htmlService.convertHtml(writer);
+	}
+
+	/**
+	 * Schreibt die HTTP-Antwort in den angegebenen Strom. Die Ausgabe erfolgt
+	 * gemäß RFC 2616.
+	 */
+	@SuppressWarnings("CharsetObjectCanBeUsed")
+	private void writeResponse(@NotNull HttpResponse httpResponse, @NotNull OutputStream out) throws ServiceException {
+		try {
+			StringBuilder header = new StringBuilder();
+
+			int contentLength;
+			if (httpResponse.content != null) {
+				contentLength = httpResponse.content.length;
+			} else {
+				contentLength = 0;
+			}
+
+			header.append("HTTP/1.1 ");
+			header.append(httpResponse.statusCode);
+			header.append(' ');
+			header.append(statusCode2Reason(httpResponse.statusCode));
+			header.append(CRLF);
+
+			header.append("Content-Type: ");
+			header.append(httpResponse.contentType);
+			header.append(CRLF);
+
+			if (httpResponse.redirectUrl != null) {
+				header.append("Location: ");
+				header.append(EscapeUtils.encodeUrl(httpResponse.redirectUrl));
+				header.append(CRLF);
+			}
+
+			header.append("Content-Length: ");
+			header.append(contentLength);
+			header.append(CRLF);
+
+			header.append("Cache-Control: no-cache");
+			header.append(CRLF);
+			header.append("Pragma: no-cache");
+			header.append(CRLF);
+
+			header.append("Connection: close");
+			header.append(CRLF);
+
+			// header beenden durch zweiten Zeilenwechsel
+			header.append(CRLF);
+
+			// header schreiben
+			byte[] headerData = header.toString().getBytes("UTF-8");
+			out.write(headerData);
+
+			// body schreiben
+			if (httpResponse.content != null) {
+				out.write(httpResponse.content);
+			}
+			out.flush();
+		} catch (UnsupportedEncodingException e) {
+			throw new ServiceException("Error converting HTTP header into UTF-8", e);
+		} catch (IOException e) {
+			throw new ServiceException("Error writing HTTP response stream", e);
+		}
+	}
+
+	/**
+	 * Gibt zum Statuscode den zugehörigen Text aus. Entspricht HTTP/1.1.
+	 */
+	private static String statusCode2Reason(int statusCode) {
+		switch (statusCode) {
+			case 100:
+				return "Continue";
+			case 101:
+				return "Switching Protocols";
+
+			case 200:
+				return "OK";
+			case 201:
+				return "Created";
+			case 202:
+				return "Accepted";
+			case 203:
+				return "Non-Authoritative Information";
+			case 204:
+				return "No Content";
+			case 205:
+				return "Reset Content";
+			case 206:
+				return "Partial Content";
+
+			case 300:
+				return "Multiple Choices";
+			case 301:
+				return "Moved Permanently";
+			case 302:
+				return "Moved Temporarily";
+			case 303:
+				return "See Other";
+			case 304:
+				return "Not Modified";
+			case 305:
+				return "Use Proxy";
+			case 307:
+				return "Temporary Redirect";
+
+			case 400:
+				return "Bad Request";
+			case 401:
+				return "Unauthorized";
+			case 402:
+				return "Payment Required";
+			case 403:
+				return "Forbidden";
+			case 404:
+				return "Not Found";
+			case 405:
+				return "Method Not Allowed";
+			case 406:
+				return "Not Acceptable";
+			case 407:
+				return "Proxy Authentication Required";
+			case 408:
+				return "Request Time-out";
+			case 409:
+				return "Conflict";
+			case 410:
+				return "Gone";
+			case 411:
+				return "Length Required";
+			case 412:
+				return "Precondition Failed";
+			case 413:
+				return "Request Entity Too Large";
+			case 414:
+				return "Request-URI Too Large";
+			case 415:
+				return "Unsupported Media Type";
+			case 416:
+				return "Requested range not satisfiable";
+			case 417:
+				return "Expectation Failed";
+
+			case 500:
+				return "Internal Server Error";
+			case 501:
+				return "Not Implemented";
+			case 502:
+				return "Bad Gateway";
+			case 503:
+				return "Service Unavailable";
+			case 504:
+				return "Gateway Time-out";
+			case 505:
+				return "HTTP Version not supported";
+
+			default:
+				return "";
+		}
 	}
 }

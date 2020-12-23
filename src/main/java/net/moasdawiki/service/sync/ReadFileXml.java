@@ -16,22 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin.sync;
+package net.moasdawiki.service.sync;
 
 import net.moasdawiki.util.xml.XmlAttribute;
 import net.moasdawiki.util.xml.XmlElement;
 import net.moasdawiki.util.xml.XmlRootElement;
 
 /**
- * JAXB-Bean zum Überprüfen einer Session.
+ * JAXB-Bean mit den Anfragedaten zum Download einer einzelnen
+ * Repositorydatei.
  *
  * @author Herbert Reiter
  */
-@XmlRootElement(name = "check-session")
-public class CheckSessionXml extends AbstractSyncXml {
+@XmlRootElement(name = "read-file")
+public class ReadFileXml extends AbstractSyncXml {
 	@XmlAttribute
 	public String version;
 
 	@XmlElement(name = "server-session-id")
 	public String serverSessionId;
+
+	@XmlElement(name = "file-path")
+	public String filePath;
 }

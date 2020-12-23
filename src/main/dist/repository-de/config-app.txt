@@ -50,14 +50,4 @@ page.index.default = /wiki/IndexStandard
 // wie z.B. /favicon.ico
 
 repository.root = root
-
-// Plugins, die geladen werden sollen. Die Reihenfolge ist egal.
-
-plugin = net.moasdawiki.plugin.FileDownloadPlugin
-plugin = net.moasdawiki.plugin.IncludePagePlugin
-plugin = net.moasdawiki.plugin.KontaktseitePlugin
-plugin = net.moasdawiki.plugin.SearchPlugin
-plugin = net.moasdawiki.plugin.TerminPlugin
-plugin = net.moasdawiki.plugin.ViewPagePlugin
-plugin = net.moasdawiki.plugin.WikiTagsPlugin
 @@

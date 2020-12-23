@@ -16,31 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin.sync;
+package net.moasdawiki.service.sync;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import net.moasdawiki.util.xml.XmlAttribute;
+import net.moasdawiki.util.xml.XmlElementRef;
 import net.moasdawiki.util.xml.XmlRootElement;
-import net.moasdawiki.util.xml.XmlValue;
 
 /**
- * Enthält die Angaben für eine einzelne Repository-Datei.
+ * JAXB-Bean mit der Liste der modifizierten Repository-Dateien auf dem
+ * Server.
  *
  * @author Herbert Reiter
  */
-@XmlRootElement(name = "file")
-public class SingleFileXml extends AbstractSyncXml {
-
-	/**
-	 * Zeitstempel der letzten Inhaltsänderung der Datei. Nicht
-	 * <code>null</code>.
-	 */
+@XmlRootElement(name = "list-modified-files-response")
+public class ListModifiedFilesResponseXml extends AbstractSyncXml {
 	@XmlAttribute
-	public String timestamp;
+	public String version;
 
-	/**
-	 * Der absolute Pfad der Datei innerhalb des Repositories inkl. Dateiendung.
-	 * Nicht <code>null</code>.
-	 */
-	@XmlValue
-	public String filePath;
+	@XmlAttribute(name = "current-server-time")
+	public String currentServerTime;
+
+	@XmlElementRef
+	public List<SingleFileXml> fileList = new ArrayList<>();
 }

@@ -16,26 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+package net.moasdawiki.service.handler;
 
 import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.Messages;
 import net.moasdawiki.base.ServiceException;
 import net.moasdawiki.base.Settings;
-import net.moasdawiki.server.HttpRequest;
-import net.moasdawiki.server.HttpResponse;
+import net.moasdawiki.service.HttpResponse;
 import net.moasdawiki.service.render.HtmlService;
 import net.moasdawiki.service.render.HtmlWriter;
 import net.moasdawiki.service.render.HtmlWriter.Method;
 import net.moasdawiki.service.render.WikiPage2Html;
 import net.moasdawiki.service.repository.AnyFile;
 import net.moasdawiki.service.repository.RepositoryService;
+import net.moasdawiki.service.transform.TransformerService;
 import net.moasdawiki.service.wiki.WikiFile;
 import net.moasdawiki.service.wiki.WikiService;
 import net.moasdawiki.service.wiki.WikiText;
@@ -47,74 +41,58 @@ import net.moasdawiki.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.*;
+
 /**
  * Ein einfacher Texteditor zum Editieren einer Wikiseite.
- * 
- * @author Herbert Reiter
  */
-public class EditorPlugin implements Plugin {
+public class EditorHandler {
 
-	private Logger logger;
-	private Settings settings;
-	private Messages messages;
-	private RepositoryService repositoryService;
-	private WikiService wikiService;
-	private HtmlService htmlService;
-	private PluginService pluginService;
+	private final Logger logger;
+	private final Settings settings;
+	private final Messages messages;
+	private final RepositoryService repositoryService;
+	private final WikiService wikiService;
+	private final TransformerService transformerService;
+	private final HtmlService htmlService;
 
-	public void setServiceLocator(@NotNull ServiceLocator serviceLocator) {
-		this.logger = serviceLocator.getLogger();
-		this.settings = serviceLocator.getSettings();
-		this.messages = serviceLocator.getMessages();
-		this.repositoryService = serviceLocator.getRepositoryService();
-		this.wikiService = serviceLocator.getWikiService();
-		this.htmlService = serviceLocator.getHtmlService();
-		this.pluginService = serviceLocator.getPluginService();
-	}
-
-	@Nullable
-	@PathPattern(multiValue = { "/edit/.*", "/upload/.*" })
-	public HttpResponse handleRequest(@NotNull HttpRequest request) {
-		String urlPath = request.urlPath;
-		if (urlPath.startsWith("/edit/")) {
-			return handleEditRequest(request);
-		} else if (urlPath.startsWith("/upload")) {
-			return handleUploadRequest(request);
-		} else {
-			return htmlService.generateErrorPage(400, "EditorPlugin.url.invalid", urlPath);
-		}
+	public EditorHandler(@NotNull Logger logger, @NotNull Settings settings, @NotNull Messages messages,
+						 @NotNull RepositoryService repositoryService, @NotNull WikiService wikiService,
+						 @NotNull TransformerService transformerService, @NotNull HtmlService htmlService) {
+		this.logger = logger;
+		this.settings = settings;
+		this.messages = messages;
+		this.repositoryService = repositoryService;
+		this.wikiService = wikiService;
+		this.transformerService = transformerService;
+		this.htmlService = htmlService;
 	}
 
 	/**
 	 * Editiert eine Wikiseite. Je nach Requestparameter wird die Editorseite
 	 * angezeigt oder ein Kommando ausgeführt.
-	 * 
-	 * @param request HTTP-Requestdaten, enthält die Formulardaten. Nicht
-	 *        <code>null</code>.
-	 * @return HTTP-Response, der zum Browser geschickt wird. Nicht
-	 *         <code>null</code>.
 	 */
 	@NotNull
-	private HttpResponse handleEditRequest(@NotNull HttpRequest request) {
+	public HttpResponse handleEditRequest(@NotNull String urlPath, @NotNull Map<String, String> urlParameters) {
 		try {
 			// Präfix "/edit/" wegschneiden
-			String pagePath = request.urlPath.substring(5);
+			String pagePath = urlPath.substring(5);
 			pagePath = EscapeUtils.url2PagePath(pagePath);
 
-			if (request.urlParameters.get("cancel") != null) {
+			if (urlParameters.get("cancel") != null) {
 				// Benutzer hat auf Abbrechen geklickt
 				return cancelEditing(pagePath);
 
-			} else if (request.urlParameters.get("delete") != null) {
+			} else if (urlParameters.get("delete") != null) {
 				// Benutzer hat auf Löschen geklickt
 				return deleteWikiPage(pagePath);
 
-			} else if (request.urlParameters.get("save") != null) {
+			} else if (urlParameters.get("save") != null) {
 				// Benutzer hat auf Speichern geklickt
-				String newPagePath = request.urlParameters.get("titleeditor");
-				String newWikiText = request.urlParameters.get("contenteditor");
-				String fromPos = request.urlParameters.get("fromPos");
-				String toPos = request.urlParameters.get("toPos");
+				String newPagePath = urlParameters.get("titleeditor");
+				String newWikiText = urlParameters.get("contenteditor");
+				String fromPos = urlParameters.get("fromPos");
+				String toPos = urlParameters.get("toPos");
 				return saveWikiText(pagePath, newPagePath, newWikiText, fromPos, toPos);
 
 			} else {
@@ -123,12 +101,12 @@ public class EditorPlugin implements Plugin {
 				// wenn die entsprechende Wikiseite existiert, wird
 				// dessen Inhalt in den Editor übernommen, ansonsten wird
 				// eine neue Wikiseite erstellt;
-				String fromPos = request.urlParameters.get("fromPos");
-				String toPos = request.urlParameters.get("toPos");
+				String fromPos = urlParameters.get("fromPos");
+				String toPos = urlParameters.get("toPos");
 				return showEditor(pagePath, fromPos, toPos);
 			}
 		} catch (ServiceException e) {
-			return htmlService.generateErrorPage(500, e, "EditorPlugin.error", e.getMessage());
+			return htmlService.generateErrorPage(500, e, "EditorHandler.error", e.getMessage());
 		}
 	}
 
@@ -158,7 +136,7 @@ public class EditorPlugin implements Plugin {
 			return htmlService.generateRedirectToWikiPage(settings.getStartpagePath());
 		} catch (ServiceException e) {
 			logger.write("Error deleting wiki page '" + pagePath + "'", e);
-			String msg = messages.getMessage("EditorPlugin.delete.error", e.getMessage());
+			String msg = messages.getMessage("EditorHandler.delete.error", e.getMessage());
 			throw new ServiceException(msg, e);
 		}
 	}
@@ -187,7 +165,7 @@ public class EditorPlugin implements Plugin {
 		newPagePath = newPagePath.trim();
 		if (newPagePath.length() == 0 || newPagePath.endsWith("/")) {
 			logger.write("Cannot save wiki page with invalid name '" + newPagePath + "'");
-			String msg = messages.getMessage("EditorPlugin.save.invalidName", newPagePath);
+			String msg = messages.getMessage("EditorHandler.save.invalidName", newPagePath);
 			throw new ServiceException(msg);
 		}
 		if (newPagePath.charAt(0) != '/') {
@@ -202,7 +180,7 @@ public class EditorPlugin implements Plugin {
 		// Überschreiben einer bestehenden Seite verhindern
 		if ((oldPagePath == null || !oldPagePath.equals(newPagePath)) && wikiService.existsWikiFile(newPagePath)) {
 			logger.write("Cannot create wiki page '" + newPagePath + "' as there is already a page with the same name");
-			String msg = messages.getMessage("EditorPlugin.save.alreadyExisting", newPagePath);
+			String msg = messages.getMessage("EditorHandler.save.alreadyExisting", newPagePath);
 			throw new ServiceException(msg);
 		}
 
@@ -223,7 +201,7 @@ public class EditorPlugin implements Plugin {
 			wikiService.writeWikiText(newPagePath, wikiText);
 		} catch (ServiceException e) {
 			logger.write("Error saving wiki page '" + newPagePath + "'", e);
-			String msg = messages.getMessage("EditorPlugin.save.error", newPagePath, e.getMessage());
+			String msg = messages.getMessage("EditorHandler.save.error", newPagePath, e.getMessage());
 			throw new ServiceException(msg, e);
 		}
 
@@ -258,7 +236,7 @@ public class EditorPlugin implements Plugin {
 					wikiText = wikiService.readWikiText(pagePath, fromPosInt, toPosInt);
 			} catch (ServiceException e) {
 				logger.write("Wiki page '" + pagePath + "' not found", e);
-				String msg = messages.getMessage("EditorPlugin.editor.error", pagePath, e.getMessage());
+				String msg = messages.getMessage("EditorHandler.editor.error", pagePath, e.getMessage());
 				throw new ServiceException(msg, e);
 			}
 		} else {
@@ -326,7 +304,7 @@ public class EditorPlugin implements Plugin {
 		try {
 			WikiFile menuWikiFile = wikiService.getWikiFile(navigationPagePath);
 			WikiPage wikiPage = new WikiPage(null, menuWikiFile.getWikiPage(), null, null);
-			return pluginService.applyTransformations(wikiPage);
+			return transformerService.applyTransformations(wikiPage);
 		} catch (ServiceException e) {
 			logger.write("Error reading menu wiki page", e);
 			return null;
@@ -350,7 +328,7 @@ public class EditorPlugin implements Plugin {
 			writer.setTitle(PathUtils.extractWebName(pagePath));
 			writer.setBodyParams("onload=\"initPage(false)\"");
 		} else {
-			String msg = messages.getMessage("EditorPlugin.editor.title.newPage");
+			String msg = messages.getMessage("EditorHandler.editor.title.newPage");
 			writer.setTitle(msg);
 			writer.setBodyParams("onload=\"initPage(true)\"");
 		}
@@ -392,13 +370,13 @@ public class EditorPlugin implements Plugin {
 		if ("/".equals(pagePathInEditor)) {
 			pagePathInEditor = ""; // soll nicht null sein
 		}
-		String titleeditorHint = messages.getMessage("EditorPlugin.editor.input.title");
+		String titleeditorHint = messages.getMessage("EditorHandler.editor.input.title");
 		writer.htmlText("<input type=\"text\" class=\"titleinput\" name=\"titleeditor\" placeholder=\"" + EscapeUtils.escapeHtml(titleeditorHint)
 				+ "\" value=\"" + EscapeUtils.escapeHtml(pagePathInEditor) + "\" />");
 		writer.setContinueInNewLine();
 
 		// Wiki-Editor ausgeben
-		String contenteditorHint = messages.getMessage("EditorPlugin.editor.input.content");
+		String contenteditorHint = messages.getMessage("EditorHandler.editor.input.content");
 		writer.openTag("textarea",
 				"cols=\"80\" rows=\"10\" name=\"contenteditor\" class=\"textinput\" placeholder=\"" + EscapeUtils.escapeHtml(contenteditorHint) + "\"");
 		// damit Leerzeilen oben nicht vom Browser entfernt werden
@@ -414,9 +392,9 @@ public class EditorPlugin implements Plugin {
 		writer.setContinueInNewLine();
 
 		writer.openDivTag("section"); // Block 1
-		String saveTitle = messages.getMessage("EditorPlugin.editor.input.save");
+		String saveTitle = messages.getMessage("EditorHandler.editor.input.save");
 		writer.htmlText("<button type=\"submit\" name=\"save\" class=\"save\">" + EscapeUtils.escapeHtml(saveTitle) + "</button>");
-		String cancelTitle = messages.getMessage("EditorPlugin.editor.input.cancel");
+		String cancelTitle = messages.getMessage("EditorHandler.editor.input.cancel");
 		writer.htmlText("<button type=\"submit\" name=\"cancel\" class=\"cancel\">" + EscapeUtils.escapeHtml(cancelTitle) + "</button>");
 		writer.closeTag(); // div Block 1
 
@@ -425,23 +403,23 @@ public class EditorPlugin implements Plugin {
 		if (!wikiService.existsWikiFile(pagePath)) {
 			disabledAttribute = " disabled=\"true\"";
 		}
-		String deleteTitle = messages.getMessage("EditorPlugin.editor.input.delete");
+		String deleteTitle = messages.getMessage("EditorHandler.editor.input.delete");
 		writer.htmlText("<button type=\"button\" name=\"deleteButton\" class=\"delete\"" + " onclick=\"sendDelete()\"" + disabledAttribute
 				+ ">" + EscapeUtils.escapeHtml(deleteTitle) + "</button>");
 		writer.closeTag(); // div Block 2
 
 		writer.openDivTag("section"); // Block 3
 		writer.openTag("select", "name=\"TemplateSelect\" class=\"TemplateSelect\"" + " onchange=\"insertTemplate(this.selectedIndex)\"");
-		String templateSelectOption = messages.getMessage("EditorPlugin.editor.input.templateSelect");
+		String templateSelectOption = messages.getMessage("EditorHandler.editor.input.templateSelect");
 		writer.htmlText("<option>" + EscapeUtils.escapeHtml(templateSelectOption) + "</option>");
 		writer.closeTag(); // select
-		String helpTitle = messages.getMessage("EditorPlugin.editor.help");
+		String helpTitle = messages.getMessage("EditorHandler.editor.help");
 		writer.htmlText("<a href=\"/view/wiki/syntax/\" target=\"_blank\">" + EscapeUtils.escapeHtml(helpTitle) + "</a>");
 		writer.closeTag(); // div Block 3
 
-		String uploadHint = messages.getMessage("EditorPlugin.editor.input.upload.hint");
+		String uploadHint = messages.getMessage("EditorHandler.editor.input.upload.hint");
 		writer.openDivTag("uploadarea", "id=\"uploadarea\" onclick=\"showPanel('uploadPanelId')\" title=\"" + EscapeUtils.escapeHtml(uploadHint) + "\"");
-		String uploadTitle = messages.getMessage("EditorPlugin.editor.input.upload.title");
+		String uploadTitle = messages.getMessage("EditorHandler.editor.input.upload.title");
 		writer.htmlText(EscapeUtils.escapeHtml(uploadTitle));
 		writer.closeTag(); // uploadarea
 		writer.closeTag(); // div controlarea
@@ -464,7 +442,7 @@ public class EditorPlugin implements Plugin {
 
 		writer.openDivTag("panel uploadpanel");
 		writer.openDivTag("header");
-		String title = messages.getMessage("EditorPlugin.editor.uploadPanel.title");
+		String title = messages.getMessage("EditorHandler.editor.uploadPanel.title");
 		writer.htmlText(EscapeUtils.escapeHtml(title));
 		writer.closeTag(); // div.header
 
@@ -472,14 +450,14 @@ public class EditorPlugin implements Plugin {
 		writer.openFormTag("uploadForm");
 
 		writer.openDivTag("section", "id=\"fileSelectId\"");
-		String fileLabel = messages.getMessage("EditorPlugin.editor.uploadPanel.file");
+		String fileLabel = messages.getMessage("EditorHandler.editor.uploadPanel.file");
 		writer.htmlText("<label for=\"fileInputId\">" + EscapeUtils.escapeHtml(fileLabel) + "</label>");
 		writer.htmlNewLine();
 		writer.htmlText("<input type=\"file\" id=\"fileInputId\" name=\"fileSelect\" />");
 		writer.closeTag(); // div.section
 
 		writer.openDivTag("section");
-		String repositoryLabel = messages.getMessage("EditorPlugin.editor.uploadPanel.repositoryPath");
+		String repositoryLabel = messages.getMessage("EditorHandler.editor.uploadPanel.repositoryPath");
 		writer.htmlText("<label for=\"uploadRepositoryPathId\">" + EscapeUtils.escapeHtml(repositoryLabel) + "</label>");
 		writer.htmlNewLine();
 		writer.htmlText("<input type=\"text\" id=\"uploadRepositoryPathId\" name=\"uploadRepositoryPath\" />");
@@ -487,19 +465,19 @@ public class EditorPlugin implements Plugin {
 
 		writer.openDivTag("section");
 		writer.htmlText("<input type=\"checkbox\" id=\"generateImageTagId\" name=\"generateImageTag\" checked=\"true\">");
-		String imageTagLabel = messages.getMessage("EditorPlugin.editor.uploadPanel.imageTag");
+		String imageTagLabel = messages.getMessage("EditorHandler.editor.uploadPanel.imageTag");
 		writer.htmlText("<label id=\"generateImageTagLabelId\" for=\"generateImageTagId\">" + EscapeUtils.escapeHtml(imageTagLabel) + "</label>");
 		writer.htmlNewLine();
 		writer.htmlText("<input type=\"checkbox\" id=\"generateFileTagId\" name=\"generateFileTag\" checked=\"true\">");
-		String fileTagLabel = messages.getMessage("EditorPlugin.editor.uploadPanel.fileTag");
+		String fileTagLabel = messages.getMessage("EditorHandler.editor.uploadPanel.fileTag");
 		writer.htmlText("<label id=\"generateFileTagLabelId\" for=\"generateFileTagId\">" + EscapeUtils.escapeHtml(fileTagLabel) + "</label>");
 		writer.closeTag(); // div.section
 
 		writer.openDivTag("footer");
-		String saveButton = messages.getMessage("EditorPlugin.editor.uploadPanel.save");
+		String saveButton = messages.getMessage("EditorHandler.editor.uploadPanel.save");
 		writer.htmlText("<button type=\"button\" name=\"uploadButton\" class=\"save\" onclick=\"handleFileUpload('uploadPanelId')\">"
 				+ EscapeUtils.escapeHtml(saveButton) + "</button>");
-		String cancelButton = messages.getMessage("EditorPlugin.editor.uploadPanel.cancel");
+		String cancelButton = messages.getMessage("EditorHandler.editor.uploadPanel.cancel");
 		writer.htmlText("<button type=\"button\" name=\"cancelButton\" class=\"cancel\" onclick=\"hidePanel('uploadPanelId')\">"
 				+ EscapeUtils.escapeHtml(cancelButton) + "</button>");
 		writer.closeTag(); // div.footer
@@ -553,27 +531,22 @@ public class EditorPlugin implements Plugin {
 
 	/**
 	 * Lädt eine Datei ins Repository hoch.
-	 * 
-	 * @param request HTTP-Requestdaten, enthält die Formulardaten. Nicht
-	 *        <code>null</code>.
-	 * @return HTTP-Response, der zum Browser geschickt wird. Nicht
-	 *         <code>null</code>.
 	 */
 	@NotNull
-	private HttpResponse handleUploadRequest(@NotNull HttpRequest request) {
+	public HttpResponse handleUploadRequest(@NotNull String urlPath, @NotNull byte[] httpBody) {
 		// Präfix "/upload" wegschneiden
-		String filePath = request.urlPath.substring(7).trim();
+		String filePath = urlPath.substring(7).trim();
 
 		// ungültigen Dateinamen abfangen
 		if (filePath.length() == 0 || filePath.endsWith("/")) {
 			logger.write("Upload file name '" + filePath + "' is invalid");
-			String msg = messages.getMessage("EditorPlugin.upload.invalidName", filePath);
+			String msg = messages.getMessage("EditorHandler.upload.invalidName", filePath);
 			return generateJsonResponse(400, msg);
 		}
 		// auf Rückwärtsnavigation prüfen
 		if (filePath.contains("..")) {
 			logger.write("Upload file name '" + filePath + "' contains illegal parent navigation");
-			String msg = messages.getMessage("EditorPlugin.upload.parentNavigation", filePath);
+			String msg = messages.getMessage("EditorHandler.upload.parentNavigation", filePath);
 			return generateJsonResponse(400, msg);
 		}
 		if (filePath.charAt(0) != '/') {
@@ -584,11 +557,11 @@ public class EditorPlugin implements Plugin {
 			// Datei speichern
 			if (repositoryService.getFile(filePath) != null) {
 				logger.write("Upload file name '" + filePath + "' already exists");
-				String msg = messages.getMessage("EditorPlugin.upload.alreadyExisting", filePath);
+				String msg = messages.getMessage("EditorHandler.upload.alreadyExisting", filePath);
 				throw new Exception(msg);
 			}
 			AnyFile anyFile = new AnyFile(filePath);
-			repositoryService.writeBinaryFile(anyFile, request.httpBody, null);
+			repositoryService.writeBinaryFile(anyFile, httpBody, null);
 			logger.write("File '" + filePath + "' successfully uploaded");
 		} catch (Exception e) {
 			logger.write("Error uploading file '" + filePath + "'", e);
@@ -600,8 +573,8 @@ public class EditorPlugin implements Plugin {
 
 	private HttpResponse generateJsonResponse(int statusCode, @NotNull String jsonText) {
 		HttpResponse result = new HttpResponse();
-		result.setStatusCode(statusCode);
-		result.setContentType(HttpResponse.CONTENT_TYPE_JSON_UTF8);
+		result.statusCode = statusCode;
+		result.contentType = HttpResponse.CONTENT_TYPE_JSON_UTF8;
 		result.setContent(JavaScriptUtils.generateJson(jsonText));
 		return result;
 	}

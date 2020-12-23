@@ -16,10 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin.sync;
+package net.moasdawiki.service.sync;
+
+import net.moasdawiki.util.xml.XmlAttribute;
+import net.moasdawiki.util.xml.XmlElement;
+import net.moasdawiki.util.xml.XmlRootElement;
 
 /**
- * All XML beans for the synchronization communication are subclasses of this class.
+ * JAXB-Bean mit dem Ergebnis der Sessionprüfung.
+ *
+ * @author Herbert Reiter
  */
-public abstract class AbstractSyncXml {
+@XmlRootElement(name = "check-session-response")
+public class CheckSessionResponseXml extends AbstractSyncXml {
+	@XmlAttribute
+	public String version;
+
+	@XmlElement
+	public Boolean valid;
+
+	@XmlElement
+	public Boolean authorized;
+
+	@XmlElement(name = "client-session-id")
+	public String clientSessionId;
 }

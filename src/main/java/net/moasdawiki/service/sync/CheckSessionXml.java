@@ -16,26 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin;
+package net.moasdawiki.service.sync;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import net.moasdawiki.util.xml.XmlAttribute;
+import net.moasdawiki.util.xml.XmlElement;
+import net.moasdawiki.util.xml.XmlRootElement;
 
 /**
- * Zum Festlegen der Aufrufreihenfolge der Plugin-Methode
- * {@link Plugin#transformWikiPage(net.moasdawiki.service.wiki.structure.WikiPage)}. Die
- * Methodenaufrufe erfolgen in aufsteigender Nummernfolge. Wenn mehrere Plugins
- * dieselbe Nummer haben, ist deren Reihenfolge zufällig. Wenn die Annotation
- * fehlt, erfolgt der Aufruf zum Schluss.
- * 
+ * JAXB-Bean zum Überprüfen einer Session.
+ *
  * @author Herbert Reiter
  */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface CallOrder {
-	int value();
+@XmlRootElement(name = "check-session")
+public class CheckSessionXml extends AbstractSyncXml {
+	@XmlAttribute
+	public String version;
+
+	@XmlElement(name = "server-session-id")
+	public String serverSessionId;
 }

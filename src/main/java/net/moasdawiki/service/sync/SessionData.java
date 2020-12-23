@@ -16,26 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin.sync;
+package net.moasdawiki.service.sync;
 
-import net.moasdawiki.util.xml.XmlAttribute;
-import net.moasdawiki.util.xml.XmlElement;
-import net.moasdawiki.util.xml.XmlRootElement;
+import java.util.Date;
 
 /**
- * JAXB-Bean mit den Anfragedaten zum Download einer einzelnen
- * Repositorydatei.
+ * Enthält die Daten einer Wiki-Client-Session.
  *
  * @author Herbert Reiter
  */
-@XmlRootElement(name = "read-file")
-public class ReadFileXml extends AbstractSyncXml {
-	@XmlAttribute
-	public String version;
-
-	@XmlElement(name = "server-session-id")
+public class SessionData {
 	public String serverSessionId;
-
-	@XmlElement(name = "file-path")
-	public String filePath;
+	public String clientSessionId;
+	public Date createTimestamp;
+	public String clientName; // null --> unbekannt
+	public String clientVersion; // null --> unbekannt
+	public String clientHost; // null --> unbekannt
+	public boolean authorized; // true --> Benutzer hat die Serversession genehmigt
+	public Date lastSyncTimestamp; // null --> noch nie
 }

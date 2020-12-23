@@ -47,12 +47,4 @@ page.index.default = /wiki/IndexStandard
 // a root path URL, e.g. /favicon.ico
 
 repository.root = root
-
-// Plug-ins to be loaded. Can be in any order.
-
-plugin = net.moasdawiki.plugin.FileDownloadPlugin
-plugin = net.moasdawiki.plugin.IncludePagePlugin
-plugin = net.moasdawiki.plugin.SearchPlugin
-plugin = net.moasdawiki.plugin.ViewPagePlugin
-plugin = net.moasdawiki.plugin.WikiTagsPlugin
 @@

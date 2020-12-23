@@ -53,16 +53,6 @@ page.index.default = /wiki/IndexStandard
 
 repository.root = root
 
-// Plug-ins to be loaded. Can be in any order.
-
-plugin = net.moasdawiki.plugin.EditorPlugin
-plugin = net.moasdawiki.plugin.FileDownloadPlugin
-plugin = net.moasdawiki.plugin.IncludePagePlugin
-plugin = net.moasdawiki.plugin.SearchPlugin
-plugin = net.moasdawiki.plugin.sync.SynchronizationPlugin
-plugin = net.moasdawiki.plugin.ViewPagePlugin
-plugin = net.moasdawiki.plugin.WikiTagsPlugin
-
 // Restrict access to the same host as the wiki server?
 // If set to "false", the wiki server can be accessed from any
 // computer in the LAN (except there is a firewall).

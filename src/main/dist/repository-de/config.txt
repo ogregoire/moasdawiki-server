@@ -56,18 +56,6 @@ page.index.default = /wiki/IndexStandard
 
 repository.root = root
 
-// Plugins, die geladen werden sollen. Die Reihenfolge ist egal.
-
-plugin = net.moasdawiki.plugin.EditorPlugin
-plugin = net.moasdawiki.plugin.FileDownloadPlugin
-plugin = net.moasdawiki.plugin.IncludePagePlugin
-plugin = net.moasdawiki.plugin.KontaktseitePlugin
-plugin = net.moasdawiki.plugin.SearchPlugin
-plugin = net.moasdawiki.plugin.sync.SynchronizationPlugin
-plugin = net.moasdawiki.plugin.TerminPlugin
-plugin = net.moasdawiki.plugin.ViewPagePlugin
-plugin = net.moasdawiki.plugin.WikiTagsPlugin
-
 // Der Wiki-Server akzeptiert nur Verbindungsanfragen von Clients auf
 // dem selben Server (localhost), wenn dieser Parameter auf "true"
 // gesetzt ist. Bei "false" kann von jedem Rechner im LAN auf das Wiki

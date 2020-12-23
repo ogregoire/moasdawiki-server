@@ -16,26 +16,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin.sync;
+package net.moasdawiki.service.sync;
 
 import net.moasdawiki.util.xml.XmlAttribute;
 import net.moasdawiki.util.xml.XmlElement;
 import net.moasdawiki.util.xml.XmlRootElement;
 
 /**
- * JAXB-Bean mit den Anfragedaten für die Liste der modifizierten
- * Repository-Dateien auf dem Server.
+ * JAXB-Bean mit der zugewiesenen Session-ID.
  *
  * @author Herbert Reiter
  */
-@XmlRootElement(name = "list-modified-files")
-public class ListModifiedFilesXml extends AbstractSyncXml {
+@XmlRootElement(name = "create-session-response")
+public class CreateSessionResponseXml extends AbstractSyncXml {
 	@XmlAttribute
 	public String version;
 
 	@XmlElement(name = "server-session-id")
 	public String serverSessionId;
 
-	@XmlElement(name = "last-sync-server-time")
-	public String lastSyncServerTime;
+	@XmlElement(name = "server-name")
+	public String serverName;
+
+	@XmlElement(name = "server-version")
+	public String serverVersion;
+
+	@XmlElement(name = "server-host")
+	public String serverHost;
 }

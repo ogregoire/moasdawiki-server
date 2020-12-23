@@ -16,22 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin.sync;
+package net.moasdawiki.service.transform;
 
-import java.util.Date;
+import net.moasdawiki.service.wiki.structure.WikiPage;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Enthält die Daten einer Wiki-Client-Session.
- *
- * @author Herbert Reiter
+ * Interface that has to be implemented by transformer classes which interpret
+ * functional tags and replace them by an appropriate content.
  */
-public class SessionData {
-	public String serverSessionId;
-	public String clientSessionId;
-	public Date createTimestamp;
-	public String clientName; // null --> unbekannt
-	public String clientVersion; // null --> unbekannt
-	public String clientHost; // null --> unbekannt
-	public boolean authorized; // true --> Benutzer hat die Serversession genehmigt
-	public Date lastSyncTimestamp; // null --> noch nie
+public interface TransformWikiPage {
+
+    /**
+     * Interprets functional tags and replaces them by an appropriate content.
+     *
+     * @param wikiPage Wiki page to be transformed. The object must not be modified!
+     */
+    @NotNull
+    WikiPage transformWikiPage(@NotNull WikiPage wikiPage);
 }

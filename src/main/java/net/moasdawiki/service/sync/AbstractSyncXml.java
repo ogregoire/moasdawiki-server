@@ -16,31 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin.sync;
-
-import net.moasdawiki.util.xml.XmlAttribute;
-import net.moasdawiki.util.xml.XmlElement;
-import net.moasdawiki.util.xml.XmlRootElement;
+package net.moasdawiki.service.sync;
 
 /**
- * JAXB-Bean mit dem Inhalt einer einzelnen Datei.
- *
- * @author Herbert Reiter
+ * All XML beans for the synchronization communication are subclasses of this class.
  */
-@XmlRootElement(name = "read-file-response")
-public class ReadFileResponseXml extends AbstractSyncXml {
-	@XmlAttribute
-	public String version;
-
-	/**
-	 * Zeitstempel der letzten Änderung.
-	 */
-	@XmlElement
-	public String timestamp;
-
-	/**
-	 * Binärdaten base64-kodiert.
-	 */
-	@XmlElement
-	public String content;
+public abstract class AbstractSyncXml {
 }

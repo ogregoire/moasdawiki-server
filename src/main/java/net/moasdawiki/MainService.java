@@ -21,48 +21,44 @@ package net.moasdawiki;
 import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.Messages;
 import net.moasdawiki.base.Settings;
-import net.moasdawiki.plugin.PluginService;
-import net.moasdawiki.plugin.ServiceLocator;
+import net.moasdawiki.server.RequestDispatcher;
 import net.moasdawiki.server.Webserver;
+import net.moasdawiki.service.handler.EditorHandler;
+import net.moasdawiki.service.handler.FileDownloadHandler;
+import net.moasdawiki.service.handler.SearchHandler;
+import net.moasdawiki.service.handler.ViewPageHandler;
 import net.moasdawiki.service.render.HtmlService;
 import net.moasdawiki.service.repository.FilesystemRepositoryService;
 import net.moasdawiki.service.search.SearchService;
+import net.moasdawiki.service.sync.SynchronizationService;
+import net.moasdawiki.service.transform.*;
 import net.moasdawiki.service.wiki.WikiService;
 import net.moasdawiki.service.wiki.WikiServiceImpl;
 
 import java.io.File;
 
 /**
- * Hauptschnittstelle für den Aufruf des Wiki-Servers. Wird beim Starten mittels
- * Apache Commons Daemon (http://jakarta.apache.org/commons/daemon/) sowie über
- * Kommandozeile verwendet.
- * 
- * @author Herbert Reiter
+ * Main control of the wiki server.
+ *
+ * Will be called by the Apache Commons Daemon
+ * (http://jakarta.apache.org/commons/daemon/) and also by the Main class.
  */
-@SuppressWarnings({"FieldCanBeLocal", "unused"})
 public class MainService {
 	private static final String REPOSITORY_ROOT_PATH_DEFAULT = "repository";
 
-	private Logger logger;
 	private Settings settings;
 	private Messages messages;
-	private FilesystemRepositoryService repositoryService;
-	private WikiService wikiService;
-	private SearchService searchService;
-	private PluginService pluginService;
-	private HtmlService htmlService;
-	private ServiceLocator serviceLocator;
 	private Webserver webserver;
 
 	/**
-	 * Einstellungen laden und Server initialiseren.
+	 * Load settings and initialize the server.
 	 */
 	public void init(String[] args) {
-		// Schichten initialisieren
-		logger = new Logger(System.out);
+		// initialize layers
+		Logger logger = new Logger(System.out);
 		logger.write("MoasdaWiki starting");
 
-		// Repository-Basisordner bestimmen
+		// determine the repository base folder
 		File repositoryRoot;
 		if (args != null && args.length >= 1) {
 			repositoryRoot = new File(args[0]);
@@ -70,25 +66,42 @@ public class MainService {
 			repositoryRoot = new File(REPOSITORY_ROOT_PATH_DEFAULT);
 		}
 
-		repositoryService = new FilesystemRepositoryService(logger, repositoryRoot);
+		// basic services
+		FilesystemRepositoryService repositoryService = new FilesystemRepositoryService(logger, repositoryRoot);
 		repositoryService.init();
 		settings = new Settings(logger, repositoryService, Settings.getConfigFileServer());
 		messages = new Messages(logger, settings, repositoryService);
-		wikiService = new WikiServiceImpl(logger, repositoryService);
-		searchService = new SearchService(logger, repositoryService, wikiService, false);
-		pluginService = new PluginService(logger, settings);
-		htmlService = new HtmlService(logger, settings, messages, wikiService, pluginService);
-		serviceLocator = new ServiceLocator(logger, settings, messages, repositoryService, wikiService, htmlService, searchService, pluginService);
+		WikiService wikiService = new WikiServiceImpl(logger, repositoryService);
+		SearchService searchService = new SearchService(logger, repositoryService, wikiService, false);
+		SynchronizationService synchronizationService = new SynchronizationService(logger, settings, repositoryService);
 
-		pluginService.loadPlugins(serviceLocator);
+		// transformers
+		IncludePageTransformer includePageTransformer = new IncludePageTransformer(logger, wikiService);
+		KontaktseiteTransformer kontaktseiteTransformer = new KontaktseiteTransformer();
+		TerminTransformer terminPlugin = new TerminTransformer(logger, messages, repositoryService, wikiService);
+		SynchronizationPageTransformer synchronizationPageTransformer = new SynchronizationPageTransformer(synchronizationService);
+		WikiTagsTransformer wikiTagsTransformer = new WikiTagsTransformer(logger, settings, messages, wikiService);
+		// list of transformers, the order matters
+		TransformWikiPage[] transformers = {includePageTransformer, kontaktseiteTransformer, terminPlugin, synchronizationPageTransformer, wikiTagsTransformer};
+		TransformerService transformerService = new TransformerService(transformers);
 
-		// Server-Schicht initialisieren
-		webserver = new Webserver(serviceLocator);
+		// more services
+		HtmlService htmlService = new HtmlService(logger, settings, messages, wikiService, transformerService);
+
+		// HTTP handlers
+		ViewPageHandler viewPageHandler = new ViewPageHandler(logger, settings, wikiService, htmlService);
+		SearchHandler searchHandler = new SearchHandler(logger, settings, messages, wikiService, searchService, htmlService);
+		EditorHandler editorHandler = new EditorHandler(logger, settings, messages, repositoryService, wikiService, transformerService, htmlService);
+		FileDownloadHandler fileDownloadHandler = new FileDownloadHandler(logger, settings, repositoryService, htmlService);
+
+		// web server
+		RequestDispatcher requestDispatcher = new RequestDispatcher(htmlService, viewPageHandler,
+				searchHandler, editorHandler, fileDownloadHandler, synchronizationService);
+		webserver = new Webserver(logger, settings, htmlService, requestDispatcher);
 	}
 
 	/**
-	 * Setzt das Flag, ob der Server vom Benutzer per HTTP-Request
-	 * heruntergefahren werden darf.
+	 * Set flag if the server can be shut down by the user.
 	 */
 	public void setShutdownRequestAllowed(boolean shutdownRequestAllowed) {
 		if (webserver != null) {
@@ -105,22 +118,20 @@ public class MainService {
 	}
 
 	/**
-	 * Startet den Server. Der Aufruf blockiert, d.h. er kehrt erst zurück, wenn
-	 * der Server beendet wird.
-	 * 
-	 * Der Server kann durch Aufruf von stop() von außen beendet werden.
+	 * Starts the web server. This method blocks until the server stops.
+	 *
+	 * To stop the server from outside call the {@link #stop()} method.
 	 */
 	public void runBlocking() {
 		webserver.run();
 	}
 
 	/**
-	 * Startet den Server. Der Aufruf blockiert nicht, d.h. er kehrt sofort
-	 * zurück.
+	 * Starts the web server. This method runs asynchronously and returns
+	 * immediately (non-blocking).
 	 */
 	public void start() {
-		// blockierenden Aufruf in einen extra Thread verlagern,
-		// damit diese Methode sofort wieder beendet werden kann
+		// run blocking call in a separate thread
 		Thread t = new Thread("WikiServer") {
 			public void run() {
 				runBlocking();
@@ -130,17 +141,17 @@ public class MainService {
 	}
 
 	/**
-	 * Informiert den Server, sich zu beenden.
+	 * Stops the web server.
 	 */
 	public void stop() {
 		webserver.stop();
 	}
 
 	/**
-	 * Speicher freigeben, alles beenden.
-	 * Wird von Apache Commons Daemon benötigt.
+	 * Free memory. Method is required by Apache Commons Daemon.
 	 */
-	@SuppressWarnings({"EmptyMethod"})
+	@SuppressWarnings("unused")
 	public void destroy() {
+		// noop
 	}
 }

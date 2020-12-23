@@ -69,19 +69,24 @@ import org.jetbrains.annotations.Nullable;
  * Wandelt eine Wiki-Seite in den entsprechenden HTML-Text um.
  *
  * Ist nicht Thread-safe.
- *
- * @author Herbert Reiter
  */
 public class WikiPage2Html {
 
+	private static final String HTML_EDIT_CODE_KEY = "ViewPageHandler.html.editCode";
+	private static final String HTML_EDIT_SECTION_KEY = "ViewPageHandler.html.editSection";
+	private static final String HTML_EDIT_TABLE_KEY = "ViewPageHandler.html.editTable";
+	private static final String HTML_EDIT_TABLE_CELL_KEY = "ViewPageHandler.html.editTableCell";
+	private static final String HTML_SEARCH_KEY = "ViewPageHandler.html.search";
+	private static final String WIKI_EDIT_PAGE_KEY = "ViewPageHandler.wiki.editpage";
+	private static final String WIKI_NEW_PAGE_KEY = "ViewPageHandler.wiki.newpage";
+	private static final String WIKI_SHUTDOWN_KEY = "ViewPageHandler.wiki.shutdown";
+	private static final String WIKI_STARTPAGE_KEY = "ViewPageHandler.wiki.startpage";
+	private static final String WIKI_STATUS_KEY = "ViewPageHandler.wiki.status";
+
 	private final Messages messages;
-
 	private final WikiService wikiService;
-
 	private final boolean generateEditLinks;
-
 	private HtmlWriter writer;
-
 	private PageElement previousElement;
 
 	public WikiPage2Html(@SuppressWarnings("unused") @NotNull Settings settings, @NotNull Messages messages, @NotNull WikiService wikiService, boolean generateEditLinks) {
@@ -254,7 +259,7 @@ public class WikiPage2Html {
 		if (wikiPage != null && wikiPage.getPagePath() != null && heading.getFromPos() != null && toPos != null && generateEditLinks) {
 			String url = PathUtils.concatWebPaths("/edit/", wikiPage.getPagePath());
 			url = EscapeUtils.pagePath2Url(url) + "?fromPos=" + heading.getFromPos() + "&toPos=" + toPos;
-			String msg = messages.getMessage("ViewPagePlugin.html.editSection");
+			String msg = messages.getMessage(HTML_EDIT_SECTION_KEY);
 			writer.htmlText("<a class=\"editsection\" href=\"" + EscapeUtils.escapeHtml(EscapeUtils.encodeUrl(url)) + "\"><img src=\"/edit2.png\" title=\""
 					+ EscapeUtils.escapeHtml(msg) + "\" alt=\"\"></a>");
 		}
@@ -401,7 +406,7 @@ public class WikiPage2Html {
 			if (wikiPage != null && wikiPage.getPagePath() != null) {
 				String url = PathUtils.concatWebPaths("/edit/", wikiPage.getPagePath());
 				url = EscapeUtils.pagePath2Url(url) + "?fromPos=" + table.getFromPos() + "&toPos=" + table.getToPos();
-				String msg = messages.getMessage("ViewPagePlugin.html.editTable");
+				String msg = messages.getMessage(HTML_EDIT_TABLE_KEY);
 				writer.htmlText("<a class=\"edittable\" href=\"" + EscapeUtils.escapeHtml(EscapeUtils.encodeUrl(url)) + "\"><img src=\"/edit.png\" title=\""
 						+ EscapeUtils.escapeHtml(msg) + "\" alt=\"\"></a>");
 			}
@@ -440,7 +445,7 @@ public class WikiPage2Html {
 					if (wikiPage != null && wikiPage.getPagePath() != null) {
 						String url = PathUtils.concatWebPaths("/edit/", wikiPage.getPagePath());
 						url += "?fromPos=" + cellContent.getFromPos() + "&toPos=" + cellContent.getToPos();
-						String msg = messages.getMessage("ViewPagePlugin.html.editTableCell");
+						String msg = messages.getMessage(HTML_EDIT_TABLE_CELL_KEY);
 						writer.htmlText("<a class=\"editcell\" href=\"" + EscapeUtils.escapeHtml(EscapeUtils.encodeUrl(url))
 								+ "\"><img src=\"/edit.png\" title=\"" + EscapeUtils.escapeHtml(msg) + "\" alt=\"\"></a>");
 					}
@@ -496,7 +501,7 @@ public class WikiPage2Html {
 			if (wikiPage != null && wikiPage.getPagePath() != null) {
 				String url = PathUtils.concatWebPaths("/edit/", wikiPage.getPagePath());
 				url = EscapeUtils.pagePath2Url(url) + "?fromPos=" + code.getFromPos() + "&toPos=" + code.getToPos();
-				String msg = messages.getMessage("ViewPagePlugin.html.editCode");
+				String msg = messages.getMessage(HTML_EDIT_CODE_KEY);
 				writer.htmlText("<a class=\"editcode\" href=\"" + EscapeUtils.escapeHtml(EscapeUtils.encodeUrl(url)) + "\"><img src=\"/edit.png\" title=\""
 						+ EscapeUtils.escapeHtml(msg) + "\" alt=\"\"></a>");
 			}
@@ -692,7 +697,7 @@ public class WikiPage2Html {
 		switch (link.getCommand()) {
 			case "startpage":
 				url = "/";
-				text = messages.getMessage("ViewPagePlugin.wiki.startpage");
+				text = messages.getMessage(WIKI_STARTPAGE_KEY);
 				break;
 			case "editpage": {
 				// globalen Kontext bestimmen,
@@ -703,7 +708,7 @@ public class WikiPage2Html {
 				} else {
 					url = null; // keinen Link erzeugen
 				}
-				text = messages.getMessage("ViewPagePlugin.wiki.editpage");
+				text = messages.getMessage(WIKI_EDIT_PAGE_KEY);
 				break;
 			}
 			case "newpage": {
@@ -715,16 +720,16 @@ public class WikiPage2Html {
 				} else {
 					url = "/edit/";
 				}
-				text = messages.getMessage("ViewPagePlugin.wiki.newpage");
+				text = messages.getMessage(WIKI_NEW_PAGE_KEY);
 				break;
 			}
 			case "shutdown":
 				url = "/shutdown";
-				text = messages.getMessage("ViewPagePlugin.wiki.shutdown");
+				text = messages.getMessage(WIKI_SHUTDOWN_KEY);
 				break;
 			case "status":
 				url = "/status";
-				text = messages.getMessage("ViewPagePlugin.wiki.status");
+				text = messages.getMessage(WIKI_STATUS_KEY);
 				break;
 			default:
 				// ungültiger Wiki-Link
@@ -840,7 +845,7 @@ public class WikiPage2Html {
 
 	private void convertPageElement(@SuppressWarnings("unused") @NotNull SearchInput searchInput) {
 		int depth = writer.openFormTag("searchForm", "/search/", Method.GET);
-		String hint = messages.getMessage("ViewPagePlugin.html.search");
+		String hint = messages.getMessage(HTML_SEARCH_KEY);
 		writer.htmlText("<input type=\"text\" name=\"text\" placeholder=\"" + EscapeUtils.escapeHtml(hint) + "\">");
 		writer.closeTags(depth);
 	}

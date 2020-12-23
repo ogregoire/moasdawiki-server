@@ -16,14 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin;
+package net.moasdawiki.service.transform;
 
 import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.Messages;
 import net.moasdawiki.base.ServiceException;
 import net.moasdawiki.service.repository.AnyFile;
 import net.moasdawiki.service.repository.RepositoryService;
-import net.moasdawiki.service.wiki.*;
+import net.moasdawiki.service.wiki.PageElementConsumer;
+import net.moasdawiki.service.wiki.WikiFile;
+import net.moasdawiki.service.wiki.WikiHelper;
+import net.moasdawiki.service.wiki.WikiService;
 import net.moasdawiki.service.wiki.structure.*;
 import net.moasdawiki.util.DateUtils;
 import net.moasdawiki.util.PathUtils;
@@ -50,10 +53,12 @@ import java.util.*;
  * Aktuelle Geburtstage und Termine, von heute bis 7 Tage in der Zukunft.</li>
  * <li><tt>&lt;terminliste jahr="2016" /&gt;</tt> &nbsp; Jahresübersicht</li>
  * </ul>
- * 
- * @author Herbert Reiter
  */
-public class TerminPlugin implements Plugin, PageElementTransformer {
+public class TerminTransformer implements TransformWikiPage {
+
+	private static final String TABLE_AGE_KEY = "TerminTransformer.table.age";
+	private static final String TABLE_DATE_KEY = "TerminTransformer.table.date";
+	private static final String TABLE_NAME_KEY = "TerminTransformer.table.name";
 
 	private static final int DEFAULT_TAGE_DANACH = 3;
 	private static final int DEFAULT_TAGE_DAVOR = 10;
@@ -78,35 +83,33 @@ public class TerminPlugin implements Plugin, PageElementTransformer {
 	@NotNull
 	private List<Event> eventCache;
 
-	private Logger logger;
-	private Messages messages;
-	private RepositoryService repositoryService;
-	private WikiService wikiService;
+	private final Logger logger;
+	private final Messages messages;
+	private final RepositoryService repositoryService;
+	private final WikiService wikiService;
 
 	/**
 	 * Konstruktor.
 	 */
-	public TerminPlugin() {
+	public TerminTransformer(@NotNull Logger logger, @NotNull Messages messages,
+							 @NotNull RepositoryService repositoryService,
+							 @NotNull WikiService wikiService) {
 		eventCache = new ArrayList<>();
-	}
-
-	public void setServiceLocator(@NotNull ServiceLocator serviceLocator) {
-		logger = serviceLocator.getLogger();
-		messages = serviceLocator.getMessages();
-		repositoryService = serviceLocator.getRepositoryService();
-		wikiService = serviceLocator.getWikiService();
+		this.logger = logger;
+		this.messages = messages;
+		this.repositoryService = repositoryService;
+		this.wikiService = wikiService;
 
 		readEventsFromCacheFile();
 	}
 
 	@NotNull
-	@CallOrder(6)
 	public WikiPage transformWikiPage(@NotNull WikiPage wikiPage) {
-		return WikiHelper.transformPageElements(wikiPage, this);
+		return TransformerHelper.transformPageElements(wikiPage, this::transformPageElement);
 	}
 
-	@Nullable
-	public PageElement transformPageElement(@NotNull PageElement pageElement) {
+	@NotNull
+	private PageElement transformPageElement(@NotNull PageElement pageElement) {
 		if (pageElement instanceof XmlTag) {
 			XmlTag xmlTag = (XmlTag) pageElement;
 
@@ -425,7 +428,7 @@ public class TerminPlugin implements Plugin, PageElementTransformer {
 
 	/**
 	 * Übersetzt das Ergebnis eines Datumsvergleichs in einen
-	 * {@link net.moasdawiki.plugin.TerminPlugin.ResultEntry.Tense}-Wert.
+	 * {@link TerminTransformer.ResultEntry.Tense}-Wert.
 	 * 
 	 * @param compareResult Ergebnis des Datumsvergleichs.
 	 * @return Tense-Wert.
@@ -470,7 +473,7 @@ public class TerminPlugin implements Plugin, PageElementTransformer {
 			}
 
 			if (context.kontaktTagFound && xmlTag.getPrefix() == null && ("geburtstag".equals(xmlTag.getName()) || "geburtsdatum".equals(xmlTag.getName()))) {
-				context.birthday = KontaktseitePlugin.getStringContent(xmlTag);
+				context.birthday = KontaktseiteTransformer.getStringContent(xmlTag);
 			}
 
 			if (context.kontaktTagFound && xmlTag.getPrefix() == null && "todestag".equals(xmlTag.getName())) {
@@ -548,11 +551,11 @@ public class TerminPlugin implements Plugin, PageElementTransformer {
 		// Überschriften
 		TableRow row = new TableRow(null);
 		table.addRow(row);
-		String dateStr = messages.getMessage("TerminPlugin.table.date");
+		String dateStr = messages.getMessage(TABLE_DATE_KEY);
 		row.addCell(new TableCell(new TextOnly(dateStr), true, null));
-		String nameStr = messages.getMessage("TerminPlugin.table.name");
+		String nameStr = messages.getMessage(TABLE_NAME_KEY);
 		row.addCell(new TableCell(new TextOnly(nameStr), true, null));
-		String ageStr = messages.getMessage("TerminPlugin.table.age");
+		String ageStr = messages.getMessage(TABLE_AGE_KEY);
 		row.addCell(new TableCell(new TextOnly(ageStr), true, "right"));
 
 		// Termine

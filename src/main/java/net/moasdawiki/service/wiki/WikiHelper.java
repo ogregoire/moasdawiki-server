@@ -21,7 +21,6 @@ package net.moasdawiki.service.wiki;
 import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.ServiceException;
 import net.moasdawiki.base.Settings;
-import net.moasdawiki.plugin.ServiceLocator;
 import net.moasdawiki.service.wiki.structure.*;
 import net.moasdawiki.util.PathUtils;
 import org.jetbrains.annotations.NotNull;
@@ -44,14 +43,13 @@ public abstract class WikiHelper {
      * @return Die erweiterte Wikiseite.
      */
     @NotNull
-    public static WikiPage extendWikiPage(@NotNull WikiPage wikiPage, boolean addNavigation, boolean addHeader, boolean addFooter, @NotNull ServiceLocator serviceLocator) {
-        Logger logger = serviceLocator.getLogger();
-        Settings settings = serviceLocator.getSettings();
-
+    public static WikiPage extendWikiPage(@NotNull WikiPage wikiPage, boolean addNavigation, boolean addHeader,
+                                          boolean addFooter, @NotNull Logger logger, @NotNull Settings settings,
+                                          @NotNull WikiService wikiService) {
         PageElementList content = new PageElementList();
         if (addNavigation && settings.getNavigationPagePath() != null) {
             try {
-                WikiFile navigationWikiFile = serviceLocator.getWikiService().getWikiFile(settings.getNavigationPagePath());
+                WikiFile navigationWikiFile = wikiService.getWikiFile(settings.getNavigationPagePath());
                 content.add(new Html("<div class=\"menu\">"));
                 content.add(navigationWikiFile.getWikiPage());
                 content.add(new Html("</div>"));
@@ -63,7 +61,7 @@ public abstract class WikiHelper {
         content.add(new Html("<div class=\"wikipage\">"));
         if (addHeader && settings.getHeaderPagePath() != null) {
             try {
-                WikiFile headerWikiFile = serviceLocator.getWikiService().getWikiFile(settings.getHeaderPagePath());
+                WikiFile headerWikiFile = wikiService.getWikiFile(settings.getHeaderPagePath());
                 content.add(headerWikiFile.getWikiPage());
             } catch (ServiceException e) {
                 logger.write("Error reading header page to assemble an integrated page, ignoring it", e);
@@ -73,7 +71,7 @@ public abstract class WikiHelper {
 
         if (addFooter && settings.getFooterPagePath() != null) {
             try {
-                WikiFile footerWikiFile = serviceLocator.getWikiService().getWikiFile(settings.getFooterPagePath());
+                WikiFile footerWikiFile = wikiService.getWikiFile(settings.getFooterPagePath());
                 content.add(footerWikiFile.getWikiPage());
             } catch (ServiceException e) {
                 logger.write("Error reading footer page to assemble an integrated page, ignoring it", e);
@@ -126,105 +124,6 @@ public abstract class WikiHelper {
                 }
             }
         }
-    }
-
-    /**
-     * Durchläuft den kompletten Wikibaum einer Wikiseite.
-     * <p>
-     * Für jedes Seitenelement wird die angegebene Callbackmethode {@link PageElementTransformer#transformPageElement(PageElement)} aufgerufen,
-     * die die Möglichkeit hat, das Seitenelement durch ein neues zu ersetzen.
-     *
-     * @param wikiPage Wikiseite, die transformiert werden soll.
-     * @param callback Objekt mit Callbackmethode, die für jeden Knoten aufgerufen wird.
-     * @return Transformierte Wikiseite.
-     */
-    @NotNull
-    public static WikiPage transformPageElements(@NotNull WikiPage wikiPage, @NotNull PageElementTransformer callback) {
-        // Wiki-Baum traversieren
-        PageElement pe = transformPageElement(wikiPage, callback);
-
-        if (pe instanceof WikiPage) {
-            return (WikiPage) pe;
-        } else {
-            return new WikiPage(wikiPage.getPagePath(), pe, wikiPage.getFromPos(), wikiPage.getToPos());
-        }
-    }
-
-    /**
-     * Zerlegt das angegebene Seitenelement.
-     */
-    @Nullable
-    private static PageElement transformPageElement(@Nullable PageElement pageElement, @NotNull PageElementTransformer callback) {
-        if (pageElement == null) {
-            return null;
-        }
-        // Seitenelement durch Callbackmethode transformieren
-        if (!(pageElement instanceof PageElementList)) {
-            pageElement = callback.transformPageElement(pageElement);
-        }
-
-        // transformiertes Seitenelement weiter zerlegen
-        if (pageElement instanceof PageElementWithChild) {
-            return transformPageElementWithChild(((PageElementWithChild) pageElement), callback);
-        } else if (pageElement instanceof PageElementList) {
-            return transformPageElementList((PageElementList) pageElement, callback);
-        } else if (pageElement instanceof Table) {
-            return transformTable((Table) pageElement, callback);
-        } else {
-            // null / ohne Kindelemente / unbekannter Typ
-            return pageElement;
-        }
-    }
-
-    /**
-     * Transformiert eine Liste von Seitenelementen.
-     * <p>
-     * Veränderte Listeneinträge werden ausgetauscht. Wenn ein Listenelement zu <code>null</code> transformiert wird, wird es aus der Liste gelöscht.
-     */
-    @NotNull
-    private static PageElementList transformPageElementList(@NotNull PageElementList pageElementList, @NotNull PageElementTransformer callback) {
-        int i = 0;
-        while (i < pageElementList.size()) {
-            // Listeneintrag transformieren
-            PageElement pe = pageElementList.get(i);
-            pe = transformPageElement(pe, callback);
-
-            // geänderten Eintrag in Liste austauschen bzw. löschen
-            if (pe != null) {
-                pageElementList.set(i, pe);
-                i++;
-            } else {
-                pageElementList.remove(i);
-            }
-        }
-        return pageElementList;
-    }
-
-    /**
-     * Transformiert das Kind-Element eines Seitenelements.
-     * <p>
-     * Wenn das Kind-Element ersetzt wird, wird die Parent-Referenz automatisch aktualisiert.
-     */
-    @NotNull
-    private static PageElement transformPageElementWithChild(@NotNull PageElementWithChild pageElement, @NotNull PageElementTransformer callback) {
-        PageElement child = pageElement.getChild();
-        child = transformPageElement(child, callback);
-        pageElement.setChild(child);
-        return pageElement;
-    }
-
-    /**
-     * Transformiert die Zelleninhalte einer Tabelle.
-     */
-    @NotNull
-    private static Table transformTable(@NotNull Table table, @NotNull PageElementTransformer callback) {
-        for (TableRow tableRow : table.getRows()) {
-            for (TableCell tableCell : tableRow.getCells()) {
-                PageElement pe = transformPageElement(tableCell.getContent(), callback);
-                tableCell.setContent(pe);
-            }
-        }
-        return table;
     }
 
     /**

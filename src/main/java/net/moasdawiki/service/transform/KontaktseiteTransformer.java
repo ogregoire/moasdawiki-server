@@ -16,9 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.moasdawiki.plugin;
+package net.moasdawiki.service.transform;
 
-import net.moasdawiki.service.wiki.PageElementTransformer;
 import net.moasdawiki.service.wiki.WikiHelper;
 import net.moasdawiki.service.wiki.structure.*;
 import net.moasdawiki.util.StringUtils;
@@ -35,25 +34,18 @@ import java.util.*;
  * Erzeugt eine formatierte Ausgabe einen Personen-Kontakts. Angezeigt werden
  * nur aktuelle Daten, d.h. bei denen das Attribut <code>gültigbis</code> nicht
  * gesetzt ist.
- * 
- * @author Herbert Reiter
  */
-public class KontaktseitePlugin implements Plugin, PageElementTransformer {
+public class KontaktseiteTransformer implements TransformWikiPage {
 
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
 
-	public void setServiceLocator(@NotNull ServiceLocator serviceLocator) {
-		// nicht benötigt
+	@NotNull
+	public WikiPage transformWikiPage(@NotNull WikiPage wikiPage) {
+		return TransformerHelper.transformPageElements(wikiPage, this::transformPageElement);
 	}
 
 	@NotNull
-	@CallOrder(5)
-	public WikiPage transformWikiPage(@NotNull WikiPage wikiPage) {
-		return WikiHelper.transformPageElements(wikiPage, this);
-	}
-
-	@Nullable
-	public PageElement transformPageElement(@NotNull PageElement pageElement) {
+	private PageElement transformPageElement(@NotNull PageElement pageElement) {
 		if (pageElement instanceof XmlTag) {
 			XmlTag xmlTag = (XmlTag) pageElement;
 
