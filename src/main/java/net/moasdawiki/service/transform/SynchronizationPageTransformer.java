@@ -18,6 +18,7 @@
 
 package net.moasdawiki.service.transform;
 
+import net.moasdawiki.base.Messages;
 import net.moasdawiki.service.sync.SessionData;
 import net.moasdawiki.service.sync.SynchronizationService;
 import net.moasdawiki.service.wiki.structure.*;
@@ -30,17 +31,29 @@ import java.util.List;
 /**
  * Transforms the wiki tag <code>{{sync-status}}</code> used on the
  * synchronization status page.
- *
- * TODO: translate to English
  */
 public class SynchronizationPageTransformer implements TransformWikiPage {
 
+    private static final String ACTION_KEY = "SynchronizationPageTransformer.action";
+    private static final String ACTION_PERMIT_KEY = "SynchronizationPageTransformer.action.permit";
+    private static final String ACTION_REMOVE_KEY = "SynchronizationPageTransformer.action.remove";
+    private static final String CLIENT_KEY = "SynchronizationPageTransformer.client";
+    private static final String CLIENT_DEVICE_NAME_KEY = "SynchronizationPageTransformer.client.device-name";
+    private static final String CLIENT_SESSION_ID_KEY = "SynchronizationPageTransformer.client.session-id";
+    private static final String SERVER_SESSION_ID_KEY = "SynchronizationPageTransformer.server.session-id";
+    private static final String SERVER_SESSION_CREATED_KEY = "SynchronizationPageTransformer.server.session.created";
+    private static final String SERVER_SESSION_LAST_SYNC_KEY = "SynchronizationPageTransformer.server.session.last-sync";
+    private static final String SERVER_SESSION_PERMITTED_KEY = "SynchronizationPageTransformer.server.session.permitted";
+    private static final String DATEFORMAT_KEY = "WikiTagsTransformer.dateformat.datetime";
+
+    private final Messages messages;
     private final SynchronizationService synchronizationService;
 
     /**
      * Constructor.
      */
-    public SynchronizationPageTransformer(@NotNull SynchronizationService synchronizationService) {
+    public SynchronizationPageTransformer(@NotNull Messages messages, @NotNull SynchronizationService synchronizationService) {
+        this.messages = messages;
         this.synchronizationService = synchronizationService;
     }
 
@@ -60,12 +73,13 @@ public class SynchronizationPageTransformer implements TransformWikiPage {
                 Table table = new Table(null, null, null);
                 // headers
                 table.newRow(null);
-                table.addCell(new TableCell(new TextOnly("Gerätename"), true, null));
-                table.addCell(new TableCell(new TextOnly("Client"), true, null));
-                table.addCell(new TableCell(new Html("Server-Session-ID /<br>Client-Session-ID"), true, null));
-                table.addCell(new TableCell(new TextOnly("Erzeugt"), true, null));
-                table.addCell(new TableCell(new TextOnly("Letzte Synchronisierung"), true, null));
-                table.addCell(new TableCell(new TextOnly("Aktion"), true, null));
+                table.addCell(new TableCell(new TextOnly(messages.getMessage(CLIENT_DEVICE_NAME_KEY)), true, null));
+                table.addCell(new TableCell(new TextOnly(messages.getMessage(CLIENT_KEY)), true, null));
+                table.addCell(new TableCell(new Html(messages.getMessage(SERVER_SESSION_ID_KEY) + " /<br>"
+                        + messages.getMessage(CLIENT_SESSION_ID_KEY)), true, null));
+                table.addCell(new TableCell(new TextOnly(messages.getMessage(SERVER_SESSION_CREATED_KEY)), true, null));
+                table.addCell(new TableCell(new TextOnly(messages.getMessage(SERVER_SESSION_LAST_SYNC_KEY)), true, null));
+                table.addCell(new TableCell(new TextOnly(messages.getMessage(ACTION_KEY)), true, null));
 
                 // session list
                 List<SessionData> sessionList = synchronizationService.getSessions();
@@ -85,7 +99,7 @@ public class SynchronizationPageTransformer implements TransformWikiPage {
                     }
                     return comp;
                 });
-                DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                DateFormat df = new SimpleDateFormat(messages.getMessage(DATEFORMAT_KEY));
                 for (SessionData sessionData : sessionList) {
                     table.newRow(null);
                     table.addCell(new TableCell(new TextOnly(sessionData.clientHost), false, null));
@@ -97,16 +111,16 @@ public class SynchronizationPageTransformer implements TransformWikiPage {
                     if (sessionData.lastSyncTimestamp != null) {
                         lastSync = df.format(sessionData.lastSyncTimestamp);
                     } else if (sessionData.authorized) {
-                        lastSync = "Erlaubnis erteilt";
+                        lastSync = messages.getMessage(SERVER_SESSION_PERMITTED_KEY);
                     }
                     table.addCell(new TableCell(new TextOnly(lastSync), false, null));
                     String buttonHtml = "<form>";
                     if (!sessionData.authorized) {
                         buttonHtml += "<button type=\"button\" class=\"save\" onclick=\"syncPermitSession('" + sessionData.serverSessionId
-                                + "')\">Erlauben</button> ";
+                                + "')\">" + messages.getMessage(ACTION_PERMIT_KEY) + "</button> ";
                     }
                     buttonHtml += "<button type=\"button\" class=\"cancel\" onclick=\"syncDropSession('" + sessionData.serverSessionId
-                            + "')\">Löschen</button>";
+                            + "')\">" + messages.getMessage(ACTION_REMOVE_KEY) + "</button>";
                     buttonHtml += "</form>";
                     table.addCell(new TableCell(new Html(buttonHtml), false, null));
                 }

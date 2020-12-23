@@ -54,6 +54,17 @@ SearchHandler.summary.one = 1 Seite gefunden.
 SearchHandler.summary.more = {0} Seiten gefunden.
 SearchHandler.title = Suche nach ''{0}''
 
+SynchronizationPageTransformer.action = Aktion
+SynchronizationPageTransformer.action.permit = Erlauben
+SynchronizationPageTransformer.action.remove = Löschen
+SynchronizationPageTransformer.client = Client
+SynchronizationPageTransformer.client.device-name = Gerätename
+SynchronizationPageTransformer.client.session-id = Client-Session-ID
+SynchronizationPageTransformer.server.session-id = Server-Session-ID
+SynchronizationPageTransformer.server.session.created = Erzeugt
+SynchronizationPageTransformer.server.session.last-sync = Letzte Synchronisierung
+SynchronizationPageTransformer.server.session.permitted = Erlaubnis erteilt
+
 TerminTransformer.table.age = Alter
 TerminTransformer.table.date = Datum
 TerminTransformer.table.name = Name
