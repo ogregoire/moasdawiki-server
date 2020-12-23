@@ -21,8 +21,8 @@ package net.moasdawiki.service.wiki;
 import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.ServiceException;
 import net.moasdawiki.base.Settings;
-import net.moasdawiki.plugin.ServiceLocator;
 import net.moasdawiki.service.repository.AnyFile;
+import net.moasdawiki.service.transform.TransformerHelper;
 import net.moasdawiki.service.wiki.structure.*;
 import org.mockito.invocation.InvocationOnMock;
 import org.testng.annotations.Test;
@@ -36,21 +36,19 @@ public class WikiHelperTest {
 
     @Test
     public void testExtendWikiPage() throws Exception {
-        ServiceLocator serviceLocator = mock(ServiceLocator.class);
-        when(serviceLocator.getLogger()).thenReturn(mock(Logger.class));
+        Logger logger = mock(Logger.class);
         Settings settings = mock(Settings.class);
         when(settings.getNavigationPagePath()).thenReturn("/navigation");
         when(settings.getHeaderPagePath()).thenReturn("/header");
         when(settings.getFooterPagePath()).thenReturn("/footer");
-        when(serviceLocator.getSettings()).thenReturn(settings);
         WikiService wikiService = mock(WikiService.class);
         when(wikiService.getWikiFile(anyString())).thenAnswer(this::getWikiFileMock);
-        when(serviceLocator.getWikiService()).thenReturn(wikiService);
 
         {
             // body only
             WikiPage wikiPage = new WikiPage(null, new TextOnly("main content"), null, null);
-            WikiPage newWikiPage = WikiHelper.extendWikiPage(wikiPage, false, false, false, serviceLocator);
+            WikiPage newWikiPage = WikiHelper.extendWikiPage(wikiPage, false, false, false,
+                    logger, settings, wikiService);
             assertTrue(containsText("main content", newWikiPage));
             assertFalse(containsText("Content of /navigation", newWikiPage));
             assertFalse(containsText("Content of /header", newWikiPage));
@@ -60,7 +58,8 @@ public class WikiHelperTest {
         {
             // with navigation
             WikiPage wikiPage = new WikiPage(null, new TextOnly("main content"), null, null);
-            WikiPage newWikiPage = WikiHelper.extendWikiPage(wikiPage, true, false, false, serviceLocator);
+            WikiPage newWikiPage = WikiHelper.extendWikiPage(wikiPage, true, false, false,
+                    logger, settings, wikiService);
             assertTrue(containsText("main content", newWikiPage));
             assertTrue(containsText("Content of /navigation", newWikiPage));
             assertFalse(containsText("Content of /header", newWikiPage));
@@ -70,7 +69,8 @@ public class WikiHelperTest {
         {
             // with header
             WikiPage wikiPage = new WikiPage(null, new TextOnly("main content"), null, null);
-            WikiPage newWikiPage = WikiHelper.extendWikiPage(wikiPage, false, true, false, serviceLocator);
+            WikiPage newWikiPage = WikiHelper.extendWikiPage(wikiPage, false, true, false,
+                    logger, settings, wikiService);
             assertTrue(containsText("main content", newWikiPage));
             assertFalse(containsText("Content of /navigation", newWikiPage));
             assertTrue(containsText("Content of /header", newWikiPage));
@@ -80,7 +80,8 @@ public class WikiHelperTest {
         {
             // with footer
             WikiPage wikiPage = new WikiPage(null, new TextOnly("main content"), null, null);
-            WikiPage newWikiPage = WikiHelper.extendWikiPage(wikiPage, false, false, true, serviceLocator);
+            WikiPage newWikiPage = WikiHelper.extendWikiPage(wikiPage, false, false, true,
+                    logger, settings, wikiService);
             assertTrue(containsText("main content", newWikiPage));
             assertFalse(containsText("Content of /navigation", newWikiPage));
             assertFalse(containsText("Content of /header", newWikiPage));
@@ -134,14 +135,14 @@ public class WikiHelperTest {
         {
             PageElementTransformer unchangedTrans = mock(PageElementTransformer.class);
             when(unchangedTrans.transformPageElement(any())).thenAnswer(invocation -> invocation.getArgument(0));
-            WikiPage wikiPage = WikiHelper.transformPageElements(new WikiPage("/a", null, null, null), unchangedTrans);
+            WikiPage wikiPage = TransformerHelper.transformPageElements(new WikiPage("/a", null, null, null), unchangedTrans);
             assertEquals(wikiPage.getPagePath(), "/a");
             verify(unchangedTrans, times(1)).transformPageElement(any());
         }
         {
             PageElementTransformer nullTrans = mock(PageElementTransformer.class);
             when(nullTrans.transformPageElement(any())).thenReturn(null);
-            WikiPage wikiPage = WikiHelper.transformPageElements(new WikiPage("/a", null, null, null), nullTrans);
+            WikiPage wikiPage = TransformerHelper.transformPageElements(new WikiPage("/a", null, null, null), nullTrans);
             assertEquals(wikiPage.getPagePath(), "/a");
             verify(nullTrans, times(1)).transformPageElement(any());
         }
@@ -164,7 +165,7 @@ public class WikiHelperTest {
             }
         });
         // test method
-        WikiPage wikiPage = WikiHelper.transformPageElements(new WikiPage(null, pel, null, null), transformer);
+        WikiPage wikiPage = TransformerHelper.transformPageElements(new WikiPage(null, pel, null, null), transformer);
         assertSame(wikiPage.getChild(), pel);
         assertEquals(pel.size(), 2);
         assertEquals(((TextOnly) pel.get(0)).getText(), "a");
@@ -186,7 +187,7 @@ public class WikiHelperTest {
             }
         });
         // test method
-        WikiPage wikiPage = WikiHelper.transformPageElements(new WikiPage(null, bold, null, null), transformer);
+        WikiPage wikiPage = TransformerHelper.transformPageElements(new WikiPage(null, bold, null, null), transformer);
         assertTrue(wikiPage.getChild() instanceof Italic);
         assertSame(((Italic) wikiPage.getChild()).getChild(), textOnly);
     }
@@ -210,7 +211,7 @@ public class WikiHelperTest {
             }
         });
         // test method
-        WikiPage wikiPage = WikiHelper.transformPageElements(new WikiPage(null, table, null, null), transformer);
+        WikiPage wikiPage = TransformerHelper.transformPageElements(new WikiPage(null, table, null, null), transformer);
         assertTrue(wikiPage.getChild() instanceof Table);
         PageElement pe = ((Table) wikiPage.getChild()).getRows().get(0).getCells().get(0).getContent();
         assertTrue(pe instanceof TextOnly);

@@ -464,20 +464,20 @@ public class WikiPage2HtmlTest {
         {
             PageElement contentPage = new LinkWiki("startpage", null, null, null);
             HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-            assertEquals(getHtml(htmlWriter), "<a href=\"/\">ViewPagePlugin.wiki.startpage</a>");
+            assertEquals(getHtml(htmlWriter), "<a href=\"/\">ViewPageHandler.wiki.startpage</a>");
         }
         {
             // editpage without context page -> no link
             PageElement contentPage = new LinkWiki("editpage", null, null, null);
             HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-            assertEquals(getHtml(htmlWriter), "ViewPagePlugin.wiki.editpage");
+            assertEquals(getHtml(htmlWriter), "ViewPageHandler.wiki.editpage");
         }
         {
             // editpage with context page
             LinkWiki linkWiki = new LinkWiki("editpage", null, null, null);
             PageElement contentPage = new WikiPage("/path/contextPage", linkWiki, null, null);
             HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-            assertEquals(getHtml(htmlWriter), "<a href=\"/edit/path/contextPage\">ViewPagePlugin.wiki.editpage</a>");
+            assertEquals(getHtml(htmlWriter), "<a href=\"/edit/path/contextPage\">ViewPageHandler.wiki.editpage</a>");
         }
         {
             // editpage with context page
@@ -490,24 +490,24 @@ public class WikiPage2HtmlTest {
             // newpage without context page
             PageElement contentPage = new LinkWiki("newpage", null, null, null);
             HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-            assertEquals(getHtml(htmlWriter), "<a href=\"/edit/\">ViewPagePlugin.wiki.newpage</a>");
+            assertEquals(getHtml(htmlWriter), "<a href=\"/edit/\">ViewPageHandler.wiki.newpage</a>");
         }
         {
             // newpage with context page
             LinkWiki linkWiki = new LinkWiki("newpage", null, null, null);
             PageElement contentPage = new WikiPage("/path/contextPage", linkWiki, null, null);
             HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-            assertEquals(getHtml(htmlWriter), "<a href=\"/edit/path/\">ViewPagePlugin.wiki.newpage</a>");
+            assertEquals(getHtml(htmlWriter), "<a href=\"/edit/path/\">ViewPageHandler.wiki.newpage</a>");
         }
         {
             PageElement contentPage = new LinkWiki("shutdown", null, null, null);
             HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-            assertEquals(getHtml(htmlWriter), "<a href=\"/shutdown\">ViewPagePlugin.wiki.shutdown</a>");
+            assertEquals(getHtml(htmlWriter), "<a href=\"/shutdown\">ViewPageHandler.wiki.shutdown</a>");
         }
         {
             PageElement contentPage = new LinkWiki("status", null, null, null);
             HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-            assertEquals(getHtml(htmlWriter), "<a href=\"/status\">ViewPagePlugin.wiki.status</a>");
+            assertEquals(getHtml(htmlWriter), "<a href=\"/status\">ViewPageHandler.wiki.status</a>");
         }
         {
             PageElement contentPage = new LinkWiki("unknown", null, null, null);
@@ -631,7 +631,7 @@ public class WikiPage2HtmlTest {
     public void testGenerateSearchInput() {
         PageElement contentPage = new SearchInput(null, null);
         HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-        assertEquals(getHtml(htmlWriter), "<form method=\"get\" action=\"/search/\" enctype=\"application/x-www-form-urlencoded; charset=utf-8\" name=\"searchForm\"><input type=\"text\" name=\"text\" placeholder=\"ViewPagePlugin.html.search\"></form>");
+        assertEquals(getHtml(htmlWriter), "<form method=\"get\" action=\"/search/\" enctype=\"application/x-www-form-urlencoded; charset=utf-8\" name=\"searchForm\"><input type=\"text\" name=\"text\" placeholder=\"ViewPageHandler.html.search\"></form>");
     }
 
     private static String getHtml(HtmlWriter htmlWriter) {

@@ -22,9 +22,9 @@ import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.Messages;
 import net.moasdawiki.base.ServiceException;
 import net.moasdawiki.base.Settings;
-import net.moasdawiki.plugin.PluginService;
-import net.moasdawiki.server.HttpResponse;
+import net.moasdawiki.service.HttpResponse;
 import net.moasdawiki.service.repository.AnyFile;
+import net.moasdawiki.service.transform.TransformerService;
 import net.moasdawiki.service.wiki.WikiFile;
 import net.moasdawiki.service.wiki.WikiService;
 import net.moasdawiki.service.wiki.structure.TextOnly;
@@ -32,20 +32,19 @@ import net.moasdawiki.service.wiki.structure.WikiPage;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
 import static org.mockito.Mockito.*;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class HtmlServiceTest {
 
     private Settings settings;
     private Messages messages;
     private WikiService wikiService;
-    private PluginService pluginService;
-
     private HtmlService htmlService;
+    private TransformerService transformerService;
 
     @BeforeMethod
     public void setUp() {
@@ -60,15 +59,15 @@ public class HtmlServiceTest {
             return result;
         });
         wikiService = mock(WikiService.class);
-        pluginService = mock(PluginService.class);
-        when(pluginService.applyTransformations(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        htmlService = new HtmlService(new Logger(null), settings, messages, wikiService, pluginService);
+        transformerService = mock(TransformerService.class);
+        when(transformerService.applyTransformations(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        htmlService = new HtmlService(new Logger(null), settings, messages, wikiService, transformerService);
     }
 
     @Test
     public void testConvertHtmlMinimal() {
         HttpResponse httpResponse = htmlService.convertHtml(new HtmlWriter());
-        String response = new String(httpResponse.getContent(), StandardCharsets.UTF_8);
+        String response = new String(httpResponse.content, StandardCharsets.UTF_8);
         String expected = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" +
                 "<html>\n" +
                 "<head>\n" +
@@ -87,7 +86,7 @@ public class HtmlServiceTest {
                 + "html header line 2";
         when(wikiService.getWikiFile("/HtmlHeaderPath")).thenReturn(new WikiFile("/HtmlHeaderPath", wikiText, new WikiPage(null, null, null, null), new AnyFile("/HtmlHeaderPath")));
         HttpResponse httpResponse = htmlService.convertHtml(new HtmlWriter());
-        String response = new String(httpResponse.getContent(), StandardCharsets.UTF_8);
+        String response = new String(httpResponse.content, StandardCharsets.UTF_8);
         String expected = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" +
                 "<html>\n" +
                 "<head>\n" +
@@ -106,7 +105,7 @@ public class HtmlServiceTest {
         htmlWriter.setBodyParams("param1=value1 param2=value2");
         htmlWriter.htmlText("body text");
         HttpResponse httpResponse = htmlService.convertHtml(htmlWriter);
-        String response = new String(httpResponse.getContent(), StandardCharsets.UTF_8);
+        String response = new String(httpResponse.content, StandardCharsets.UTF_8);
         String expected = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" +
                 "<html>\n" +
                 "<head>\n" +
@@ -123,7 +122,7 @@ public class HtmlServiceTest {
     public void testConvertPage() {
         WikiPage wikiPage = new WikiPage("/pagePath", new TextOnly("text only"), null, null);
         HttpResponse httpResponse = htmlService.convertPage(wikiPage);
-        String response = new String(httpResponse.getContent(), StandardCharsets.UTF_8);
+        String response = new String(httpResponse.content, StandardCharsets.UTF_8);
         String expected = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" +
                 "<html>\n" +
                 "<head>\n" +
@@ -134,64 +133,55 @@ public class HtmlServiceTest {
                 "</body>\n" +
                 "</html>\n";
         assertEquals(response, expected);
-        verify(pluginService, times(1)).applyTransformations(any());
+        verify(transformerService, times(1)).applyTransformations(any());
     }
 
     @Test
-    public void testGenerateRedirectToWikiPage() throws Exception {
+    public void testGenerateRedirectToWikiPage() {
         HttpResponse httpResponse = htmlService.generateRedirectToWikiPage("/pagePath");
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        httpResponse.writeResponse(out);
-        String response = out.toString("UTF-8");
-        assertTrue(response.contains("HTTP/1.1 302 Moved Temporarily"));
-        assertTrue(response.contains("Location: /view/pagePath"));
+        assertEquals(302, httpResponse.statusCode);
+        assertEquals("/view/pagePath", httpResponse.redirectUrl);
     }
 
     @Test
-    public void testGenerateMessagePage() throws Exception {
+    public void testGenerateMessagePage() {
         HttpResponse httpResponse = htmlService.generateMessagePage("key", "arg");
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        httpResponse.writeResponse(out);
-        String response = out.toString("UTF-8");
+        String responseStr = new String(httpResponse.content, StandardCharsets.UTF_8);
         String expectedBody = "<body>\n" +
                 "  <b>key_arg</b>\n" +
                 "</body>";
-        assertTrue(response.contains(expectedBody));
+        assertTrue(responseStr.contains(expectedBody));
         verify(messages, times(1)).getMessage(eq("key"), eq("arg"));
     }
 
     @Test
-    public void testGenerateErrorPage() throws Exception {
+    public void testGenerateErrorPage() {
         HttpResponse httpResponse = htmlService.generateErrorPage(404, "key", "arg");
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        httpResponse.writeResponse(out);
-        String response = out.toString("UTF-8");
+        assertEquals(404, httpResponse.statusCode);
+        String responseStr = new String(httpResponse.content, StandardCharsets.UTF_8);
+        assertTrue(responseStr.contains("<title>wiki.errorpage.title | ProgName</title>"));
         String expectedBody = "<body>\n" +
                 "  <b>wiki.errorpage.message_key_arg</b><br>\n" +
                 "  <br>\n" +
                 "  wiki.errorpage.linkToStartpage\n" +
                 "</body>";
-        assertTrue(response.contains("HTTP/1.1 404 Not Found"));
-        assertTrue(response.contains("<title>wiki.errorpage.title | ProgName</title>"));
-        assertTrue(response.contains(expectedBody));
+        assertTrue(responseStr.contains(expectedBody));
         verify(messages, times(1)).getMessage(eq("key"), eq("arg"));
     }
 
     @Test
-    public void testGenerateErrorPageException() throws Exception {
+    public void testGenerateErrorPageException() {
         HttpResponse httpResponse = htmlService.generateErrorPage(500, new ServiceException("error message"), "key", "arg");
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        httpResponse.writeResponse(out);
-        String response = out.toString("UTF-8");
+        assertEquals(500, httpResponse.statusCode);
+        String responseStr = new String(httpResponse.content, StandardCharsets.UTF_8);
         String expectedBody = "<body>\n" +
                 "  <b>wiki.errorpage.message_key_arg</b><br>\n" +
                 "  net.moasdawiki.base.ServiceException: error message<br>\n" +
                 "  <br>\n" +
                 "  wiki.errorpage.linkToStartpage\n" +
                 "</body>";
-        assertTrue(response.contains("HTTP/1.1 500 Internal Server Error"));
-        assertTrue(response.contains("<title>wiki.errorpage.title | ProgName</title>"));
-        assertTrue(response.contains(expectedBody));
+        assertTrue(responseStr.contains("<title>wiki.errorpage.title | ProgName</title>"));
+        assertTrue(responseStr.contains(expectedBody));
         verify(messages, times(1)).getMessage(eq("key"), eq("arg"));
     }
 }
