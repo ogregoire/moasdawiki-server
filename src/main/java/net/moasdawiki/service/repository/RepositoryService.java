@@ -31,8 +31,6 @@ import java.util.function.Predicate;
  * Serviceschicht für den Zugriff auf alle Dateien im Wiki-Repository. Das
  * Repository enthält sämtlichen Wikiseiten sowie Bilder, CSS, JavaScript und
  * weitere Binärdateien (z.B. PDF).
- *
- * @author Herbert Reiter
  */
 public interface RepositoryService {
 

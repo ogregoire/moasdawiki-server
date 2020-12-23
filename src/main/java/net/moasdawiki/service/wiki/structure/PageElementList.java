@@ -30,8 +30,6 @@ import java.util.Iterator;
  * Diese Liste kann selbst wieder als Seitenelement verwendet werden. Der
  * Listeninhalt wird dann so behandelt, als ob er direkt in der übergeordneten
  * Liste enthalten wäre, stellt also eine Teilliste dar.
- * 
- * @author Herbert Reiter
  */
 public class PageElementList extends PageElement implements Iterable<PageElement> {
 

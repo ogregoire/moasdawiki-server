@@ -26,8 +26,6 @@ import org.jetbrains.annotations.Nullable;
  * <br>
  * Eine Überschrift kann unterschiedliche Gliederungsebenen haben. Die
  * Nummerierung wird beim Rendern einer Wiki-Seite bestimmt und ausgegeben.
- * 
- * @author Herbert Reiter
  */
 public class Heading extends PageElementWithChild {
 

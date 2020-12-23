@@ -25,8 +25,6 @@ import org.jetbrains.annotations.Nullable;
  * Link auf eine URL im Internet.
  *
  * Beispiel-URL: <tt>http://www.google.de/</tt>
- * 
- * @author Herbert Reiter
  */
 public class LinkExternal extends PageElementWithChild {
 

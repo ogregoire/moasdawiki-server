@@ -28,8 +28,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Erzeugt formatiertes HTML. Transportklasse.
- * 
- * @author Herbert Reiter
  */
 public class HtmlWriter {
 

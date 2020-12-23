@@ -25,8 +25,6 @@ import org.jetbrains.annotations.Nullable;
  * Verweist auf eine Vater-Seite. Dies ist eine logische Information, die eine
  * Beziehung zu einer anderen Wiki-Seite beschreibt. Sie wird normalerweise
  * nicht direkt angezeigt.
- * 
- * @author Herbert Reiter
  */
 public class Parent extends PageElement {
 	/**

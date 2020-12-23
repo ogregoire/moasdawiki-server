@@ -25,8 +25,6 @@ import java.util.Set;
 
 /**
  * Search request data.
- * 
- * @author Herbert Reiter
  */
 public class SearchQuery {
 	/**

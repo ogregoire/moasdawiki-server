@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Manueller Zeilenumbruch innerhalt eines Textabsatzes.
- * 
- * @author Herbert Reiter
  */
 public class LineBreak extends PageElement {
 

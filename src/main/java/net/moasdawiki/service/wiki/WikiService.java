@@ -29,8 +29,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Serviceschicht für den Zugriff auf alle Wikidateien im Wiki-Repository.
- * 
- * @author Herbert Reiter
  */
 public interface WikiService {
 

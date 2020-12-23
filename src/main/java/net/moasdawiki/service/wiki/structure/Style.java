@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Formatiert einen Textbaustein mit Hilfe von CSS-Klassen.
  * Der Text wird dabei mit einem &lt;span>-Tag umschlossen.
- * 
- * @author Herbert Reiter
  */
 public class Style extends PageElementWithChild {
 

@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Repräsentiert die Liste der zuletzt angesehenen Wiki-Seiten.
- * 
- * @author Herbert Reiter
  */
 public class ListViewHistory extends PageElement implements Listable {
 

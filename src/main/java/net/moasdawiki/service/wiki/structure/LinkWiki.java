@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Wiki-interner Link.
  * Wird für Links auf virtuelle Seiten oder Wiki-Befehle verwendet.
- * 
- * @author Herbert Reiter
  */
 public class LinkWiki extends PageElementWithChild {
 

@@ -25,8 +25,6 @@ import net.moasdawiki.util.xml.XmlRootElement;
 /**
  * JAXB-Bean mit einer Fehlermeldung, falls der Aufruf nicht erfolgreich
  * beantwortet werden kann.
- *
- * @author Herbert Reiter
  */
 @XmlRootElement(name = "error")
 public class ErrorResponseXml extends AbstractSyncXml {

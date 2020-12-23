@@ -26,8 +26,6 @@ import java.lang.annotation.Target;
 /**
  * Markiert ein Bean-Feld als XML-Element, dessen XML-Tagname von der Typklasse
  * des Felds definiert wird.
- *
- * @author Herbert Reiter
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

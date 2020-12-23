@@ -24,8 +24,6 @@ import net.moasdawiki.util.xml.XmlRootElement;
 
 /**
  * JAXB-Bean für eine Session-Anfrage.
- *
- * @author Herbert Reiter
  */
 @XmlRootElement(name = "create-session")
 public class CreateSessionXml extends AbstractSyncXml {

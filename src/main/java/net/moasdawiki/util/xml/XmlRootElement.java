@@ -25,8 +25,6 @@ import java.lang.annotation.Target;
 
 /**
  * Markiert eine Klasse als XML-Element.
- *
- * @author Herbert Reiter
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

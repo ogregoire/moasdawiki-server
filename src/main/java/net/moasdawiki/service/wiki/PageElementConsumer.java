@@ -29,7 +29,6 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <T> PageElement sub-type that is to traverse
  * @param <C> type of the context object
- * @author Herbert Reiter
  */
 @FunctionalInterface
 public interface PageElementConsumer<T extends PageElement, C> {

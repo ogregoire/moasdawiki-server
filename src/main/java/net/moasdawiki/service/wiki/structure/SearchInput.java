@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Repräsentiert ein Eingabefeld für die Volltextsuche.
- * 
- * @author Herbert Reiter
  */
 public class SearchInput extends PageElement {
 

@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Listet alle Vater-Seiten der Wiki-Seite auf.
- * 
- * @author Herbert Reiter
  */
 public class ListParents extends PageElement implements Listable {
 

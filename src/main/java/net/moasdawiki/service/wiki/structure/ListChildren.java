@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Listet alle Kind-Seiten einer Wiki-Seite auf.
  * Kind-Seiten haben die angegebene Wiki-Seite als Vater angegeben.
- * 
- * @author Herbert Reiter
  */
 public class ListChildren extends PageElement implements Listable {
 

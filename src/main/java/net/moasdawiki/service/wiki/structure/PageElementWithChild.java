@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
  * Viele Seitenelemente können Kindknoten des Typs {@link PageElement}
  * enthalten. Mit Hilfe dieser Klasse werden diese zusammengefasst. Dies ist bei
  * Baumtraversierungen und Baumtransformationen nützlich.
- * 
- * @author Herbert Reiter
  */
 public abstract class PageElementWithChild extends PageElement {
 

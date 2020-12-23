@@ -22,8 +22,6 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Repräsentiert Name und Version des Wiki-Servers.
- * 
- * @author Herbert Reiter
  */
 public class WikiVersion extends PageElement {
 

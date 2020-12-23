@@ -31,8 +31,6 @@ import org.jetbrains.annotations.NotNull;
  * weil es in Android nicht verfügbar ist. Über Annotationen können die
  * XML-Tagnamen und -Attributnamen gesteuert werden. Der XMl-Strom muss im
  * UTF-8-Encoding sein.
- *
- * @author Herbert Reiter
  */
 public class XmlGenerator {
 	private static final String XML_DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";

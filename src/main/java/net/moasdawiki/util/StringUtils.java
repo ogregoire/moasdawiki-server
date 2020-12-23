@@ -30,8 +30,6 @@ import java.util.*;
 
 /**
  * Helper methods to modify Strings.
- * 
- * @author Herbert Reiter
  */
 public abstract class StringUtils {
 

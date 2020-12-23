@@ -24,8 +24,6 @@ import net.moasdawiki.util.xml.XmlRootElement;
 
 /**
  * JAXB-Bean zum Überprüfen einer Session.
- *
- * @author Herbert Reiter
  */
 @XmlRootElement(name = "check-session")
 public class CheckSessionXml extends AbstractSyncXml {

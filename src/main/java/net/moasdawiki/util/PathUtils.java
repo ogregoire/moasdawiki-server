@@ -26,8 +26,6 @@ import java.io.File;
 
 /**
  * Helper methods for web paths and file paths.
- *
- * @author Herbert Reiter
  */
 public abstract class PathUtils {
 

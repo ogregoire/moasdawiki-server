@@ -26,8 +26,6 @@ import java.lang.annotation.Target;
 /**
  * Markiert ein Bean-Feld als XML-Wert des Root-Tags. Pro Klasse darf diese
  * Annotation nur einmal vorkommen.
- *
- * @author Herbert Reiter
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

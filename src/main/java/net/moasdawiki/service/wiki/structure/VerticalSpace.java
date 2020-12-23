@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Vertikaler Abstand von ca. einer Zeile. Wird z.B. zwischen zwei Textabsätzen
  * verwendet.
- * 
- * @author Herbert Reiter
  */
 public class VerticalSpace extends PageElement {
 

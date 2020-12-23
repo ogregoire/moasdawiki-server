@@ -26,8 +26,6 @@ import static org.testng.Assert.*;
 
 /**
  * Testet Hilfsmethoden der Klasse EscapeUtils.
- *
- * @author Herbert Reiter
  */
 @SuppressWarnings({"CharsetObjectCanBeUsed", "ConstantConditions"})
 public class EscapeUtilsTest {

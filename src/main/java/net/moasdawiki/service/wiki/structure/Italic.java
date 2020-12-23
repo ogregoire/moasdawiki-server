@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Enthält einen Textbaustein, der kursiv dargestellt werden soll.
- * 
- * @author Herbert Reiter
  */
 public class Italic extends PageElementWithChild {
 

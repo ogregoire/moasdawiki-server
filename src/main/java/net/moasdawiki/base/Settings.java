@@ -33,8 +33,6 @@ import java.util.*;
 /**
  * Reads the settings file and provides methods to get settings. Multiple
  * settings with the same key are combined to a list value.
- * 
- * @author Herbert Reiter
  */
 @SuppressWarnings("SameReturnValue")
 public class Settings {

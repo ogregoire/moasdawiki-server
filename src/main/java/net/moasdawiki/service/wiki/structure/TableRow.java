@@ -26,8 +26,6 @@ import java.util.List;
 
 /**
  * Enthält eine Zeile einer Tabelle.
- * 
- * @author Herbert Reiter
  */
 public class TableRow {
 

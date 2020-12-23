@@ -30,8 +30,6 @@ import static org.testng.Assert.*;
 
 /**
  * Testet den XML-Parser.
- *
- * @author Herbert Reiter
  */
 public class XmlParserTest {
 	private static final String XMLDECL = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";

@@ -24,8 +24,6 @@ import net.moasdawiki.util.xml.XmlRootElement;
 
 /**
  * JAXB-Bean mit dem Ergebnis der Sessionprüfung.
- *
- * @author Herbert Reiter
  */
 @XmlRootElement(name = "check-session-response")
 public class CheckSessionResponseXml extends AbstractSyncXml {

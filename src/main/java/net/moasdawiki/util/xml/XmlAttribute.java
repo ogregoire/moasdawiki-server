@@ -25,8 +25,6 @@ import java.lang.annotation.Target;
 
 /**
  * Markiert ein Bean-Feld als XML-Attribut.
- *
- * @author Herbert Reiter
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

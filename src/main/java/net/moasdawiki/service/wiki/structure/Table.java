@@ -26,8 +26,6 @@ import java.util.List;
 
 /**
  * Enthält eine Tabelle.
- * 
- * @author Herbert Reiter
  */
 public class Table extends PageElement {
 

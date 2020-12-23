@@ -30,8 +30,6 @@ import static org.testng.Assert.assertEquals;
 
 /**
  * Testet den XML-Generator.
- *
- * @author Herbert Reiter
  */
 public class XmlGeneratorTest {
 	private static final String XMLDECL = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";

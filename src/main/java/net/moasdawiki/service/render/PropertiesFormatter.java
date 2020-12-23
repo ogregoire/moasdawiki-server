@@ -27,8 +27,6 @@ import org.jetbrains.annotations.Nullable;
  * Wird für das @@-Tag benötigt.
  *
  * Ist nicht Thread-safe.
- *
- * @author Herbert Reiter
  */
 public class PropertiesFormatter {
 

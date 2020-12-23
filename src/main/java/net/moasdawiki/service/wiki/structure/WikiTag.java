@@ -28,8 +28,6 @@ import java.util.Map;
 /**
  * Generisches Tag mit der Syntax <tt>{{name:value | option1=value1 | option2}}</tt>.
  * Spezielle Varianten davon werden in eigentständige Elementtypen übersetzt.
- *
- * @author Herbert Reiter
  */
 public class WikiTag extends PageElement {
 

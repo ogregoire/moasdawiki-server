@@ -22,8 +22,6 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * General exception class.
- * 
- * @author Herbert Reiter
  */
 @SuppressWarnings("serial")
 public class ServiceException extends Exception {

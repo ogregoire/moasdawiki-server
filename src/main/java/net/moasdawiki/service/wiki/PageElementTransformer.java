@@ -25,8 +25,6 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Dieses Interface beschreibt eine Callback-Methode, die bei der Transformation
  * eines Wikibaums für jeden Knoten aufgerufen wird.
- * 
- * @author Herbert Reiter
  */
 @FunctionalInterface
 public interface PageElementTransformer {

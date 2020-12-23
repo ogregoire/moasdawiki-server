@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Repräsentiert die Liste der zuletzt geänderten Wiki-Seiten.
- * 
- * @author Herbert Reiter
  */
 public class ListEditHistory extends PageElement implements Listable {
 

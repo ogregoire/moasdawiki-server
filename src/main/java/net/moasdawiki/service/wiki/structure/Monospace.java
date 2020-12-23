@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Enthält einen Textbaustein, der mit dicktengleicher Schrift dargestellt
  * werden soll.
- * 
- * @author Herbert Reiter
  */
 public class Monospace extends PageElementWithChild {
 

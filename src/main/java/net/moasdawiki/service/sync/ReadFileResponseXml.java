@@ -24,8 +24,6 @@ import net.moasdawiki.util.xml.XmlRootElement;
 
 /**
  * JAXB-Bean mit dem Inhalt einer einzelnen Datei.
- *
- * @author Herbert Reiter
  */
 @XmlRootElement(name = "read-file-response")
 public class ReadFileResponseXml extends AbstractSyncXml {

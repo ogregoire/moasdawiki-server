@@ -50,8 +50,6 @@ import java.util.concurrent.Executors;
  * Requests würden sonst die Request-Verarbeitung blockieren, bis es zum
  * jeweiligen Timeout kommt. Siehe dazu
  * https://bugzilla.mozilla.org/show_bug.cgi?id=853423.
- * 
- * @author Herbert Reiter
  */
 public class Webserver {
 

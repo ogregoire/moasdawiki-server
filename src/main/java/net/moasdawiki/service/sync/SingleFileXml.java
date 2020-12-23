@@ -24,8 +24,6 @@ import net.moasdawiki.util.xml.XmlValue;
 
 /**
  * Enthält die Angaben für eine einzelne Repository-Datei.
- *
- * @author Herbert Reiter
  */
 @XmlRootElement(name = "file")
 public class SingleFileXml extends AbstractSyncXml {

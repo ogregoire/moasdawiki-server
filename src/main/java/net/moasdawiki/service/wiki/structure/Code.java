@@ -34,8 +34,6 @@ import org.jetbrains.annotations.Nullable;
  * oder HTML werden keinesfalls interpretiert. Wenn Wikikommandos benutzt werden
  * sollen, muss stattdessen die Inlinevariante <code>@@...@@</code> verwendet
  * werden.
- * 
- * @author Herbert Reiter
  */
 public class Code extends PageElement {
 	/**

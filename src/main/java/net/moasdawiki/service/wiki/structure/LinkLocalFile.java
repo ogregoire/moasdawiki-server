@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Link auf eine beliebige Datei im Repository, z.B. eine ZIP-Datei.
- * 
- * @author Herbert Reiter
  */
 public class LinkLocalFile extends PageElementWithChild {
 

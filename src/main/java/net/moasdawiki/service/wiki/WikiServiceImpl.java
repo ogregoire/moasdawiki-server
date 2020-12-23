@@ -42,8 +42,6 @@ import java.util.*;
  * <br>
  * Liest die Parent-Liste aus der Cachedatei. Wenn die Cachedatei nicht
  * existiert, wird sie automatisch generiert und dazu alle Wikiseiten eingelesen und geparst.
- * 
- * @author Herbert Reiter
  */
 public class WikiServiceImpl implements WikiService {
 

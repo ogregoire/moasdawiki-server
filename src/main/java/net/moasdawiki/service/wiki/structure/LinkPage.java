@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Link auf eine andere Wiki-Seite, ggf. auf einen Anker in der Seite.
- * 
- * @author Herbert Reiter
  */
 public class LinkPage extends PageElementWithChild {
 

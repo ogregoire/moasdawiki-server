@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Platzhalter, an dem der Name der Wiki-Seite eingesetzt werden soll.
- * 
- * @author Herbert Reiter
  */
 public class PageName extends PageElement {
 

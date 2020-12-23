@@ -27,8 +27,6 @@ import java.util.Map;
 
 /**
  * Platzhalter für eine Grafik, die an dieser Stelle angezeigt werden soll.
- * 
- * @author Herbert Reiter
  */
 public class Image extends PageElement {
 

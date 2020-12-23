@@ -22,8 +22,6 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Repräsentiert das aktuelle Datum und die aktuelle Uhrzeit.
- * 
- * @author Herbert Reiter
  */
 public class DateTime extends PageElement {
 

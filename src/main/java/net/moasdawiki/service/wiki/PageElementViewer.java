@@ -29,7 +29,6 @@ import org.jetbrains.annotations.NotNull;
  * Für Modifikationen ist das Interface {@link PageElementTransformer}
  * vorgesehen.
  * 
- * @author Herbert Reiter
  * @param <T> Typ des Seitenelements, die traversiert werden sollen.
  */
 public interface PageElementViewer<T extends PageElement> {

@@ -39,8 +39,6 @@ import java.util.function.Predicate;
  * Wenn eine Repository-Cachedatei vorhanden ist, wird die Dateiliste aus der
  * Cachedatei eingelesen anstatt das Repository zu scannen. Andernfalls wird das
  * Repository gescannt und die Cachedatei automatisch angelegt.
- * 
- * @author Herbert Reiter
  */
 public class FilesystemRepositoryService implements RepositoryService {
 

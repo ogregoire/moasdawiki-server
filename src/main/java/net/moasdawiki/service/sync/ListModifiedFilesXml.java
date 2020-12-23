@@ -25,8 +25,6 @@ import net.moasdawiki.util.xml.XmlRootElement;
 /**
  * JAXB-Bean mit den Anfragedaten für die Liste der modifizierten
  * Repository-Dateien auf dem Server.
- *
- * @author Herbert Reiter
  */
 @XmlRootElement(name = "list-modified-files")
 public class ListModifiedFilesXml extends AbstractSyncXml {

@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Enthält einen Textabschnitt, der direktes HTML enthält und
  * ohne Aufbereitung in den HTML-Strom ausgegeben werden soll.
- * 
- * @author Herbert Reiter
  */
 public class Html extends PageElement {
 	/**

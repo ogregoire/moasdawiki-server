@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Eine horizontale Trennlinie.
- * 
- * @author Herbert Reiter
  */
 public class Separator extends PageElement {
 

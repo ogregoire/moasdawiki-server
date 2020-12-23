@@ -33,8 +33,6 @@ import org.jetbrains.annotations.Nullable;
  * Implementiert JAXB rudimentär nach, weil es in Android nicht verfügbar ist.
  * Über Annotationen können die XML-Tagnamen und -Attributnamen gesteuert
  * werden. Der XMl-Strom muss im UTF-8-Encoding sein.
- *
- * @author Herbert Reiter
  */
 public class XmlParser {
 	@NotNull

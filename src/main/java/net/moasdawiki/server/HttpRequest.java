@@ -24,8 +24,6 @@ import java.util.Map;
 
 /**
  * Enthält die geparsten Daten eines HTTP-Requests.
- * 
- * @author Herbert Reiter
  */
 public class HttpRequest {
 

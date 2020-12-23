@@ -26,8 +26,6 @@ import org.jetbrains.annotations.Nullable;
  * <br>
  * Wenn keine derartige Formatierung gewünscht ist, müssen die Seitenelemente
  * nicht in einen Paragraph gepackt werden.
- * 
- * @author Herbert Reiter
  */
 public class Paragraph extends PageElementWithChild {
 	private final boolean centered;

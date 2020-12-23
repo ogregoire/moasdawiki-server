@@ -34,8 +34,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Hilfsmethoden zum Generieren von HTML-Seiten.
- * 
- * @author Herbert Reiter
  */
 public class HtmlService {
 

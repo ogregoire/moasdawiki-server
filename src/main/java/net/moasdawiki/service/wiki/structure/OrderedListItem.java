@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Enthält einen einzelnen, nummerierten Aufzählungspunkt. Ein Aufzählungspunkt
  * kann unterschiedliche Gliederungsebenen haben.
- * 
- * @author Herbert Reiter
  */
 public class OrderedListItem extends PageElementWithChild {
 

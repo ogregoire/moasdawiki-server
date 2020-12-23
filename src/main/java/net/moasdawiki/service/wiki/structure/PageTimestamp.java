@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Platzhalter, an dem der Zeitstempel der Wiki-Seite eingesetzt werden soll.
- * 
- * @author Herbert Reiter
  */
 public class PageTimestamp extends PageElement {
 

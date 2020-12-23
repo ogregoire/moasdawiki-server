@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Enthält einen Anker in der Wiki-Seite. Dieser Anker kann direkt durch Links
  * angesprungen werden.
- * 
- * @author Herbert Reiter
  */
 public class Anchor extends PageElement {
 	/**

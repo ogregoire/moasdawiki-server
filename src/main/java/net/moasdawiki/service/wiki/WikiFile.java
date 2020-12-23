@@ -27,8 +27,6 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Enthält den Inhalt einer Wikidatei.
- * 
- * @author Herbert Reiter
  */
 public class WikiFile {
 

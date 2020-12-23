@@ -27,8 +27,6 @@ import java.net.URLEncoder;
 
 /**
  * Helper methods to escape Strings.
- * 
- * @author Herbert Reiter
  */
 public abstract class EscapeUtils {
 

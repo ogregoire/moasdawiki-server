@@ -41,8 +41,6 @@ import net.moasdawiki.base.ServiceException;
  * </pre>
  * 
  * Diese Klasse ist Thread-safe.
- * 
- * @author Herbert Reiter
  */
 @SuppressWarnings("CharsetObjectCanBeUsed")
 public abstract class HttpRequestParser {

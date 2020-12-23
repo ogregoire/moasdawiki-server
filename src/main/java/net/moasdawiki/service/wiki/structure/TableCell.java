@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Enthält eine einzelne Tabellenzelle.
- * 
- * @author Herbert Reiter
  */
 public class TableCell {
 

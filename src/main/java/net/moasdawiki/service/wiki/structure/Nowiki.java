@@ -25,8 +25,6 @@ import org.jetbrains.annotations.Nullable;
  * Enthält einen Textabschnitt, der nicht interpretiert, sondern direkt
  * ausgegeben werden soll, so wie er ist. Evtl. enthaltene HTML-Anweisungen
  * werden umschrieben, so dass sie auch nicht vom Browser interpretiert werden.
- * 
- * @author Herbert Reiter
  */
 public class Nowiki extends PageElement {
 	/**

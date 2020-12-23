@@ -42,8 +42,6 @@ import java.util.stream.IntStream;
 
 /**
  * Implements a full-text search for the wiki repository.
- * 
- * @author Herbert Reiter
  */
 public class SearchService {
 

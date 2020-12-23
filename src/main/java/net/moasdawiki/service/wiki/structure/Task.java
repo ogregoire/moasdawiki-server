@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Beschreibt eine Aufgabe (Task) in einer Wiki-Seite.
- * 
- * @author Herbert Reiter
  */
 public class Task extends PageElement {
 

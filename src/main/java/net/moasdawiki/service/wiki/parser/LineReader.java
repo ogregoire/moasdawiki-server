@@ -28,8 +28,6 @@ import java.io.Reader;
 /**
  * Zerlegt eine Eingabe in Zeilen. Erlaubt das Zurückschreiben eines Teils einer
  * Zeile.
- * 
- * @author Herbert Reiter
  */
 public class LineReader {
 

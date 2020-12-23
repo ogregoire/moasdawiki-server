@@ -78,8 +78,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Liest eine Wiki-Seite und erzeugt daraus einen Strukturbaum (entspricht einem Parsebaum bei einer expliziten Grammatik).
- * 
- * @author Herbert Reiter
  */
 public class WikiParser {
 

@@ -28,8 +28,6 @@ import java.util.Date;
 
 /**
  * Simple logger. Writes messages to the standard output.
- * 
- * @author Herbert Reiter
  */
 public class Logger {
 

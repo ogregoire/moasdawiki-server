@@ -31,8 +31,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Helper methods to convert date formats.
- * 
- * @author Herbert Reiter
  */
 public abstract class DateUtils {
 

@@ -28,8 +28,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Stellt Hilfsmethoden zur Traversierung und Transformation von Wikiseiten zur Verfügung.
- *
- * @author Herbert Reiter
  */
 public abstract class WikiHelper {
 

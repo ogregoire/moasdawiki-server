@@ -26,8 +26,6 @@ import java.util.List;
 
 /**
  * Helper methods to generate JavaScript Strings.
- * 
- * @author Herbert Reiter
  */
 public abstract class JavaScriptUtils {
 

@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Listet alle Wiki-Seiten im Repository auf, die sich im Ordner der Wikiseite oder in einem Unterordner befinden.
  * Alternativ kann der Pfad direkt angegeben.
- * 
- * @author Herbert Reiter
  */
 public class ListUnlinkedPages extends PageElement implements Listable {
 

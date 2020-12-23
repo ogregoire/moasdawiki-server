@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Listet alle nicht vorhandenen Wikiseiten auf, auf die es mindestens einen Link gibt.
  * Diese Wikiseiten werden "wanted pages" bezeichnet.
- * 
- * @author Herbert Reiter
  */
 public class ListWantedPages extends PageElement implements Listable {
 

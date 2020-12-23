@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Contains the content of a wiki file or a section of a wiki file.
- *
- * @author Herbert Reiter
  */
 public class WikiText {
 

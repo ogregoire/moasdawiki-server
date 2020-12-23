@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Repräsentiert das Inhaltsverzeichnis der Wiki-Seite.
- * 
- * @author Herbert Reiter
  */
 public class TableOfContents extends PageElement {
 

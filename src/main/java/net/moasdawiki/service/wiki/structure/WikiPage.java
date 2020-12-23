@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 /**
  * DTO, enthält den Inhalt einer Wiki-Seite und dient als Wurzel einer
  * Wiki-Seite.
- * 
- * @author Herbert Reiter
  */
 public class WikiPage extends PageElementWithChild {
 

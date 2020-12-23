@@ -24,8 +24,6 @@ import net.moasdawiki.util.xml.XmlRootElement;
 
 /**
  * JAXB-Bean mit der zugewiesenen Session-ID.
- *
- * @author Herbert Reiter
  */
 @XmlRootElement(name = "create-session-response")
 public class CreateSessionResponseXml extends AbstractSyncXml {

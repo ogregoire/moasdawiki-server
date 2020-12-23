@@ -36,8 +36,6 @@ import org.jetbrains.annotations.NotNull;
  * <br>
  * The message key <code>wiki.messageformat.locale</code> defines the Java
  * locale to be used for date and number formatting.
- * 
- * @author Herbert Reiter
  */
 public class Messages {
 

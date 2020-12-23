@@ -32,8 +32,6 @@ import org.jetbrains.annotations.Nullable;
  * <li>Aufeinanderfolgende Element mit isInline() == true werden in dieselbe
  * Zeile gepackt.</li>
  * </ul>
- * 
- * @author Herbert Reiter
  */
 public abstract class PageElement {
 

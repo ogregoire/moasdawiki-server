@@ -23,8 +23,6 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Hauptklasse mit main()-Methode. Wird verwendet, wenn MoasdaWiki von der
  * Kommandozeile aufgerufen wird.
- * 
- * @author Herbert Reiter
  */
 public class Main {
 

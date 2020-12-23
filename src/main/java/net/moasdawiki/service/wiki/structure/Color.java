@@ -27,8 +27,6 @@ import org.jetbrains.annotations.Nullable;
  * Beispiele:
  * {{color:red}}...{{/color}}
  * {{color:#ff0000}}...{{/color}}
- *
- * @author Herbert Reiter
  */
 public class Color extends PageElementWithChild {
 

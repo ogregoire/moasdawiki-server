@@ -25,8 +25,6 @@ import java.util.Date;
 
 /**
  * Repräsentiert eine (Binär-)Datei im Wiki-Repository.
- *
- * @author Herbert Reiter
  */
 public class AnyFile {
 

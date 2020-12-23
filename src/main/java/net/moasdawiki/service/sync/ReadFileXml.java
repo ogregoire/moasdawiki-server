@@ -25,8 +25,6 @@ import net.moasdawiki.util.xml.XmlRootElement;
 /**
  * JAXB-Bean mit den Anfragedaten zum Download einer einzelnen
  * Repositorydatei.
- *
- * @author Herbert Reiter
  */
 @XmlRootElement(name = "read-file")
 public class ReadFileXml extends AbstractSyncXml {

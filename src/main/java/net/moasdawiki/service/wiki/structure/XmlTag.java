@@ -32,8 +32,6 @@ import java.util.Map;
  * hat.<br>
  * <br>
  * Beispiel: &lt;tel>0160/1234567&lt;/tel>
- * 
- * @author Herbert Reiter
  */
 public class XmlTag extends PageElementWithChild {
 

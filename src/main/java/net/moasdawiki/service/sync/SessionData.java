@@ -22,8 +22,6 @@ import java.util.Date;
 
 /**
  * Enthält die Daten einer Wiki-Client-Session.
- *
- * @author Herbert Reiter
  */
 public class SessionData {
 	public String serverSessionId;

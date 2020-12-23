@@ -27,8 +27,6 @@ import java.util.List;
 /**
  * Search result.
  * The list is sorted ascending by relevance.
- *
- * @author Herbert Reiter
  */
 public class SearchResult {
 

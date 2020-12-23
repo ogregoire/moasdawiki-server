@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Enthält reinen Text ohne weiter zu interpretierende Elemente.
- * 
- * @author Herbert Reiter
  */
 public class TextOnly extends PageElement {
 
