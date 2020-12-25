@@ -70,7 +70,9 @@ public class HtmlService {
 		StringBuilder sb = new StringBuilder();
 		sb.append(HTML_DOCUMENT_TYPE);
 		sb.append('\n');
-		sb.append("<html>\n");
+		sb.append("<html lang=\"");
+		sb.append(getLanguageCode());
+		sb.append("\">\n");
 		sb.append("<head>\n");
 
 		// Seitentitel ausgeben
@@ -118,12 +120,20 @@ public class HtmlService {
 		return response;
 	}
 
+	private String getLanguageCode() {
+		String lang = messages.getPureMessage(Messages.MESSAGEFORMAT_LOCALE_KEY);
+		if (lang == null) {
+			lang = "en";
+		}
+		return lang;
+	}
+
 	/**
 	 * Wandelt eine Wikiseite inkl. Navigation in die HTML-Darstellung um und gibt sie aus.
 	 */
 	@NotNull
 	public HttpResponse convertPage(@NotNull WikiPage wikiPage) {
-		// Platzhalter füllen und weitere Transformationen durch Plugins
+		// Platzhalter füllen und weitere Transformer ausführen
 		wikiPage = transformerService.applyTransformations(wikiPage);
 
 		// in HTML umwandeln
