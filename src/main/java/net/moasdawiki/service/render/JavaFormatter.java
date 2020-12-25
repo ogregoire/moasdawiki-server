@@ -27,10 +27,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Stellt Java-Code formatiert inkl. Syntaxhervorhebung in HTML dar.
- * Wird für das @@-Tag benötigt.
+ * Formats Java code with syntax highlighting in HTML.
  *
- * Ist nicht Thread-safe.
+ * Not thread-safe!
  */
 public class JavaFormatter {
 
@@ -42,14 +41,10 @@ public class JavaFormatter {
     private final String codeText;
 
     private int readCount;
-
-	/**
-	 * Mehrzeiliger Kommentar?
-	 */
 	private boolean insideMultilineComment;
 
     /**
-     * Konstruktor.
+     * Constructor.
      */
     public JavaFormatter(@NotNull String codeText) {
         this.codeText = codeText;
@@ -58,7 +53,7 @@ public class JavaFormatter {
     }
 
     /**
-     * Formatiert den Java-Code.
+     * Format Java code.
      */
     @NotNull
     public String format() {
@@ -106,19 +101,19 @@ public class JavaFormatter {
     }
 
     /**
-     * Liefert das nächste Token.
+     * Return next token.
 	 *
-	 * Bezeichner und Kommentare werden jeweils als ein Token behandelt.
-	 * Ein Zeilenumbruch wird stets normiert als '\n' zurückgegeben, '\r' wird entfernt.
+     * Identifiers and comments are handled as a single token.
+     * Line breaks result in a '\n' character, '\r' will be removed.
      *
-     * @return <code>null</code> --> Ende erreicht.
+     * @return <code>null</code> --> no more token available.
      */
     @Nullable
     private Token nextToken() {
         StringBuilder identifier = null;
         StringBuilder comment = null;
         StringBuilder string = null;
-        char stringQuote = '\0'; // '/", nur wenn string != null
+        char stringQuote = '\0'; // '"' only if string != null
 
         while (readCount < codeText.length()) {
             char ch = codeText.charAt(readCount);
@@ -130,74 +125,74 @@ public class JavaFormatter {
 
             //noinspection StatementWithEmptyBody
             if (ch == '\r') {
-                // ignorieren, nur \n wird als Zeilenumbruch gewertet
+                // ignore '\r' character, line breaks are represented by '\n'
             }
 
-            // innerhalb Java-Bezeichner
+            // inside Java identifier
             else if (identifier != null && !Character.isJavaIdentifierPart(ch)) {
-                // Bezeichner ist zu Ende
-                readCount--; // nächstes Zeichen noch nicht konsumieren
+                // end of identifier
+                readCount--; // don't consume next character yet
                 return new Token(identifier.toString(), TokenType.IDENTIFIER);
             }
 
-            // innerhalb Java-String
+            // inside Java String
             else if (string != null && ch == '\n') {
-                // String muss am Zeilenende abgebrochen werden
-                readCount--; // Zeilenumbruch noch nicht konsumieren
+                // String stops at line end
+                readCount--; // don't consume line break yet
                 return new Token(string.toString(), TokenType.STRING);
             } else if (string != null && ch == stringQuote) {
-                // String ist zu Ende
+                // end of String
                 string.append(ch);
                 return new Token(string.toString(), TokenType.STRING);
             } else if (string != null) {
                 string.append(ch);
                 if (ch == '\\' && chLookahead != '\0') {
                     string.append(chLookahead);
-                    readCount++; // nächstes Zeichen auch konsumieren
+                    readCount++; // consume also next character
                 }
             }
 
-            // innerhalb Kommentar
+            // inside comment
             else if (insideMultilineComment && ch == '*' && chLookahead == '/') {
-                // Ende des mehrzeiligen Kommentars erreicht
+                // end of multi-line comment
                 if (comment == null) {
                     comment = new StringBuilder();
                 }
                 comment.append("*/");
-                readCount++; // zweites Zeichen konsumieren
+                readCount++; // consume also second character
                 insideMultilineComment = false;
                 return new Token(comment.toString(), TokenType.COMMENT);
             } else if (insideMultilineComment && comment != null && ch == '\n') {
-                // Zeilenende erreicht
-                readCount--; // Zeilenumbruch noch nicht konsumieren
+                // end of line
+                readCount--; // don't consume line break yet
                 return new Token(comment.toString(), TokenType.COMMENT);
             } else if (insideMultilineComment && ch != '\n') {
-                // weiter im mehrzeiligen Kommentar
+                // multi-line comment continues
                 if (comment == null) {
                     comment = new StringBuilder();
                 }
                 comment.append(ch);
             } else if (!insideMultilineComment && comment != null && ch == '\n') {
-                // Ende des einzeiligen Kommentars
-                readCount--; // Zeilenumbruch noch nicht konsumieren
+                // end of single-line comment
+                readCount--; // don't consume line break yet
                 return new Token(comment.toString(), TokenType.COMMENT);
             } else if (!insideMultilineComment && comment != null) {
-                // weiter im einzeiligen Kommentar
+                // single-line comment continues
                 comment.append(ch);
             }
 
-            // Kommentar beginnt
+            // begin of comment
             else if (ch == '/' && chLookahead == '*') {
-                // Beginn eines mehrzeiligen Kommentars
+                // begin of multi-line comment
                 //noinspection ConstantConditions
                 if (comment == null) {
                     comment = new StringBuilder();
                 }
                 comment.append("/*");
-                readCount++; // zweites Zeichen konsumieren
+                readCount++; // consume also second character
                 insideMultilineComment = true;
             } else if (ch == '/' && chLookahead == '/') {
-                // Beginn eines einzeiligen Kommentars
+                // begin of single-line comment
                 //noinspection ConstantConditions
                 if (comment == null) {
                     comment = new StringBuilder();
@@ -205,7 +200,7 @@ public class JavaFormatter {
                 comment.append(ch);
             }
 
-            // Java-Bezeichner beginnt
+            // begin of Java identifier
             else if (Character.isJavaIdentifierPart(ch)) {
                 if (identifier == null) {
                     identifier = new StringBuilder();
@@ -213,7 +208,7 @@ public class JavaFormatter {
                 identifier.append(ch);
             }
 
-            // Java-String beginnt
+            // begin of Java String
             else if (ch == '\"' || ch == '\'') {
                 //noinspection ConstantConditions
                 if (string == null) {
@@ -223,16 +218,16 @@ public class JavaFormatter {
                 string.append(ch);
             }
 
-            // sonstige Zeichen
+            // other characters
             else if (ch == '\n') {
                 return new Token("\n", TokenType.LINE_BREAK);
             } else {
-                // irgendein Sonderzeichen
+                // any special character
                 return new Token("" + ch, TokenType.ANY);
             }
         }
 
-        // Ende erreicht, offene Token abschließen
+        // finally close open tokens
         if (identifier != null) {
             return new Token(identifier.toString(), TokenType.IDENTIFIER);
         } else if (comment != null) {
@@ -240,20 +235,20 @@ public class JavaFormatter {
         } else if (string != null) {
             return new Token(string.toString(), TokenType.STRING);
         } else {
-            // kein weiteres Token mehr
+            // no more token available
             return null;
         }
     }
 
     /**
-     * Token-Typ
+     * Token type
      */
     private enum TokenType {
         COMMENT, IDENTIFIER, STRING, LINE_BREAK, ANY
     }
 
     /**
-     * Enthält ein einzelnes Token.
+     * Represents a single token
      */
     private static class Token {
         @NotNull

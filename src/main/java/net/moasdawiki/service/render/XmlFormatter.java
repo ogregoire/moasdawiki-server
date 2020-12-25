@@ -23,10 +23,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Stellt XML- und HTML-Code formatiert inkl. Syntaxhervorhebung in HTML dar.
- * Wird für das @@-Tag benötigt.
+ * Formats XML and HTML code with syntax highlighting in HTML
  *
- * Ist nicht Thread-safe.
+ * Not thread-safe!
  */
 public class XmlFormatter {
 
@@ -39,7 +38,7 @@ public class XmlFormatter {
 	private TokenType nextTokenType;
 
 	/**
-	 * Konstruktor.
+	 * Constructor.
 	 */
 	public XmlFormatter(@NotNull String codeText) {
 		this.codeText = codeText;
@@ -48,7 +47,7 @@ public class XmlFormatter {
 	}
 
 	/**
-	 * Formatiert den XML-Code.
+	 * Format XML code.
 	 */
 	public String format() {
 		StringBuilder sb = new StringBuilder();
@@ -99,17 +98,18 @@ public class XmlFormatter {
 	}
 
 	/**
-	 * Liefert das nächste Token. Bezeichner und Kommentare werden jeweils als
-	 * ein Token behandelt. Ein Zeilenumbruch wird stets normiert als '\n'
-	 * zurückgegeben, '\r' wird entfernt.
-	 * 
-	 * @return <code>null</code> --> Ende erreicht.
+	 * Return next token.
+	 *
+	 * Identifiers and comments are handled as a single token.
+	 * Line breaks result in a '\n' character, '\r' will be removed.
+	 *
+	 * @return <code>null</code> --> no more token available.
 	 */
 	@Nullable
 	private Token nextToken() {
 		StringBuilder tokenText = null;
-		TokenType tokenType = null; // nur wenn tokenText != null
-		char stringQuote = '\0'; // '"' oder '\''; nur relevant wenn tokenType == ATTRIBUTE_VALUE
+		TokenType tokenType = null; // only if tokenText != null
+		char stringQuote = '\0'; // '"' or '\''; only relevant if tokenType == ATTRIBUTE_VALUE
 
 		while (readCount < codeText.length()) {
 			char ch = codeText.charAt(readCount);
@@ -129,60 +129,60 @@ public class XmlFormatter {
 
 			//noinspection StatementWithEmptyBody
 			if (ch == '\r') {
-				// ignorieren, nur \n wird als Zeilenumbruch gewertet
+				// ignore '\r' character, line breaks are represented by '\n'
 			}
 
-			// innerhalb mehrzeiligem Kommentar
+			// inside multi-line comment
 			else if (tokenText != null && tokenType == TokenType.COMMENT && ch == '-' && chLookahead1 == '-') {
-				// Kommentar zu Ende
+				// end of comment
 				tokenText.append("--");
-				readCount++; // nächstes Zeichen auch konsumieren
+				readCount++; // consume also next character
 				if (chLookahead2 == '>') {
-					readCount++; // nächstes Zeichen auch konsumieren
+					readCount++; // consume also next character
 					tokenText.append('>');
 				}
 				nextTokenType = TokenType.TEXT;
 				return new Token(tokenText.toString(), TokenType.COMMENT);
 			} else if (tokenText != null && tokenType == TokenType.COMMENT && ch == '\n') {
-				// Zeilenwechsel innerhalb des Kommentars
-				readCount--; // nächstes Zeichen noch nicht konsumieren
+				// line break inside comment
+				readCount--; // don't consume next character yet
 				nextTokenType = TokenType.COMMENT;
 				return new Token(tokenText.toString(), TokenType.COMMENT);
 			} else if (tokenText != null && tokenType == TokenType.COMMENT) {
 				tokenText.append(ch);
 			}
 
-			// innerhalb CDATA
+			// inside CDATA
 			else if (tokenText != null && tokenType == TokenType.CDATA && ch == '\n') {
-				// Zeilenwechsel
-				readCount--; // nächstes Zeichen noch nicht konsumieren
+				// line break
+				readCount--; // don't consume next character yet
 				nextTokenType = TokenType.CDATA;
 				return new Token(tokenText.toString(), TokenType.TEXT);
 			} else if (tokenText != null && tokenType == TokenType.CDATA && tokenText.length() > 0
 					&& (ch == ']' && chLookahead1 == ']' && chLookahead2 == '>')) {
-				// CDATA zu Ende, Resttext zurückgeben
-				readCount--; // nächstes Zeichen noch nicht konsumieren
+				// end of CDATA, return rest
+				readCount--; // don't consume next character yet
 				nextTokenType = TokenType.CDATA;
 				return new Token(tokenText.toString(), TokenType.TEXT);
 			} else if (tokenText != null && tokenType == TokenType.CDATA && tokenText.length() == 0
 					&& ch == ']' && chLookahead1 == ']' && chLookahead2 == '>') {
-				// CDATA zu Ende, Ende-Token zurückgeben
+				// end of CDATA, return end token
 				tokenText.append("]]>");
-				readCount += 2; // nächste zwei Zeichen auch konsumieren
+				readCount += 2; // consume also next 2 characters
 				nextTokenType = TokenType.TEXT;
 				return new Token(tokenText.toString(), TokenType.TAG);
 			} else if (tokenText != null && tokenType == TokenType.CDATA) {
 				tokenText.append(ch);
 			}
 
-			// innerhalb DOCTYPE
+			// inside DOCTYPE
 			else if (tokenText != null && tokenType == TokenType.DOCTYPE && ch == '\n') {
-				// Zeilenwechsel
-				readCount--; // nächstes Zeichen noch nicht konsumieren
+				// line break
+				readCount--; // don't consume next character yet
 				nextTokenType = TokenType.DOCTYPE;
 				return new Token(tokenText.toString(), TokenType.TAG);
 			} else if (tokenText != null && tokenType == TokenType.DOCTYPE && ch == '>') {
-				// DOCTYPE zu Ende
+				// end of DOCTYPE
 				tokenText.append(ch);
 				nextTokenType = TokenType.TEXT;
 				return new Token(tokenText.toString(), TokenType.TAG);
@@ -190,138 +190,135 @@ public class XmlFormatter {
 				tokenText.append(ch);
 			}
 
-			// innerhalb Tagklammer
+			// inside tag declaration
 			else if (tokenText != null && tokenType == TokenType.TAG && (ch == ' ' || ch == '\n')) {
-				// Tag-Name zu Ende
-				readCount--; // nächstes Zeichen noch nicht konsumieren
+				// end of tag name
+				readCount--; // don't consume next character yet
 				nextTokenType = TokenType.ATTRIBUTE_NAME;
 				return new Token(tokenText.toString(), TokenType.TAG);
 			} else if (tokenText != null && tokenType == TokenType.TAG && ch == '>') {
-				// Tag zu Ende
+				// end of tag
 				tokenText.append(ch);
 				nextTokenType = TokenType.TEXT;
 				return new Token(tokenText.toString(), TokenType.TAG);
 			} else if (tokenText != null && tokenType == TokenType.TAG && (ch == '/' || ch == '?') && chLookahead1 == '>') {
-				// Tag zu Ende
+				// end of tag
 				tokenText.append(ch);
 				tokenText.append(chLookahead1);
-				readCount++; // nächstes Zeichen auch konsumieren
+				readCount++; // consume also next character
 				nextTokenType = TokenType.TEXT;
 				return new Token(tokenText.toString(), TokenType.TAG);
 			} else if (tokenText != null && tokenType == TokenType.TAG) {
 				tokenText.append(ch);
 			}
 
-			// innerhalb Attributname
+			// inside attribute name
 			else if (tokenText != null && tokenType == TokenType.ATTRIBUTE_NAME && (ch == '=' || Character.isWhitespace(ch) || ch == '\n')) {
-				// Attributname zu Ende
-				readCount--; // nächstes Zeichen noch nicht konsumieren
-				// auf ATTRIBUTE_VALUE erst durch '=' umschalten
+				// end of attribute name
+				readCount--; // don't consume next character yet
+				// wait for '=' to switch to ATTRIBUTE_VALUE
 				nextTokenType = TokenType.ATTRIBUTE_NAME;
 				return new Token(tokenText.toString(), TokenType.ATTRIBUTE_NAME);
 			} else if (tokenText != null && tokenType == TokenType.ATTRIBUTE_NAME && (ch == '/' || ch == '?' || ch == '>')) {
-				// Attributname zu Ende
-				readCount--; // nächstes Zeichen noch nicht konsumieren
+				// end of attribute name
+				readCount--; // don't consume next character yet
 				nextTokenType = TokenType.TAG;
 				return new Token(tokenText.toString(), TokenType.ATTRIBUTE_NAME);
 			} else if (tokenText != null && tokenType == TokenType.ATTRIBUTE_NAME) {
 				tokenText.append(ch);
 			}
 
-			// innerhalb Attributwert
+			// inside attribute value
 			else if (tokenText != null && tokenType == TokenType.ATTRIBUTE_VALUE && ch == stringQuote && stringQuote != '\0') {
-				// Attributwert zu Ende
+				// end of attribute value
 				tokenText.append(ch);
 				nextTokenType = TokenType.ATTRIBUTE_NAME;
 				return new Token(tokenText.toString(), TokenType.ATTRIBUTE_VALUE);
 			} else if (tokenText != null && tokenType == TokenType.ATTRIBUTE_VALUE
 					&& (ch == '\n' || (ch == '/' || ch == '?' || ch == '>' || ch == ' ') && stringQuote == '\0')) {
-				// Attributwert zu Ende
-				readCount--; // nächstes Zeichen noch nicht konsumieren
+				// end of attribute value
+				readCount--; // don't consume next character yet
 				nextTokenType = TokenType.ATTRIBUTE_NAME;
 				return new Token(tokenText.toString(), TokenType.ATTRIBUTE_VALUE);
 			} else if (tokenText != null && tokenType == TokenType.ATTRIBUTE_VALUE) {
 				tokenText.append(ch);
 			}
 
-			// innerhalb Escape-Sequenz
+			// inside escape sequence
 			else if (tokenText != null && tokenType == TokenType.ESCAPED_CHARACTER && ch == ';') {
-				// Escape-Sequenz zu Ende
+				// end of escape sequence
 				tokenText.append(ch);
 				nextTokenType = TokenType.TEXT;
 				return new Token(tokenText.toString(), TokenType.ESCAPED_CHARACTER);
 			} else if (tokenText != null && tokenType == TokenType.ESCAPED_CHARACTER && (ch == ' ' || ch == '\n')) {
-				// Escape-Sequenz abgebrochen
-				readCount--; // nächstes Zeichen noch nicht konsumieren
+				// cancel escape sequence
+				readCount--; // don't consume next character yet
 				nextTokenType = TokenType.TEXT;
 				return new Token(tokenText.toString(), TokenType.ESCAPED_CHARACTER);
 			} else if (tokenText != null && tokenType == TokenType.ESCAPED_CHARACTER) {
 				tokenText.append(ch);
 			}
 
-			// innerhalb normalem Text oder Tag-Zwischenraum
+			// inside normal text or between tags
 			else if (tokenText != null && tokenType == TokenType.TEXT && (ch == '<' || ch == '&' || ch == '\n'
 					|| (nextTokenType == TokenType.ATTRIBUTE_NAME || nextTokenType == TokenType.ATTRIBUTE_VALUE) && !Character.isWhitespace(ch))) {
-				// normaler Text ist zu Ende
-				readCount--; // nächstes Zeichen noch nicht konsumieren
+				// end of normal text
+				readCount--; // don't consume next character yet
 				return new Token(tokenText.toString(), TokenType.TEXT);
 			} else if (tokenText != null && tokenType == TokenType.TEXT) {
 				tokenText.append(ch);
 			}
 
-			// Zeilenumbruch
+			// line break
 			else if (ch == '\n') {
 				return new Token("\n", TokenType.LINE_BREAK);
 			}
 
-			// Kommentar beginnt
+			// end of comment
 			else if (nextTokenType == TokenType.COMMENT) {
-				// Kommentar geht nach einem Zeilenwechsel weiter
+				// comment continues after line break
 				tokenText = new StringBuilder();
 				tokenType = TokenType.COMMENT;
-				// Kommentar selbst wird weiter oben eingelesen, damit auch die
-				// Endebedingung "-->" gleich am Zeilenanfang korrekt erkannt
-				// wird
+				// comment is read above, to detect the end condition "-->"
+				// at the beginning of a line correctly
 				readCount--;
 			} else if (ch == '<' && chLookahead1 == '!' && chLookahead2 == '-' && chLookahead3 == '-') {
 				tokenText = new StringBuilder();
 				tokenText.append("<!--");
-				readCount += 3; // weitere 3 Zeichen konsumieren
+				readCount += 3; // consume 3 more characters
 				tokenType = TokenType.COMMENT;
 			}
 
-			// CDATA beginnt
+			// begin of CDATA
 			else if (nextTokenType == TokenType.CDATA) {
-				// CDATA geht nach einem Zeilenwechsel weiter
+				// CDATA continues after line break
 				tokenText = new StringBuilder();
 				tokenType = TokenType.CDATA;
-				// CDATA selbst wird weiter oben eingelesen, damit auch die
-				// Endebedingung "]]>" gleich am Zeilenanfang korrekt erkannt
-				// wird
+				// CDATA is read above, to detect the end condition "]]>"
+				// at the begining of a line correctly
 				readCount--;
 			} else if (ch == '<' && chLookahead1 == '!' && readCount + 7 < codeText.length() && codeText.startsWith("![CDATA[", readCount)) {
-				readCount += 8; // weitere 8 Zeichen konsumieren
+				readCount += 8; // consume 8 more characters
 				nextTokenType = TokenType.CDATA;
 				return new Token("<![CDATA[", TokenType.TAG);
 			}
 			
-			// DOCTYPE beginnt
+			// begin of DOCTYPE
 			else if (nextTokenType == TokenType.DOCTYPE) {
-				// DOCTYPE geht nach einem Zeilenwechsel weiter
+				// DOCTYPE continues after a line break
 				tokenText = new StringBuilder();
 				tokenType = TokenType.DOCTYPE;
-				// DOCTYPE selbst wird weiter oben eingelesen, damit auch die
-				// Endebedingung ">" gleich am Zeilenanfang korrekt erkannt
-				// wird
+				// DOCTYPE is read above, to detect the end condition ">"
+				// at the begining of a line correctly
 				readCount--;
 			} else if (ch == '<' && chLookahead1 == '!' && readCount + 7 < codeText.length() && codeText.startsWith("!DOCTYPE", readCount)) {
 				tokenText = new StringBuilder();
 				tokenText.append("<!DOCTYPE");
-				readCount += 8; // weitere 8 Zeichen konsumieren
+				readCount += 8; // consume 8 more characters
 				tokenType = TokenType.DOCTYPE;
 			}
 			
-			// Tag beginnt
+			// begin of tag
 			else if (ch == '<') {
 				tokenText = new StringBuilder();
 				tokenText.append(ch);
@@ -330,26 +327,25 @@ public class XmlFormatter {
 					&& (ch == '/' || ch == '?' || ch == '>')) {
 				tokenText = new StringBuilder();
 				tokenType = TokenType.TAG;
-				// Tag selbst wird weiter oben eingelesen, um doppelten Code zu
-				// vermeiden
+				// tag itself is read above, to avoid duplicated code
 				readCount--;
 			}
 
-			// Escape-Sequenz beginnt
+			// begin of escape sequence
 			else if (ch == '&') {
 				tokenText = new StringBuilder();
 				tokenText.append(ch);
 				tokenType = TokenType.ESCAPED_CHARACTER;
 			}
 
-			// Attributname beginnt
+			// begin of attribute name
 			else if (nextTokenType == TokenType.ATTRIBUTE_NAME && Character.isJavaIdentifierStart(ch)) {
 				tokenText = new StringBuilder();
 				tokenText.append(ch);
 				tokenType = TokenType.ATTRIBUTE_NAME;
 			}
 
-			// Attributwert beginnt
+			// begin of attribute value
 			else if (nextTokenType == TokenType.ATTRIBUTE_NAME && ch == '=') {
 				tokenText = new StringBuilder();
 				tokenText.append(ch);
@@ -366,7 +362,7 @@ public class XmlFormatter {
 				}
 			}
 
-			// normaler Text beginnt
+			// begin of normal text
 			else {
 				tokenText = new StringBuilder();
 				tokenText.append(ch);
@@ -374,24 +370,24 @@ public class XmlFormatter {
 			}
 		}
 
-		// Ende erreicht, offene Token abschließen
+		// finally close open tokens
 		if (tokenText != null) {
 			return new Token(tokenText.toString(), tokenType);
 		} else {
-			// kein weiteres Token mehr
+			// no more token available
 			return null;
 		}
 	}
 
 	/**
-	 * Token-Typ
+	 * Token type
 	 */
 	private enum TokenType {
 		COMMENT, CDATA, DOCTYPE, TAG, ATTRIBUTE_NAME, ATTRIBUTE_VALUE, ESCAPED_CHARACTER, LINE_BREAK, TEXT
 	}
 
 	/**
-	 * Enthält ein einzelnes Token.
+	 * Represents a single token
 	 */
 	private static class Token {
 		@NotNull

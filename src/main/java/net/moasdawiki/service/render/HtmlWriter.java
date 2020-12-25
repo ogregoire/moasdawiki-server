@@ -27,102 +27,84 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Erzeugt formatiertes HTML. Transportklasse.
+ * Helper class to generate valid HTML.
  */
 public class HtmlWriter {
 
 	/**
-	 * Mögliche Request-Methoden in HTML-Formularen.
+	 * HTTP request methods (we only need those two)
 	 */
 	public enum Method {
 		GET, POST
 	}
 
 	/**
-	 * Titel der HTML-Seite. null -> kein Titel.
+	 * Web page title; null -> no title.
 	 */
 	@Nullable
 	private String title;
 
 	/**
-	 * Optionale Parameter des body-Tags. null -> keine Parameter.
+	 * HTML body tag attributes; null -> no attributes.
 	 */
 	@Nullable
 	private String bodyParams;
 
 	/**
-	 * Inhalt des HTML-Body.
+	 * HTML body content.
 	 */
 	@NotNull
 	private final ArrayList<String> bodyText;
 
 	/**
-	 * Stack der geöffneten HTML-Tags.
+	 * Open HTML tag stack.
 	 */
 	@NotNull
 	private final Stack<String> tagStack;
 
 	/**
-	 * Weiteren HTML-Text in eine neue Zeile schreiben?
+	 * Add line break before adding text?
 	 */
 	private boolean continueInNewLine;
 
+	/**
+	 * Constructor.
+	 */
 	public HtmlWriter() {
 		super();
 		bodyText = new ArrayList<>();
 		tagStack = new Stack<>();
-		// an Anfang muss eine neue Zeile erzeugt werden
+		// add line break at the beginning
 		continueInNewLine = true;
 	}
 
-	/**
-	 * Setzt den Titel der HTML-Seite.
-	 * 
-	 * @param title Titel der HTML-Seite.
-	 */
 	public void setTitle(@Nullable String title) {
 		this.title = title;
 	}
 
-	/**
-	 * Gibt den Titel der HTML-Seite zurück.
-	 */
 	@Nullable
 	public String getTitle() {
 		return title;
 	}
 
-	/**
-	 * Gibt die Parameter des body-Tags zurück.
-	 */
 	@Nullable
 	public String getBodyParams() {
 		return bodyParams;
 	}
 
-	/**
-	 * Setzt die Parameter des body-Tags.
-	 * 
-	 * @param bodyParams Parameter. null -> keine Parameter.
-	 */
 	public void setBodyParams(@Nullable String bodyParams) {
 		this.bodyParams = bodyParams;
 	}
 
-	/**
-	 * Schreibt künftigen HTML-Text in eine neue Zeile.
-	 */
 	public void setContinueInNewLine() {
 		continueInNewLine = true;
 	}
 
 	/**
-	 * Fügt einen beliebigen HTML-Text ein.
+	 * Add raw HTML content.
 	 */
 	public void htmlText(@Nullable String text) {
-		// ggf. eine neue Zeile anfangen
 		if (continueInNewLine) {
-			// Einzug mit Leerzeichen ermitteln und eintragen
 			StringBuilder s = new StringBuilder();
 			for (int i = 1; i <= tagStack.size(); i++) {
 				s.append("  ");
@@ -132,7 +114,6 @@ public class HtmlWriter {
 			continueInNewLine = false;
 		}
 
-		// Text an aktuelle Zeile anhängen
 		if (text != null) {
 			int index = bodyText.size() - 1;
 			String line = bodyText.get(index);
@@ -142,25 +123,31 @@ public class HtmlWriter {
 	}
 
 	/**
-	 * Fügt einen HTML-Zeilenumbruch &lt;br&gt; ein.
+	 * Add a HTML line break &lt;br&gt;.
 	 */
 	public void htmlNewLine() {
 		htmlText("<br>");
 		setContinueInNewLine();
 	}
 
+	/**
+	 * Open a HTML tag.
+	 *
+	 * @param tagName HTML tag name.
+	 * @return Tag stack depth before the new tag.
+	 *         Can be used with {@link #closeTags(int)} to close several tags at once.
+	 */
 	public int openTag(@NotNull String tagName) {
 		return openTag(tagName, null);
 	}
 
 	/**
-	 * Öffnet ein Tag in der HTML-Ausgabe.
-	 * 
-	 * @param tagName Name des Tags.
-	 * @param params Evtl. Parameter im HTML-Format. null = keine Parameter
-	 * @return Gibt die Stacktiefe vor dem Öffnen des neuen Tags zurück. Diese
-	 *         kann für {@link #closeTags(int)} verwendet werden, um offen
-	 *         gebliebene Tags (z.B. einer Aufzählung) zu schließen).
+	 * Open a HTML tag.
+	 *
+	 * @param tagName HTML tag name.
+	 * @param params HTML tag attributes. null -> no attributes.
+	 * @return Tag stack depth before the new tag.
+	 *         Can be used with {@link #closeTags(int)} to close several tags at once.
 	 */
 	public int openTag(@NotNull String tagName, @Nullable String params) {
 		if (params != null && params.length() > 0) {
@@ -172,10 +159,16 @@ public class HtmlWriter {
 		return tagStack.size() - 1;
 	}
 
+	/**
+	 * Open a HTML div tag.
+	 */
 	public int openDivTag(@NotNull String stylesheetClass) {
 		return openDivTag(stylesheetClass, null);
 	}
 
+	/**
+	 * Open a HTML div tag.
+	 */
 	public int openDivTag(@Nullable String stylesheetClass, @Nullable String params) {
 		StringBuilder tagParams = new StringBuilder();
 		if (stylesheetClass != null) {
@@ -192,15 +185,24 @@ public class HtmlWriter {
 		return openTag("div", tagParams.toString());
 	}
 
+	/**
+	 * Open a HTML span tag.
+	 */
 	public int openSpanTag(@Nullable String stylesheetClass) {
 		return openTag("span", "class=\"" + EscapeUtils.escapeHtml(stylesheetClass) + "\"");
 	}
 
+	/**
+	 * Open a HTML form tag.
+	 */
 	@SuppressWarnings("UnusedReturnValue")
 	public int openFormTag(@Nullable String name) {
 		return openFormTag(name, null, null);
 	}
 
+	/**
+	 * Open a HTML form tag.
+	 */
 	public int openFormTag(@Nullable String name, @Nullable String action, @Nullable Method method) {
 		StringBuilder params = new StringBuilder();
 		params.append("method=\"");
@@ -225,8 +227,8 @@ public class HtmlWriter {
 	}
 
 	/**
-	 * Schließt das zuletzt geöffnete Tag.
-	 * Wenn kein Tag offen ist, passiert nichts.
+	 * Close the last opened HTML tag.
+	 * If no HTML tag is open nothing happens.
 	 */
 	public void closeTag() {
 		if (!tagStack.empty()) {
@@ -236,8 +238,9 @@ public class HtmlWriter {
 	}
 
 	/**
-	 * Schließt offene Tags bis zur angegebenen Stacktiefe.
-	 * 0 = alle Tags schließen.
+	 * Close all open HTML tags until the given stack depth.
+	 *
+	 * @param stackDepth Stack depth; 0 -> close all open tags.
 	 */
 	public void closeTags(int stackDepth) {
 		while (tagStack.size() > stackDepth) {
@@ -245,13 +248,16 @@ public class HtmlWriter {
 		}
 	}
 
+	/**
+	 * Close all open HTML tags.
+	 */
 	public void closeAllTags() {
 		closeTags(0);
 	}
 
 	/**
-	 * Gibt das zuletzt geöffnete, noch offene Tag zurück.
-	 * Wenn kein Tag offen ist, wird null zurückgegeben.
+	 * Return the last opened HTML tag that hasn't been closed.
+	 * Returns null if there is no open tag.
 	 */
 	@Nullable
 	public String getCurrentTag() {
@@ -259,25 +265,25 @@ public class HtmlWriter {
 	}
 
 	/**
-	 * Gibt ein zuvor geöffnetes Tag zurück.
+	 * Return the last opened HTML tag at the given relative stack depth.
+	 * Returns null if there is no open tag.
 	 *
-	 * @param downStack Anzahl Stack-Ebenen tiefer nachschauen; 0 -> zuletzt geöffnetes Tag.
+	 * @param downStack Number of stack levels below current level; 0 -> current level.
 	 */
 	@Nullable
 	public String getCurrentTag(int downStack) {
 		if (tagStack.size() > downStack && downStack >= 0) {
 			return tagStack.elementAt(tagStack.size() - 1 - downStack);
 		} else {
-			// Stack ist nicht so groß
+			// not in stack
 			return null;
 		}
 	}
 
 	/**
-	 * Fügt den Body des angegebenen HtmlWriter ein.
+	 * Add HTML content of a {@link HtmlWriter}.
 	 */
 	public void addHtmlWriter(@NotNull HtmlWriter htmlWriter) {
-		// evtl. offene Tags schließen
 		htmlWriter.closeAllTags();
 		for (String line : htmlWriter.bodyText) {
 			setContinueInNewLine();

@@ -23,10 +23,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Stellt eine Properties-Datei formatiert inkl. Syntaxhervorhebung in HTML dar.
- * Wird für das @@-Tag benötigt.
+ * Formats a Properties file with syntax highlighting in HTML.
  *
- * Ist nicht Thread-safe.
+ * Not thread-safe!
  */
 public class PropertiesFormatter {
 
@@ -39,7 +38,7 @@ public class PropertiesFormatter {
 	private TokenType nextTokenType;
 
 	/**
-	 * Konstruktor.
+	 * Constructor.
 	 */
 	public PropertiesFormatter(@NotNull String propertiesText) {
 		this.propertiesText = propertiesText;
@@ -48,7 +47,7 @@ public class PropertiesFormatter {
 	}
 
 	/**
-	 * Formatiert die Properties.
+	 * Format Properties.
 	 */
 	@NotNull
 	public String format() {
@@ -96,10 +95,11 @@ public class PropertiesFormatter {
 	}
 
 	/**
-	 * Liefert das nächste Token.
-	 * Ein Zeilenumbruch wird stets normiert als '\n' zurückgegeben, '\r' wird entfernt.
-	 * 
-	 * @return <code>null</code> --> Ende erreicht.
+	 * Return next token.
+	 *
+	 * Line breaks result in a '\n' character, '\r' will be removed.
+	 *
+	 * @return <code>null</code> --> no more token available.
 	 */
 	@SuppressWarnings("ConstantConditions")
 	@Nullable
@@ -117,81 +117,81 @@ public class PropertiesFormatter {
 
 			//noinspection StatementWithEmptyBody
 			if (ch == '\r') {
-				// ignorieren, nur \n wird als Zeilenumbruch gewertet
+				// ignore '\r' character, line breaks are represented by '\n'
 			}
 
-			// innerhalb Kommentarzeile
+			// inside comment
 			else if (tokenText != null && tokenType == TokenType.COMMENT && ch == '\n') {
-				// Ende der Kommentarzeile
-				readCount--; // nächstes Zeichen noch nicht konsumieren
+				// end of comment
+				readCount--; // don't consume next character yet
 				nextTokenType = TokenType.KEY;
 				return new Token(tokenText.toString(), TokenType.COMMENT);
 			} else if (tokenText != null && tokenType == TokenType.COMMENT) {
 				tokenText.append(ch);
 			}
 
-			// innerhalb Schlüssel
+			// inside of key
 			else if (tokenText != null && tokenType == TokenType.KEY && (ch == ' ' || ch == '=' || ch == ':' || ch == '\n')) {
-				// Schlüssel zu Ende
-				readCount--; // nächstes Zeichen noch nicht konsumieren
+				// end of key
+				readCount--; // don't consume next character yet
 				nextTokenType = TokenType.DELIMITER;
 				return new Token(tokenText.toString(), TokenType.KEY);
 			} else if (tokenText != null && tokenType == TokenType.KEY) {
 				tokenText.append(ch);
 			}
 
-			// innerhalb Wert des Schlüssels
+			// inside of value of a key
 			else if (tokenText != null && tokenType == TokenType.VALUE && ch == '\n') {
-				// Wert zu Ende
-				readCount--; // nächstes Zeichen noch nicht konsumieren
+				// end of value
+				readCount--; // don't consume next character yet
 				nextTokenType = TokenType.KEY;
 				return new Token(tokenText.toString(), TokenType.VALUE);
 			} else if (tokenText != null && tokenType == TokenType.VALUE) {
 				tokenText.append(ch);
 			}
 
-			// innerhalb white-space
+			// inside white-space
 			else if (tokenText != null && tokenType == TokenType.WHITE_SPACE && ch != ' ' && ch != '\t') {
-				// zu Ende
-				readCount--; // nächstes Zeichen noch nicht konsumieren
+				// end of white-space
+				readCount--; // don't consume next character yet
 				return new Token(tokenText.toString(), TokenType.WHITE_SPACE);
 			} else if (tokenText != null && tokenType == TokenType.WHITE_SPACE) {
 				tokenText.append(ch);
 			}
 
-			// Zeilenumbruch
+			// line break
 			else if (ch == '\n') {
 				return new Token("\n", TokenType.LINE_BREAK);
 			}
 
-			// Kommentarzeile beginnt
+			// begin of comment
 			else if (nextTokenType == TokenType.KEY && (ch == '#' || ch == ';' || ch == '/' && chLookahead1 == '/')) {
 				tokenText = new StringBuilder();
 				tokenType = TokenType.COMMENT;
 				tokenText.append(ch);
 			}
 
-			// white-space beginnt
+			// begin of white-space
 			else if (tokenText == null && (ch == ' ' || ch == '\t')) {
 				tokenText = new StringBuilder();
 				tokenType = TokenType.WHITE_SPACE;
 				tokenText.append(ch);
 			}
 
-			// Schlüssel beginnt
+			// begin of key
 			else if (nextTokenType == TokenType.KEY) {
 				tokenText = new StringBuilder();
 				tokenType = TokenType.KEY;
 				tokenText.append(ch);
 			}
 
-			// Trennzeichen
+			// separator character
 			else if (nextTokenType == TokenType.DELIMITER && (ch == '=' || ch == ':')) {
 				nextTokenType = TokenType.VALUE;
 				return new Token("" + ch, TokenType.DELIMITER);
 			}
 
-			// Schlüssel-Wert beginnt
+			// begin of value of a key
 			else if (nextTokenType == TokenType.DELIMITER || nextTokenType == TokenType.VALUE) {
 				tokenText = new StringBuilder();
 				tokenType = TokenType.VALUE;
@@ -199,24 +199,24 @@ public class PropertiesFormatter {
 			}
 		}
 
-		// Ende erreicht, offene Token abschließen
+		// finally close open tokens
 		if (tokenText != null) {
 			return new Token(tokenText.toString(), tokenType);
 		} else {
-			// kein weiteres Token mehr
+			// no more token available
 			return null;
 		}
 	}
 
 	/**
-	 * Token-Typ
+	 * Token type
 	 */
 	private enum TokenType {
 		COMMENT, KEY, VALUE, DELIMITER, LINE_BREAK, WHITE_SPACE
 	}
 
 	/**
-	 * Enthält ein einzelnes Token.
+	 * Represents a single token
 	 */
 	private static class Token {
 		@NotNull

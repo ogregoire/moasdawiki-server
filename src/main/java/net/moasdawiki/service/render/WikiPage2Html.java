@@ -66,9 +66,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Wandelt eine Wiki-Seite in den entsprechenden HTML-Text um.
+ * Converts a wiki page to a HTML text.
  *
- * Ist nicht Thread-safe.
+ * Not thread-safe!
  */
 public class WikiPage2Html {
 
@@ -89,6 +89,9 @@ public class WikiPage2Html {
 	private HtmlWriter writer;
 	private PageElement previousElement;
 
+	/**
+	 * Constructor.
+	 */
 	public WikiPage2Html(@SuppressWarnings("unused") @NotNull Settings settings, @NotNull Messages messages, @NotNull WikiService wikiService, boolean generateEditLinks) {
 		super();
 		this.messages = messages;
@@ -97,9 +100,7 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Konvertiert eine Wiki-Seite in die entsprechende HTML-Darstellung.
-	 * 
-	 * @param contentPage Wiki-Seite, deren Inhalt jetzt verarbeitet werden soll.
+	 * Convert a wiki page to a HTML Text.
 	 */
 	@NotNull
 	public HtmlWriter generate(@NotNull PageElement contentPage) {
@@ -109,25 +110,22 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Übersetzt ein einzelnes Seitenelement.
+	 * Convert a single page element.
 	 *
-	 * Wiki-interne Elemente werden hier ignoriert.
-	 * Diese müssen vorher durch Transformer in normale Elemente umgewandelt worden sein.
-	 * 
-	 * @param element Das zu übersetzende Seitenelement.
+	 * Wiki-internal elements are ignored as they have to be transformed in advance.
 	 */
 	private void convertGeneric(@Nullable PageElement element) {
 		if (element == null) {
 			return;
 		}
 
-		// falls eine Aufzählung oder Nummerierung offen ist, diese ggf. schließen
+		// close open enumerations
 		if (!(element instanceof UnorderedListItem) && !(element instanceof OrderedListItem)) {
 			setEnumerationLevel(0, false);
 		}
 
-		// Bei einem Block-Element eine neue HTML-Zeile beginnen,
-		// bei einem inline-Element in der selben Zeile weiterschreiben
+		// Begin a new HTML line for a block element.
+		// Inline elements continue in the same line.
 		if (!element.isInline()) {
 			writer.setContinueInNewLine();
 		}
@@ -196,13 +194,12 @@ public class WikiPage2Html {
 			convertPageElement((SearchInput) element);
 		}
 
-		// Nach einem Block-Element eine neue HTML-Zeile beginnen,
-		// nach einem inline-Element darf in der selben Zeile weitergeschrieben werden
+		// After a block element we have to start in a new line.
 		if (!element.isInline()) {
 			writer.setContinueInNewLine();
 		}
 
-		// letztes Element merken, aber Anker ignorieren, weil die unsichtbar sind
+		// remember the last element, except anchors as they are invisible
 		if (!(element instanceof Anchor)) {
 			previousElement = element;
 		}
@@ -214,21 +211,11 @@ public class WikiPage2Html {
 		}
 	}
 
-	/**
-	 * Gibt den Inhalt der Unterseite aus, ohne den Namen der Unterseite anzuzeigen.
-	 */
 	private void convertPageElement(@NotNull WikiPage wikiPage) {
 		convertGeneric(wikiPage.getChild());
 	}
 
-	/**
-	 * Erzeugt eine Überschrift.
-	 *
-	 * Eine Überschrift wird nicht automatisch verlinkt.
-	 * Ein Anker muss ggf. vorher generiert werden.
-	 */
 	private void convertPageElement(@NotNull Heading heading) {
-		// Tag-Typ bestimmen
 		String tagName;
 		switch (heading.getLevel()) {
 		case 1:
@@ -241,11 +228,11 @@ public class WikiPage2Html {
 			tagName = "h3";
 			break;
 		default:
-			// ab Level 4 keine sonstige Hervorhebung mehr
+			// levels >= 4 are not emphasized
 			tagName = "p";
 		}
 
-		// Überschrift-Tag öffnen
+		// open heading tag
 		String contentString = WikiHelper.getStringContent(heading);
 		String param = null;
 		if (!contentString.isEmpty()) {
@@ -253,7 +240,7 @@ public class WikiPage2Html {
 		}
 		int depth = writer.openTag(tagName, param);
 
-		// Editier-Symbol für Abschnitt generieren
+		// generate edit icon for the section
 		WikiPage wikiPage = WikiHelper.getContextWikiPage(heading, false);
 		Integer toPos = getSectionToPos(heading);
 		if (wikiPage != null && wikiPage.getPagePath() != null && heading.getFromPos() != null && toPos != null && generateEditLinks) {
@@ -264,21 +251,19 @@ public class WikiPage2Html {
 					+ EscapeUtils.escapeHtml(msg) + "\" alt=\"\"></a>");
 		}
 
-		// Überschrift ausgeben
+		// write heading text
 		convertGeneric(heading.getChild());
 		writer.closeTags(depth);
 	}
 
 	/**
-	 * Bestimmt die Endeposition des Abschnitts, der mit der angegebenen Überschrift beginnt.
-	 * Ein Abschnitt geht bis zur nächsten Überschrift, die nicht untergeordnet ist (der Level darf nicht größer sein),
-	 * ansonsten bis zum Ende der aktuellen Umgebung (z.B. Tabellenzelle oder Wikiseite).
+	 * Determine the end position of the section starting with the given heading.
 	 *
-	 * Hat die nächste Überschrift den Wert <code>fromPos</code> nicht gesetzt hat oder
-	 * das Ende der Wikiseite nicht ermittelt werden konnte, wird <code>null</code> zurückgegeben.
-	 * 
-	 * @param heading Überschrift, mit der der Abschnitt beginnt.
-	 * @return Endeposition des aktuellen Abschnitts. null -> unbekannt.
+	 * The section ends with the following heading (of same or higher importance),
+	 * the end of the table cell or the end of the wiki page.
+	 *
+	 * @param heading Heading the current section starts with.
+	 * @return end position of the section; null -> unknown.
 	 */
 	@Nullable
 	private Integer getSectionToPos(@NotNull Heading heading) {
@@ -288,28 +273,27 @@ public class WikiPage2Html {
 		}
 		PageElementList pel = (PageElementList) parent;
 
-		// aktuelle Überschrift suchen
+		// find current heading
 		int index = 0;
 		while (index < pel.size() && pel.get(index) != heading) {
 			index++;
 		}
 
-		// nachfolgende Überschrift suchen
-		index++; // aktuelle Überschrift ignorieren
+		// find next heading
+		index++; // ignore current heading
 		while (index < pel.size()) {
 			PageElement element = pel.get(index);
 			if (element instanceof Heading) {
 				Heading h = (Heading) element;
 				if (h.getLevel() <= heading.getLevel()) {
-					// Abschnitt endet hier
+					// section ends here
 					return h.getFromPos();
 				}
 			}
 			index++;
 		}
 
-		// keine passende nachfolgende Überschrift gefunden,
-		// verwende Ende der Liste
+		// no corresponding following heading found, use last list element
 		return pel.getToPos();
 	}
 
@@ -361,25 +345,24 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Öffnet bzw. schließt Aufzählungsumgebungen, damit schließlich die durch
-	 * <tt>level</tt> angegebene Schachtelungstiefe vorliegt.
+	 * Opens or closes enumeration tags to reach the given target stack depth.
 	 */
 	private void setEnumerationLevel(int level, boolean unordered) {
-		// aktuelle Schachtelungstiefe bestimmen
+		// determine current stack depth
 		int currentLevel = 0;
 		while (writer.getCurrentTag(currentLevel) != null
 				&& ("ul".equals(writer.getCurrentTag(currentLevel)) || "ol".equals(writer.getCurrentTag(currentLevel)))) {
 			currentLevel++;
 		}
 
-		// wenn die Schachtelungstiefe zu groß ist, einige Tags schließen
+		// reduce stack depth
 		while (currentLevel > level) {
 			writer.closeTag();
 			writer.setContinueInNewLine();
 			currentLevel--;
 		}
 
-		// wenn der Typ des aktuellen Tags nicht stimmt, auch dieses Tag schließen
+		// adjust enumeration type
 		if (currentLevel > 0 && currentLevel == level
 				&& ((unordered && !"ul".equals(writer.getCurrentTag())) || (!unordered && !"ol".equals(writer.getCurrentTag())))) {
 			writer.closeTag();
@@ -387,12 +370,12 @@ public class WikiPage2Html {
 			currentLevel--;
 		}
 
-		// wenn die aktuelle Schachtelungstiefe zu klein ist, Tags öffnen
+		// increase stack depth
 		while (currentLevel < level) {
 			if (unordered) {
-				writer.openTag("ul"); // ungeordnete Liste geöffnete
+				writer.openTag("ul");
 			} else {
-				writer.openTag("ol"); // geordnete Liste geöffnet
+				writer.openTag("ol");
 			}
 			writer.setContinueInNewLine();
 			currentLevel++;
@@ -451,7 +434,7 @@ public class WikiPage2Html {
 					}
 				}
 
-				previousElement = null; // kein Abstand vor Absatz
+				previousElement = null; // no space before paragraph
 				convertGeneric(cell.getContent());
 				writer.closeTags(cellTagLevel); // div + td
 			}
@@ -464,18 +447,19 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Gibt einen Absatz aus.
-	 * Wenn das vorherige Seitenelement ein Absatz, eine Aufzählung oder eine Tabelle ist,
-	 * wird zusätzlich ein Abstand davor eingefügt.
+	 * Converts a paragraph.
+	 *
+	 * Add additional vertical space if the previous page element was a
+	 * paragraph, an enumeration, or a table.
 	 */
 	private void convertPageElement(@NotNull Paragraph paragraph) {
-		// ggf. vertikalen Abstand zwischen zwei Absätze einfügen
+		// add vertical space
 		if (paragraph.hasVerticalSpacing()
 				&& (previousElement instanceof Paragraph || previousElement instanceof UnorderedListItem || previousElement instanceof OrderedListItem || previousElement instanceof Table)) {
 			convertPageElementVerticalSpace();
 		}
 
-		// Formatierung bestimmen
+		// style
 		String classtype = "paragraph" + paragraph.getIndention();
 		if (paragraph.isCentered()) {
 			classtype += " center";
@@ -487,15 +471,15 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Formatiert einen Codeblock, ggf. mit Syntaxhervorhebung.
+	 * Converts a code block (with syntax highlighting).
 	 *
-	 * <tt>white-space: pre</tt> kann nicht verwendet werden, weil dann bei Copy&Paste die Zeilenumbrüche fehlen.
-	 * Die Formatierung muss daher per HTML nachgebildet werden.
+	 * Cannot use <tt>white-space: pre</tt> as line breaks are missing when copy & paste is used.
+	 * Thus, the formatting has to be done by HTML tags.
 	 */
 	private void convertPageElement(@NotNull Code code) {
 		int depth = writer.openDivTag("code");
 
-		// Stift zum Bearbeiten des Codeblocks anzeigen
+		// edit icon for section editing
 		if (generateEditLinks && code.getFromPos() != null && code.getToPos() != null) {
 			WikiPage wikiPage = WikiHelper.getContextWikiPage(code, false);
 			if (wikiPage != null && wikiPage.getPagePath() != null) {
@@ -507,7 +491,6 @@ public class WikiPage2Html {
 			}
 		}
 
-		// Codeformatierung per HTML nachbilden
 		String formattedCode;
 		if ("Java".equalsIgnoreCase(code.getLanguage())) {
 			JavaFormatter javaFormatter = new JavaFormatter(code.getText());
@@ -527,14 +510,12 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Formatiert den Code unter Beibehaltung der Zeilenumbrüche und Leerzeichen, jedoch ohne spezielle Syntaxhervorhebung.
+	 * Format code with line breaks and spaces.
 	 */
 	@NotNull
 	private static String formatCode(@NotNull String codeText) {
-		// zunächst alle HTML-Kommandos unschädlich machen
 		String str = EscapeUtils.escapeHtml(codeText);
 
-		// Formatierung konvertieren
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < str.length(); i++) {
 			char ch = str.charAt(i);
@@ -543,7 +524,7 @@ public class WikiPage2Html {
 				sb.append("<br>\n");
 				break;
 			case '\r':
-				// Zeichen ignorieren
+				// ignore character
 				break;
 			case ' ':
 			case '\t':
@@ -606,10 +587,6 @@ public class WikiPage2Html {
 		writer.closeTags(depth);
 	}
 
-	/**
-	 * Zeilenumbrüche werden *nicht* durch &lt;br&gt; ersetzt,
-	 * weil "nowiki" überhaupt keine Interpretation verursachen soll.
-	 */
 	private void convertPageElement(@NotNull Nowiki nowiki) {
 		String text = EscapeUtils.escapeHtml(nowiki.getText());
 		if (text != null) {
@@ -622,19 +599,14 @@ public class WikiPage2Html {
 		writer.htmlText(html.getText());
 	}
 
-	/**
-	 * Erzeugt einen Link auf eine Wiki-Seite.
-	 * Ggf. wird ein Anker-Link innerhalb einer Wiki-Seite erzeugt.
-	 * Anker-Links beginnen mit dem Symbol <code>#</code>.
-	 */
 	private void convertPageElement(@NotNull LinkPage link) {
 		// Kontext bestimmen
 		WikiPage wikiPage = WikiHelper.getContextWikiPage(link, false);
 
-		// zeige Stift nur, wenn eine Seite nicht existiert
+		// show edit icon only if the target page doesn't exist
 		boolean showEditorPen = false;
 
-		// URL erzeugen
+		// generate URL
 		String url;
 		String linkPagePath = WikiHelper.getAbsolutePagePath(link.getPagePath(), wikiPage);
 		if (link.getPagePath() != null && linkPagePath != null) {
@@ -645,7 +617,7 @@ public class WikiPage2Html {
 				showEditorPen = true;
 			}
 		} else {
-			url = ""; // aktuelle Seite, bei Anker
+			url = ""; // anchor in current page
 		}
 		url = EscapeUtils.pagePath2Url(url);
 		if (link.getAnchor() != null && !showEditorPen) {
@@ -653,24 +625,23 @@ public class WikiPage2Html {
 		}
 		String cssClassParam = "";
 		if (showEditorPen) {
-			// Wenn die Seite nicht existiert, noch einen Stift anzeigen
 			cssClassParam = "class=\"linknewpage\" ";
 		}
 		int depth = writer.openTag("a", cssClassParam + "href=\"" + EscapeUtils.escapeHtml(EscapeUtils.encodeUrl(url)) + "\"");
 
-		// Linktext schreiben
+		// link text
 		if (link.getAlternativeText() != null) {
 			convertGeneric(link.getAlternativeText());
 		} else {
-			// sonst nur Seitenname angeben
+			// show only page name
 			String localLinkPagePath = link.getPagePath();
 			if (localLinkPagePath != null) {
 				if (!localLinkPagePath.endsWith("/")) {
-					// normaler Seitenname
+					// page name without path
 					String pageName = PathUtils.extractWebName(localLinkPagePath);
 					writer.htmlText(EscapeUtils.escapeHtml(pageName));
 				} else {
-					// Ordnername
+					// page name with path
 					String folderPath = localLinkPagePath.substring(0, localLinkPagePath.length() - 1);
 					String folderName = PathUtils.extractWebName(folderPath);
 					if (folderName.isEmpty()) {
@@ -679,7 +650,7 @@ public class WikiPage2Html {
 					writer.htmlText(EscapeUtils.escapeHtml(folderName));
 				}
 			}
-			// ggf. Ankername mit ausgeben
+			// show anchor as well
 			if (link.getAnchor() != null && !showEditorPen) {
 				writer.htmlText('#' + EscapeUtils.escapeHtml(link.getAnchor()));
 			}
@@ -688,9 +659,6 @@ public class WikiPage2Html {
 		writer.closeTags(depth); // a
 	}
 
-	/**
-	 * Erzeugt einen speziellen Wiki-Link. Diese haben den Präfix "wiki".
-	 */
 	private void convertPageElement(@NotNull LinkWiki link) {
 		String url;
 		String text;
@@ -700,20 +668,18 @@ public class WikiPage2Html {
 				text = messages.getMessage(WIKI_STARTPAGE_KEY);
 				break;
 			case "editpage": {
-				// globalen Kontext bestimmen,
-				// weil die gesamte Seite editiert werden soll
+				// determine global page context as the tag refers to the whole page
 				WikiPage wikiPage = WikiHelper.getContextWikiPage(link, true);
 				if (wikiPage != null && wikiPage.getPagePath() != null) {
 					url = PathUtils.concatWebPaths("/edit/", wikiPage.getPagePath());
 				} else {
-					url = null; // keinen Link erzeugen
+					url = null; // no link
 				}
 				text = messages.getMessage(WIKI_EDIT_PAGE_KEY);
 				break;
 			}
 			case "newpage": {
-				// globalen Kontext bestimmen,
-				// um den Pfad der gesamten Seite zu erhalten
+				// determine global page context to get the path to the whole page
 				WikiPage wikiPage = WikiHelper.getContextWikiPage(link, true);
 				if (wikiPage != null && wikiPage.getPagePath() != null) {
 					url = PathUtils.concatWebPaths("/edit/", PathUtils.extractWebFolder(wikiPage.getPagePath()));
@@ -751,14 +717,10 @@ public class WikiPage2Html {
 		}
 	}
 
-	/**
-	 * Erzeugt einen Download-Link auf eine Datei im lokalen Dateisystem.
-	 */
 	private void convertPageElement(@NotNull LinkLocalFile link) {
-		// Kontext bestimmen
 		WikiPage wikiPage = WikiHelper.getContextWikiPage(link, false);
 
-		// URL erzeugen
+		// URL
 		String linkFilePath = link.getFilePath();
 		String pagePath = WikiHelper.getAbsolutePagePath(linkFilePath, wikiPage);
 		if (pagePath == null) {
@@ -776,10 +738,6 @@ public class WikiPage2Html {
 		writer.closeTags(depth); // a
 	}
 
-	/**
-	 * Erzeugt einen externen Link, der auf eine Seite außerhalb des Wiki verweist.
-	 * Hinter dem Link wird eine Weltkugel-Grafik angezeigt, damit der Link als externer Link erkennbar ist.
-	 */
 	private void convertPageElement(@NotNull LinkExternal link) {
 		String cssClass;
 		if (link.getUrl().startsWith("mailto:")) {
@@ -793,7 +751,7 @@ public class WikiPage2Html {
 		if (link.getAlternativeText() != null) {
 			convertGeneric(link.getAlternativeText());
 		} else if (link.getUrl().startsWith("mailto:")) {
-			// "mailto:" abschneiden
+			// cut off "mailto:"
 			writer.htmlText(EscapeUtils.escapeHtml(link.getUrl().substring(7)));
 		} else {
 			writer.htmlText(EscapeUtils.escapeHtml(link.getUrl()));
@@ -803,11 +761,10 @@ public class WikiPage2Html {
 	}
 
 	/**
-	 * Gibt den Inhalt des SemanticTag aus, ohne den Namen des semantischen Tags selbst auszugeben.
-	 * Offensichtlich war kein Transformer vorhanden, das dieses Tag behandelt hat.
+	 * Convert only the content of the semantic tag but ignore the tag name itself.
+	 * Obviously there was no Transformer to handle this tag.
 	 */
 	private void convertPageElement(@NotNull XmlTag xmlTag) {
-		// XML-Tag selbst ist unsichtbar -> ignorieren
 		convertGeneric(xmlTag.getChild());
 	}
 
@@ -825,7 +782,6 @@ public class WikiPage2Html {
 	}
 
 	private void convertPageElement(@NotNull Image image) {
-		// Kontext bestimmen
 		WikiPage wikiPage = WikiHelper.getContextWikiPage(image, false);
 
 		String url = image.getUrl();
@@ -835,7 +791,6 @@ public class WikiPage2Html {
 				return;
 			}
 
-			// Bildname escapen, damit auch Sonderzeichen usw. funktionieren
 			url = EscapeUtils.pagePath2Url("/img" + url);
 			url = EscapeUtils.encodeUrl(url);
 		}
