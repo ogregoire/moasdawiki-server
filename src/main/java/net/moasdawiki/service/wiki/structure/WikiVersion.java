@@ -31,12 +31,6 @@ public class WikiVersion extends PageElement {
 		this.toPos = toPos;
 	}
 
-	/**
-	 * Rückgabewert ist egal, weil dieses Objekt sowieso vom Standard-Plugin
-	 * ersetzt wird.
-	 * 
-	 * @see net.moasdawiki.service.wiki.structure.PageElement#isInline()
-	 */
 	public boolean isInline() {
 		return true;
 	}

@@ -39,12 +39,6 @@ public class PageTimestamp extends PageElement {
 		return globalContext;
 	}
 
-	/**
-	 * Rückgabewert ist egal, weil dieses Objekt sowieso vom Standard-Plugin
-	 * ersetzt wird.
-	 * 
-	 * @see net.moasdawiki.service.wiki.structure.PageElement#isInline()
-	 */
 	public boolean isInline() {
 		return true;
 	}

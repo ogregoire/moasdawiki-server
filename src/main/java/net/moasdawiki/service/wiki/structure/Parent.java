@@ -45,12 +45,6 @@ public class Parent extends PageElement {
 		return parentPagePath;
 	}
 
-	/**
-	 * Rückgabewert ist egal, weil dieses Objekt sowieso vom Standard-Plugin
-	 * entfernt wird.
-	 * 
-	 * @see net.moasdawiki.service.wiki.structure.PageElement#isInline()
-	 */
 	public boolean isInline() {
 		return false;
 	}
