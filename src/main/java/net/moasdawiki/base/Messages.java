@@ -28,10 +28,11 @@ import java.util.Map;
 import net.moasdawiki.service.repository.AnyFile;
 import net.moasdawiki.service.repository.RepositoryService;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Reads the message file and provides internationalization support for internal
- * services and plugins. Messages can contain placeholders <code>{n}</code> for
+ * services. Messages can contain placeholders <code>{n}</code> for
  * arguments.<br>
  * <br>
  * The message key <code>wiki.messageformat.locale</code> defines the Java
@@ -43,7 +44,7 @@ public class Messages {
 	 * Message key that refers to a Java locale that is used for date and number
 	 * formatting. Only a language is supported, no country or variant.
 	 */
-	private static final String MESSAGEFORMAT_LOCALE_KEY = "wiki.messageformat.locale";
+	public static final String MESSAGEFORMAT_LOCALE_KEY = "wiki.messageformat.locale";
 
 	private final Logger logger;
 	private final Settings settings;
@@ -69,9 +70,8 @@ public class Messages {
 		this.logger = logger;
 		this.settings = settings;
 		this.repositoryService = repositoryService;
-
-		messages = new HashMap<>();
-		messageFormatLocale = Locale.ENGLISH; // default
+		this.messages = new HashMap<>();
+		this.messageFormatLocale = Locale.ENGLISH; // default
 		reset();
 	}
 
@@ -85,13 +85,8 @@ public class Messages {
 	 */
 	private void readMessages() {
 		String messagesFilePath = settings.getMessageFile();
-		if (messagesFilePath == null) {
-			// no message file configured
-			return;
-		}
-
+		AnyFile anyFile = new AnyFile(messagesFilePath);
 		try {
-			AnyFile anyFile = new AnyFile(messagesFilePath);
 			String settingsContent = repositoryService.readTextFile(anyFile);
 			BufferedReader reader = new BufferedReader(new StringReader(settingsContent));
 			String line;
@@ -138,11 +133,11 @@ public class Messages {
 	 * Returns the message for a given key. If the message contains placeholders
 	 * <code>{n}</code> they are replaced by the corresponding argument value,
 	 * for syntax see {@link MessageFormat}. If there is no message for a key,
-	 * the last key segment (after the last '.' ,if any) is returned instead.
+	 * the last key segment (after the last '.' if any) is returned instead.
 	 * 
-	 * @param key message key, not <code>null</code>
+	 * @param key message key
 	 * @param arguments arguments to be filled in placeholders
-	 * @return message, not <code>null</code>
+	 * @return message
 	 */
 	@NotNull
 	public String getMessage(@NotNull String key, Object... arguments) {
@@ -164,5 +159,16 @@ public class Messages {
 			}
 		}
 		return msg;
+	}
+
+	/**
+	 * Returns the message for a given key.
+	 *
+	 * @param key message key
+	 * @return message, null -> key not found
+	 */
+	@Nullable
+	public String getPureMessage(@NotNull String key) {
+		return messages.get(key);
 	}
 }

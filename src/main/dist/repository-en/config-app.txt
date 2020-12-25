@@ -5,46 +5,11 @@
 // The characters "@@" on top and bottom of the file are
 // just for better readability as wiki page.
 
-// Message file with translations
-
-messagefile = /wiki/messages.txt
-
 // Wiki page used as start page
 
 page.startpage = /Home-App
 
-// Wiki page used as navigation panel
-
-page.navigation = /wiki/Navigation
-
 // Wiki page with HTML headers
 
 page.html.header = /wiki/HtmlHeader-App
-
-// Wiki page used as page header
-
-page.header = /wiki/PageHeader
-
-// Wiki page used as page footer
-
-page.footer = /wiki/PageFooter
-
-// Wiki page used as parent page of all content template pages.
-// The child pages can be selected on the editor page.
-
-page.templates = /wiki/Templates
-
-// Wiki page name used as folder overview. If a repository folder
-// contains a wiki page with this name, it is automatically used
-// to generate the folder overview. Otherwise the default wiki page
-// is used instead. A repository folder is addressed with a final '/'.
-// To turn off this feature, just comment out both options.
-
-page.index.name = Index
-page.index.default = /wiki/IndexStandard
-
-// Repository folder that contains files to be accessed via
-// a root path URL, e.g. /favicon.ico
-
-repository.root = root
 @@

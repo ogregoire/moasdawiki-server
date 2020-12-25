@@ -44,19 +44,25 @@ public class Settings {
 	private static final String SERVERPORT = "port";
 	private static final int SERVERPORT_DEFAULT = 11080;
 	private static final String MESSAGE_FILE = "messagefile";
+	private static final String MESSAGE_FILE_DEFAULT = "/wiki/messages.txt";
 	private static final String PAGE_STARTPAGE = "page.startpage";
-	private static final String PAGE_STARTPAGE_DEFAULT = "/wiki/Startpage";
+	private static final String PAGE_STARTPAGE_DEFAULT = "/Home";
 	private static final String PAGE_NAVIGATION = "page.navigation";
+	private static final String PAGE_NAVIGATION_DEFAULT = "/wiki/Navigation";
 	private static final String PAGE_HTML_HEADER = "page.html.header";
+	private static final String PAGE_HTML_HEADER_DEFAULT = "/wiki/HtmlHeader";
 	private static final String PAGE_HEADER = "page.header";
+	private static final String PAGE_HEADER_DEFAULT = "/wiki/PageHeader";
 	private static final String PAGE_FOOTER = "page.footer";
+	private static final String PAGE_FOOTER_DEFAULT = "/wiki/PageFooter";
 	private static final String PAGE_TEMPLATES = "page.templates";
 	private static final String PAGE_TEMPLATES_DEFAULT = "/wiki/Templates";
 	private static final String PAGE_INDEX_NAME = "page.index.name";
-	private static final String PAGE_INDEX_DEFAULT = "page.index.default";
+	private static final String PAGE_INDEX_NAME_DEFAULT = "Index";
+	private static final String PAGE_INDEX_GLOBAL = "page.index.default";
+	private static final String PAGE_INDEX_GLOBAL_DEFAULT = "/wiki/IndexStandard";
 	private static final String REPOSITORY_ROOT = "repository.root";
 	private static final String REPOSITORY_ROOT_DEFAULT = "root";
-	private static final String PLUGIN = "plugin";
 	private static final String AUTHENTICATION_ONLYLOCALHOST = "authentication.onlylocalhost";
 
 	@NotNull
@@ -290,12 +296,11 @@ public class Settings {
 	}
 
 	/**
-	 * Returns the file path of the message file. <code>null</code> --> no
-	 * message file configured.
+	 * Returns the file path of the message file.
 	 */
-	@Nullable
+	@NotNull
 	public String getMessageFile() {
-		return getString(MESSAGE_FILE);
+		return getString(MESSAGE_FILE, MESSAGE_FILE_DEFAULT);
 	}
 
 	/**
@@ -331,7 +336,7 @@ public class Settings {
 	 */
 	@Nullable
 	public String getNavigationPagePath() {
-		return getString(PAGE_NAVIGATION);
+		return getString(PAGE_NAVIGATION, PAGE_NAVIGATION_DEFAULT);
 	}
 
 	/**
@@ -340,7 +345,7 @@ public class Settings {
 	 */
 	@Nullable
 	public String getHtmlHeaderPagePath() {
-		return getString(PAGE_HTML_HEADER);
+		return getString(PAGE_HTML_HEADER, PAGE_HTML_HEADER_DEFAULT);
 	}
 
 	/**
@@ -349,7 +354,7 @@ public class Settings {
 	 */
 	@Nullable
 	public String getHeaderPagePath() {
-		return getString(PAGE_HEADER);
+		return getString(PAGE_HEADER, PAGE_HEADER_DEFAULT);
 	}
 
 	/**
@@ -358,7 +363,7 @@ public class Settings {
 	 */
 	@Nullable
 	public String getFooterPagePath() {
-		return getString(PAGE_FOOTER);
+		return getString(PAGE_FOOTER, PAGE_FOOTER_DEFAULT);
 	}
 
 	/**
@@ -370,20 +375,22 @@ public class Settings {
 	}
 
 	/**
-	 * Page name that is used as Index (Summary) of a repository folder.
+	 * Page name that is used as index (summary) of a repository folder
+	 * if the URL path ends with '/'.
+	 * null -> Disable index feature.
 	 */
 	@Nullable
 	public String getIndexPageName() {
-		return getString(PAGE_INDEX_NAME);
+		return getString(PAGE_INDEX_NAME, PAGE_INDEX_NAME_DEFAULT);
 	}
 
 	/**
-	 * Index page to be used as fallback if a repository folder has no own index
-	 * page.
+	 * Global index page to be used as fallback if a repository folder has no
+	 * own index page (see {@link #getIndexPageName()}).
 	 */
 	@Nullable
 	public String getIndexFallbackPagePath() {
-		return getString(PAGE_INDEX_DEFAULT);
+		return getString(PAGE_INDEX_GLOBAL, PAGE_INDEX_GLOBAL_DEFAULT);
 	}
 
 	/**
@@ -393,15 +400,6 @@ public class Settings {
 	@NotNull
 	public String getRootPath() {
 		return getString(REPOSITORY_ROOT, REPOSITORY_ROOT_DEFAULT);
-	}
-
-	/**
-	 * Class names of the plugins to be loaded.
-	 */
-	@NotNull
-	public Set<String> getPluginClassNames() {
-		String[] classNames = getStringArray(PLUGIN);
-		return new HashSet<>(Arrays.asList(classNames));
 	}
 
 	/**

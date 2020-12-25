@@ -10,51 +10,9 @@
 
 port = 11080
 
-// Sprachdatei mit den Übersetzungstexten. Es kann nur eine
-// Datei angegeben werden.
-
-messagefile = /wiki/messages.txt
-
 // Wikiseite, die als Startseite angezeigt wird.
 
 page.startpage = /Startseite
-
-// Wikiseite, die als Navigation angezeigt wird.
-
-page.navigation = /wiki/Navigation
-
-// Wikiseite, die die HTML-Headerzeilen enthält.
-
-page.html.header = /wiki/HtmlHeader
-
-// Wikiseite, die oberhalb jeder Wikiseite angezeigt wird.
-
-page.header = /wiki/SeiteKopfzeilen
-
-// Wikiseite, die unterhalb jeder Wikiseite angezeigt wird.
-
-page.footer = /wiki/SeiteFusszeilen
-
-// Wikiseite, deren Kindseiten im Editor als Inhaltsvorlagen
-// für neue Wikiseiten ausgewählt werden können.
-
-page.templates = /wiki/Vorlagen
-
-// Zur Darstellung eines Ordner-Index wird im Ordner nach
-// einer Wikiseite mit diesem Namen gesucht. Gibt es keine
-// solche Wikiseite im Ordner wird die Standard-Indexseite
-// verwendet. Diese Funktionalität kann abgeschaltet werden,
-// indem beide Einstellungen auskommentiert werden.
-// Der Ordner-Index wird angezeigt, wenn eine URL mit / endet.
-
-page.index.name = Index
-page.index.default = /wiki/IndexStandard
-
-// Unterverzeichnis im Repository, das alle Dateien enthält,
-// die über den Root-Pfad der URL erreichbar sein sollen,
-// wie z.B. /favicon.ico
-
-repository.root = root
 
 // Der Wiki-Server akzeptiert nur Verbindungsanfragen von Clients auf
 // dem selben Server (localhost), wenn dieser Parameter auf "true"
@@ -63,5 +21,5 @@ repository.root = root
 // Diese Einstellung gilt sowohl für den Browserzugang als auch für
 // die Synchronisierung mit der App.
 
-authentication.onlylocalhost = false
+authentication.onlylocalhost = true
 @@
