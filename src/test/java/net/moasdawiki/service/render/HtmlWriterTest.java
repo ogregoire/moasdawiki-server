@@ -105,17 +105,17 @@ public class HtmlWriterTest {
         {
             HtmlWriter writer = new HtmlWriter();
             assertEquals(writer.openFormTag("form-name1"), 0);
-            assertEquals(writer.getBodyLines().get(0), "<form method=\"post\" enctype=\"application/x-www-form-urlencoded; charset=utf-8\" name=\"form-name1\">");
+            assertEquals(writer.getBodyLines().get(0), "<form method=\"post\" enctype=\"application/x-www-form-urlencoded\" name=\"form-name1\">");
         }
         {
             HtmlWriter writer = new HtmlWriter();
             assertEquals(writer.openFormTag("form-name2", null, HtmlWriter.Method.GET), 0);
-            assertEquals(writer.getBodyLines().get(0), "<form method=\"get\" enctype=\"application/x-www-form-urlencoded; charset=utf-8\" name=\"form-name2\">");
+            assertEquals(writer.getBodyLines().get(0), "<form method=\"get\" enctype=\"application/x-www-form-urlencoded\" name=\"form-name2\">");
         }
         {
             HtmlWriter writer = new HtmlWriter();
             assertEquals(writer.openFormTag(null, "url", HtmlWriter.Method.POST), 0);
-            assertEquals(writer.getBodyLines().get(0), "<form method=\"post\" action=\"url\" enctype=\"application/x-www-form-urlencoded; charset=utf-8\">");
+            assertEquals(writer.getBodyLines().get(0), "<form method=\"post\" action=\"url\" enctype=\"application/x-www-form-urlencoded\">");
         }
     }
 

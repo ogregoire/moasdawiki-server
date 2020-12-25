@@ -557,13 +557,13 @@ public class WikiPage2Html {
 	}
 
 	private void convertPageElement(@NotNull Strikethrough strikethrough) {
-		int depth = writer.openTag("strike");
+		int depth = writer.openTag("s");
 		convertGeneric(strikethrough.getChild());
 		writer.closeTags(depth);
 	}
 
 	private void convertPageElement(@NotNull Monospace monospace) {
-		int depth = writer.openTag("tt");
+		int depth = writer.openTag("code");
 		convertGeneric(monospace.getChild());
 		writer.closeTags(depth);
 	}
@@ -575,7 +575,7 @@ public class WikiPage2Html {
 	}
 
 	private void convertPageElement(@NotNull Color color) {
-		int depth = writer.openTag("font", "color=\"" + EscapeUtils.escapeHtml(color.getColorName()) + "\"");
+		int depth = writer.openTag("span", "style=\"color: " + EscapeUtils.escapeHtml(color.getColorName()) + "\"");
 		convertGeneric(color.getChild());
 		writer.closeTags(depth);
 	}
@@ -777,7 +777,7 @@ public class WikiPage2Html {
 	}
 
 	private void convertPageElement(@NotNull Anchor anchor) {
-		writer.openTag("a", "name=\"" + EscapeUtils.escapeHtml(anchor.getName()) + "\"");
+		writer.openTag("span", "id=\"" + EscapeUtils.escapeHtml(anchor.getName()) + "\"");
 		writer.closeTag();
 	}
 

@@ -68,8 +68,8 @@ public class HtmlServiceTest {
     public void testConvertHtmlMinimal() {
         HttpResponse httpResponse = htmlService.convertHtml(new HtmlWriter());
         String response = new String(httpResponse.content, StandardCharsets.UTF_8);
-        String expected = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" +
-                "<html>\n" +
+        String expected = "<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
                 "<head>\n" +
                 "  <title>ProgName</title>\n" +
                 "</head>\n" +
@@ -87,8 +87,8 @@ public class HtmlServiceTest {
         when(wikiService.getWikiFile("/HtmlHeaderPath")).thenReturn(new WikiFile("/HtmlHeaderPath", wikiText, new WikiPage(null, null, null, null), new AnyFile("/HtmlHeaderPath")));
         HttpResponse httpResponse = htmlService.convertHtml(new HtmlWriter());
         String response = new String(httpResponse.content, StandardCharsets.UTF_8);
-        String expected = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" +
-                "<html>\n" +
+        String expected = "<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
                 "<head>\n" +
                 "  <title>ProgName</title>\n" +
                 "html header line 1\n" +
@@ -106,8 +106,8 @@ public class HtmlServiceTest {
         htmlWriter.htmlText("body text");
         HttpResponse httpResponse = htmlService.convertHtml(htmlWriter);
         String response = new String(httpResponse.content, StandardCharsets.UTF_8);
-        String expected = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" +
-                "<html>\n" +
+        String expected = "<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
                 "<head>\n" +
                 "  <title>ProgName</title>\n" +
                 "</head>\n" +
@@ -123,8 +123,8 @@ public class HtmlServiceTest {
         WikiPage wikiPage = new WikiPage("/pagePath", new TextOnly("text only"), null, null);
         HttpResponse httpResponse = htmlService.convertPage(wikiPage);
         String response = new String(httpResponse.content, StandardCharsets.UTF_8);
-        String expected = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" +
-                "<html>\n" +
+        String expected = "<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
                 "<head>\n" +
                 "  <title>pagePath | ProgName</title>\n" +
                 "</head>\n" +

@@ -33,11 +33,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Hilfsmethoden zum Generieren von HTML-Seiten.
+ * Methods to generate HTML output.
  */
 public class HtmlService {
 
-	private static final String HTML_DOCUMENT_TYPE = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">";
+	private static final String ERROR_PAGE_TITLE_KEY = "wiki.errorpage.title";
+	private static final String ERROR_PAGE_MESSAGE_KEY = "wiki.errorpage.message";
+	private static final String ERROR_PAGE_STARTPAGE_LINK_KEY = "wiki.errorpage.linkToStartpage";
 
 	private final Logger logger;
 	private final Settings settings;
@@ -46,7 +48,7 @@ public class HtmlService {
 	private final TransformerService transformerService;
 
 	/**
-	 * Konstruktor.
+	 * Constructor.
 	 */
 	public HtmlService(@NotNull Logger logger, @NotNull Settings settings, @NotNull Messages messages,
 					   @NotNull WikiService wikiService, @NotNull TransformerService transformerService) {
@@ -59,23 +61,23 @@ public class HtmlService {
 	}
 
 	/**
-	 * Konvertiert eine HTML-Seite in ein HTTP-Response.
+	 * Write a HTML page to a HTTP response.
 	 */
 	@NotNull
 	public HttpResponse convertHtml(@NotNull HtmlWriter htmlWriter) {
-		// evtl. offene Tags schließen
+		// close open tags
 		htmlWriter.closeAllTags();
 
-		// HTML ausgeben
+		// generate HTML
 		StringBuilder sb = new StringBuilder();
-		sb.append(HTML_DOCUMENT_TYPE);
+		sb.append("<!DOCTYPE html>"); // HTML 5
 		sb.append('\n');
 		sb.append("<html lang=\"");
 		sb.append(getLanguageCode());
 		sb.append("\">\n");
 		sb.append("<head>\n");
 
-		// Seitentitel ausgeben
+		// page title
 		String title = htmlWriter.getTitle();
 		if (title != null) {
 			title += " | " + settings.getProgramName();
@@ -86,7 +88,7 @@ public class HtmlService {
 		sb.append(EscapeUtils.escapeHtml(title));
 		sb.append("</title>\n");
 
-		// konfigurierte HTML-Headerzeilen aus Wikidatei ausgeben
+		// include HTML header lines from configuration file
 		try {
 			String htmlHeaderPagePath = settings.getHtmlHeaderPagePath();
 			if (htmlHeaderPagePath != null) {
@@ -100,7 +102,7 @@ public class HtmlService {
 
 		sb.append("</head>\n");
 
-		// HTML-Body ausgeben
+		// HTML body
 		sb.append("<body");
 		if (htmlWriter.getBodyParams() != null) {
 			sb.append(' ');
@@ -129,7 +131,7 @@ public class HtmlService {
 	}
 
 	/**
-	 * Wandelt eine Wikiseite inkl. Navigation in die HTML-Darstellung um und gibt sie aus.
+	 * Apply transformers to a wiki page and convert it to HTML.
 	 */
 	@NotNull
 	public HttpResponse convertPage(@NotNull WikiPage wikiPage) {
@@ -144,7 +146,7 @@ public class HtmlService {
 	}
 
 	/**
-	 * Erzeugt einen HTTP-Redirect auf eine Wikiseite. Thread-safe.
+	 * Generate a HTTP redirect response.
 	 */
 	@NotNull
 	public HttpResponse generateRedirectToWikiPage(@NotNull String pagePath) {
@@ -156,7 +158,7 @@ public class HtmlService {
 	}
 
 	/**
-	 * Generiert eine Seite mit einem Hinweistext. Thread-safe.
+	 * Generate a web page with a message.
 	 */
 	@NotNull
 	public HttpResponse generateMessagePage(@NotNull String messageKey, Object... arguments) {
@@ -167,7 +169,7 @@ public class HtmlService {
 	}
 
 	/**
-	 * Generiert eine Fehlerseite. Thread-safe.
+	 * Generate an error page.
 	 */
 	@NotNull
 	public HttpResponse generateErrorPage(int statusCode, @NotNull String messageKey, Object... arguments) {
@@ -176,7 +178,7 @@ public class HtmlService {
 	}
 
 	/**
-	 * Generiert eine Fehlerseite mit einer Exception. Thread-safe.
+	 * Generate an error page with an Exception.
 	 */
 	@NotNull
 	public HttpResponse generateErrorPage(int statusCode, @NotNull Throwable t, @NotNull String messageKey, Object... arguments) {
@@ -187,8 +189,8 @@ public class HtmlService {
 	@NotNull
 	private HttpResponse generateErrorPageWithDetails(int statusCode, @NotNull String message, @Nullable String details) {
 		HtmlWriter writer = new HtmlWriter();
-		writer.setTitle(messages.getMessage("wiki.errorpage.title"));
-		String msg = messages.getMessage("wiki.errorpage.message", message);
+		writer.setTitle(messages.getMessage(ERROR_PAGE_TITLE_KEY));
+		String msg = messages.getMessage(ERROR_PAGE_MESSAGE_KEY, message);
 		writer.htmlText("<b>" + EscapeUtils.escapeHtml(msg) + "</b>");
 		writer.htmlNewLine();
 		if (details != null) {
@@ -196,7 +198,7 @@ public class HtmlService {
 			writer.htmlNewLine();
 		}
 		writer.htmlNewLine();
-		writer.htmlText(messages.getMessage("wiki.errorpage.linkToStartpage"));
+		writer.htmlText(messages.getMessage(ERROR_PAGE_STARTPAGE_LINK_KEY));
 
 		HttpResponse result = convertHtml(writer);
 		result.statusCode = statusCode;

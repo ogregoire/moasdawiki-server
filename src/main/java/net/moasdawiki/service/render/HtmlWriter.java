@@ -217,7 +217,7 @@ public class HtmlWriter {
 			params.append(EscapeUtils.escapeHtml(action));
 			params.append('"');
 		}
-		params.append(" enctype=\"application/x-www-form-urlencoded; charset=utf-8\"");
+		params.append(" enctype=\"application/x-www-form-urlencoded\"");
 		if (name != null) {
 			params.append(" name=\"");
 			params.append(EscapeUtils.escapeHtml(name));

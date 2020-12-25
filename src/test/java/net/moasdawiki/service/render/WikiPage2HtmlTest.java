@@ -322,12 +322,12 @@ public class WikiPage2HtmlTest {
         {
             PageElement contentPage = new Strikethrough(null, null, null);
             HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-            assertEquals(getHtml(htmlWriter), "<strike></strike>");
+            assertEquals(getHtml(htmlWriter), "<s></s>");
         }
         {
             PageElement contentPage = new Strikethrough(new TextOnly("content"), null, null);
             HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-            assertEquals(getHtml(htmlWriter), "<strike>content</strike>");
+            assertEquals(getHtml(htmlWriter), "<s>content</s>");
         }
     }
 
@@ -336,12 +336,12 @@ public class WikiPage2HtmlTest {
         {
             PageElement contentPage = new Monospace(null, null, null);
             HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-            assertEquals(getHtml(htmlWriter), "<tt></tt>");
+            assertEquals(getHtml(htmlWriter), "<code></code>");
         }
         {
             PageElement contentPage = new Monospace(new TextOnly("content"), null, null);
             HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-            assertEquals(getHtml(htmlWriter), "<tt>content</tt>");
+            assertEquals(getHtml(htmlWriter), "<code>content</code>");
         }
     }
 
@@ -364,12 +364,12 @@ public class WikiPage2HtmlTest {
         {
             PageElement contentPage = new Color("red", null, null, null);
             HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-            assertEquals(getHtml(htmlWriter), "<font color=\"red\"></font>");
+            assertEquals(getHtml(htmlWriter), "<span style=\"color: red\"></span>");
         }
         {
             PageElement contentPage = new Color("green", new TextOnly("content"), null, null);
             HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-            assertEquals(getHtml(htmlWriter), "<font color=\"green\">content</font>");
+            assertEquals(getHtml(htmlWriter), "<span style=\"color: green\">content</span>");
         }
     }
 
@@ -591,7 +591,7 @@ public class WikiPage2HtmlTest {
     public void testGenerateAnchor() {
         PageElement contentPage = new Anchor("anchorname");
         HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-        assertEquals(getHtml(htmlWriter), "<a name=\"anchorname\"></a>");
+        assertEquals(getHtml(htmlWriter), "<span id=\"anchorname\"></span>");
     }
 
     @Test
@@ -631,7 +631,7 @@ public class WikiPage2HtmlTest {
     public void testGenerateSearchInput() {
         PageElement contentPage = new SearchInput(null, null);
         HtmlWriter htmlWriter = new WikiPage2Html(settings, messages, wikiService, false).generate(contentPage);
-        assertEquals(getHtml(htmlWriter), "<form method=\"get\" action=\"/search/\" enctype=\"application/x-www-form-urlencoded; charset=utf-8\" name=\"searchForm\"><input type=\"text\" name=\"text\" placeholder=\"ViewPageHandler.html.search\"></form>");
+        assertEquals(getHtml(htmlWriter), "<form method=\"get\" action=\"/search/\" enctype=\"application/x-www-form-urlencoded\" name=\"searchForm\"><input type=\"text\" name=\"text\" placeholder=\"ViewPageHandler.html.search\"></form>");
     }
 
     private static String getHtml(HtmlWriter htmlWriter) {
