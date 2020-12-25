@@ -48,6 +48,37 @@ import java.util.*;
  */
 public class EditorHandler {
 
+    private static final String ERROR_KEY = "EditorHandler.error";
+    private static final String DELETE_ERROR_KEY = "EditorHandler.delete.error";
+    private static final String DELETE_CONFIRMATION_KEY = "EditorHandler.delete.confirmation";
+    private static final String SAVE_INVALID_NAME_KEY = "EditorHandler.save.invalidName";
+    private static final String SAVE_ALREADY_EXISTING_KEY = "EditorHandler.save.alreadyExisting";
+    private static final String SAVE_ERROR_KEY = "EditorHandler.save.error";
+    private static final String EDITOR_ERROR_KEY = "EditorHandler.editor.error";
+    private static final String EDITOR_TITLE_NEW_PAGE_KEY = "EditorHandler.editor.title.newPage";
+    private static final String EDITOR_INPUT_TITLE_KEY = "EditorHandler.editor.input.title";
+    private static final String EDITOR_INPUT_CONTENT_KEY = "EditorHandler.editor.input.content";
+    private static final String EDITOR_INPUT_SAVE_KEY = "EditorHandler.editor.input.save";
+    private static final String EDITOR_INPUT_CANCEL_KEY = "EditorHandler.editor.input.cancel";
+    private static final String EDITOR_INPUT_DELETE_KEY = "EditorHandler.editor.input.delete";
+    private static final String EDITOR_INPUT_TEMPLATE_SELECT_KEY = "EditorHandler.editor.input.templateSelect";
+    private static final String EDITOR_INPUT_UPLOAD_HINT_KEY = "EditorHandler.editor.input.upload.hint";
+    private static final String EDITOR_INPUT_UPLOAD_TITLE_KEY = "EditorHandler.editor.input.upload.title";
+    private static final String EDITOR_HELP_KEY = "EditorHandler.editor.help";
+    private static final String EDITOR_UPLOADPANEL_TITLE_KEY = "EditorHandler.editor.uploadPanel.title";
+    private static final String EDITOR_UPLOADPANEL_FILE_KEY = "EditorHandler.editor.uploadPanel.file";
+    private static final String EDITOR_UPLOADPANEL_REPOSITORY_PATH_KEY = "EditorHandler.editor.uploadPanel.repositoryPath";
+    private static final String EDITOR_UPLOADPANEL_IMAGE_TAG_KEY = "EditorHandler.editor.uploadPanel.imageTag";
+    private static final String EDITOR_UPLOADPANEL_FILE_TAG_KEY = "EditorHandler.editor.uploadPanel.fileTag";
+    private static final String EDITOR_UPLOADPANEL_SAVE_KEY = "EditorHandler.editor.uploadPanel.save";
+    private static final String EDITOR_UPLOADPANEL_CANCEL_KEY = "EditorHandler.editor.uploadPanel.cancel";
+    private static final String UPLOAD_NO_FILE_SELECTED_KEY = "EditorHandler.upload.no-file-selected";
+    private static final String UPLOAD_MULTIPLE_FILES_SELECTED_KEY = "EditorHandler.upload.multiple-files-selected";
+    private static final String UPLOAD_FILE_TOO_BIG_KEY = "EditorHandler.upload.file-too-big";
+    private static final String UPLOAD_INVALID_NAME_KEY = "EditorHandler.upload.invalidName";
+    private static final String UPLOAD_PARENT_NAVIGATION_KEY = "EditorHandler.upload.parentNavigation";
+    private static final String UPLOAD_ALREADY_EXISTING_KEY = "EditorHandler.upload.alreadyExisting";
+
     private final Logger logger;
     private final Settings settings;
     private final Messages messages;
@@ -106,7 +137,7 @@ public class EditorHandler {
                 return showEditor(pagePath, fromPos, toPos);
             }
         } catch (ServiceException e) {
-            return htmlService.generateErrorPage(500, e, "EditorHandler.error", e.getMessage());
+            return htmlService.generateErrorPage(500, e, ERROR_KEY, e.getMessage());
         }
     }
 
@@ -116,11 +147,10 @@ public class EditorHandler {
     @NotNull
     private HttpResponse cancelEditing(@Nullable String pagePath) {
         if (pagePath != null) {
-            // Seite existiert bereits, diese anzeigen
+            // wiki page already exists -> show wiki page
             return htmlService.generateRedirectToWikiPage(pagePath);
         } else {
-            // das Anlegen einer neuen Seite wurde abgebrochen,
-            // Startseite anzeigen
+            // no existing wiki page -> show start page
             return htmlService.generateRedirectToWikiPage(settings.getStartpagePath());
         }
     }
@@ -135,7 +165,7 @@ public class EditorHandler {
             return htmlService.generateRedirectToWikiPage(settings.getStartpagePath());
         } catch (ServiceException e) {
             logger.write("Error deleting wiki page '" + pagePath + "'", e);
-            String msg = messages.getMessage("EditorHandler.delete.error", e.getMessage());
+            String msg = messages.getMessage(DELETE_ERROR_KEY, e.getMessage());
             throw new ServiceException(msg, e);
         }
     }
@@ -160,7 +190,7 @@ public class EditorHandler {
         newPagePath = newPagePath.trim();
         if (newPagePath.length() == 0 || newPagePath.endsWith("/")) {
             logger.write("Cannot save wiki page with invalid name '" + newPagePath + "'");
-            String msg = messages.getMessage("EditorHandler.save.invalidName", newPagePath);
+            String msg = messages.getMessage(SAVE_INVALID_NAME_KEY, newPagePath);
             throw new ServiceException(msg);
         }
         if (newPagePath.charAt(0) != '/') {
@@ -175,7 +205,7 @@ public class EditorHandler {
         // catch renaming to an existing page
         if ((oldPagePath == null || !oldPagePath.equals(newPagePath)) && wikiService.existsWikiFile(newPagePath)) {
             logger.write("Cannot create wiki page '" + newPagePath + "' as there is already a page with the same name");
-            String msg = messages.getMessage("EditorHandler.save.alreadyExisting", newPagePath);
+            String msg = messages.getMessage(SAVE_ALREADY_EXISTING_KEY, newPagePath);
             throw new ServiceException(msg);
         }
 
@@ -194,7 +224,7 @@ public class EditorHandler {
             wikiService.writeWikiText(newPagePath, wikiText);
         } catch (ServiceException e) {
             logger.write("Error saving wiki page '" + newPagePath + "'", e);
-            String msg = messages.getMessage("EditorHandler.save.error", newPagePath, e.getMessage());
+            String msg = messages.getMessage(SAVE_ERROR_KEY, newPagePath, e.getMessage());
             throw new ServiceException(msg, e);
         }
 
@@ -222,7 +252,7 @@ public class EditorHandler {
                 wikiText = wikiService.readWikiText(pagePath, fromPosInt, toPosInt);
             } catch (ServiceException e) {
                 logger.write("Wiki page '" + pagePath + "' not found", e);
-                String msg = messages.getMessage("EditorHandler.editor.error", pagePath, e.getMessage());
+                String msg = messages.getMessage(EDITOR_ERROR_KEY, pagePath, e.getMessage());
                 throw new ServiceException(msg, e);
             }
         } else {
@@ -304,7 +334,7 @@ public class EditorHandler {
             writer.setTitle(PathUtils.extractWebName(pagePath));
             writer.setBodyParams("onload=\"initPage(false)\"");
         } else {
-            String msg = messages.getMessage("EditorHandler.editor.title.newPage");
+            String msg = messages.getMessage(EDITOR_TITLE_NEW_PAGE_KEY);
             writer.setTitle(msg);
             writer.setBodyParams("onload=\"initPage(true)\"");
         }
@@ -313,10 +343,10 @@ public class EditorHandler {
         writer.openTag("script", "type=\"text/javascript\"");
         writer.htmlText("\n");
         writer.htmlText("  var folderPath = '" + JavaScriptUtils.escapeJavaScript(PathUtils.extractWebFolder(pagePath)) + "';\n");
-        writer.htmlText("  var deleteConfirmationMsg = '" + JavaScriptUtils.escapeJavaScript(messages.getMessage("EditorHandler.delete.confirmation")) + "';\n");
-        writer.htmlText("  var uploadNoFileMsg = '" + JavaScriptUtils.escapeJavaScript(messages.getMessage("EditorHandler.upload.no-file-selected")) + "';\n");
-        writer.htmlText("  var uploadMultipleFilesMsg = '" + JavaScriptUtils.escapeJavaScript(messages.getMessage("EditorHandler.upload.multiple-files-selected")) + "';\n");
-        writer.htmlText("  var uploadTooBigMsg = '" + JavaScriptUtils.escapeJavaScript(messages.getMessage("EditorHandler.upload.file-too-big")) + "';\n");
+        writer.htmlText("  var deleteConfirmationMsg = '" + JavaScriptUtils.escapeJavaScript(messages.getMessage(DELETE_CONFIRMATION_KEY)) + "';\n");
+        writer.htmlText("  var uploadNoFileMsg = '" + JavaScriptUtils.escapeJavaScript(messages.getMessage(UPLOAD_NO_FILE_SELECTED_KEY)) + "';\n");
+        writer.htmlText("  var uploadMultipleFilesMsg = '" + JavaScriptUtils.escapeJavaScript(messages.getMessage(UPLOAD_MULTIPLE_FILES_SELECTED_KEY)) + "';\n");
+        writer.htmlText("  var uploadTooBigMsg = '" + JavaScriptUtils.escapeJavaScript(messages.getMessage(UPLOAD_FILE_TOO_BIG_KEY)) + "';\n");
         writer.closeTag(); // script
 
         // navigation
@@ -348,13 +378,13 @@ public class EditorHandler {
         if ("/".equals(pagePathInEditor)) {
             pagePathInEditor = ""; // avoid null value
         }
-        String titleeditorHint = messages.getMessage("EditorHandler.editor.input.title");
+        String titleeditorHint = messages.getMessage(EDITOR_INPUT_TITLE_KEY);
         writer.htmlText("<input type=\"text\" class=\"titleinput\" name=\"titleeditor\" placeholder=\"" + EscapeUtils.escapeHtml(titleeditorHint)
                 + "\" value=\"" + EscapeUtils.escapeHtml(pagePathInEditor) + "\" />");
         writer.setContinueInNewLine();
 
         // wiki page content editor
-        String contenteditorHint = messages.getMessage("EditorHandler.editor.input.content");
+        String contenteditorHint = messages.getMessage(EDITOR_INPUT_CONTENT_KEY);
         writer.openTag("textarea",
                 "cols=\"80\" rows=\"10\" name=\"contenteditor\" class=\"textinput\" placeholder=\"" + EscapeUtils.escapeHtml(contenteditorHint) + "\"");
         // avoid that the browser ignore initial white space
@@ -370,9 +400,9 @@ public class EditorHandler {
         writer.setContinueInNewLine();
 
         writer.openDivTag("section"); // block 1
-        String saveTitle = messages.getMessage("EditorHandler.editor.input.save");
+        String saveTitle = messages.getMessage(EDITOR_INPUT_SAVE_KEY);
         writer.htmlText("<button type=\"submit\" name=\"save\" class=\"save\">" + EscapeUtils.escapeHtml(saveTitle) + "</button>");
-        String cancelTitle = messages.getMessage("EditorHandler.editor.input.cancel");
+        String cancelTitle = messages.getMessage(EDITOR_INPUT_CANCEL_KEY);
         writer.htmlText("<button type=\"submit\" name=\"cancel\" class=\"cancel\">" + EscapeUtils.escapeHtml(cancelTitle) + "</button>");
         writer.closeTag(); // div block 1
 
@@ -381,23 +411,23 @@ public class EditorHandler {
         if (!wikiService.existsWikiFile(pagePath)) {
             disabledAttribute = " disabled=\"true\"";
         }
-        String deleteTitle = messages.getMessage("EditorHandler.editor.input.delete");
+        String deleteTitle = messages.getMessage(EDITOR_INPUT_DELETE_KEY);
         writer.htmlText("<button type=\"button\" name=\"deleteButton\" class=\"delete\"" + " onclick=\"sendDelete()\"" + disabledAttribute
                 + ">" + EscapeUtils.escapeHtml(deleteTitle) + "</button>");
         writer.closeTag(); // div block 2
 
         writer.openDivTag("section"); // block 3
         writer.openTag("select", "name=\"TemplateSelect\" class=\"TemplateSelect\"" + " onchange=\"insertTemplate(this.selectedIndex)\"");
-        String templateSelectOption = messages.getMessage("EditorHandler.editor.input.templateSelect");
+        String templateSelectOption = messages.getMessage(EDITOR_INPUT_TEMPLATE_SELECT_KEY);
         writer.htmlText("<option>" + EscapeUtils.escapeHtml(templateSelectOption) + "</option>");
         writer.closeTag(); // select
-        String helpTitle = messages.getMessage("EditorHandler.editor.help");
+        String helpTitle = messages.getMessage(EDITOR_HELP_KEY);
         writer.htmlText("<a href=\"/view/wiki/syntax/\" target=\"_blank\">" + EscapeUtils.escapeHtml(helpTitle) + "</a>");
         writer.closeTag(); // div block 3
 
-        String uploadHint = messages.getMessage("EditorHandler.editor.input.upload.hint");
+        String uploadHint = messages.getMessage(EDITOR_INPUT_UPLOAD_HINT_KEY);
         writer.openDivTag("uploadarea", "id=\"uploadarea\" onclick=\"showPanel('uploadPanelId')\" title=\"" + EscapeUtils.escapeHtml(uploadHint) + "\"");
-        String uploadTitle = messages.getMessage("EditorHandler.editor.input.upload.title");
+        String uploadTitle = messages.getMessage(EDITOR_INPUT_UPLOAD_TITLE_KEY);
         writer.htmlText(EscapeUtils.escapeHtml(uploadTitle));
         writer.closeTag(); // uploadarea
         writer.closeTag(); // div controlarea
@@ -420,7 +450,7 @@ public class EditorHandler {
 
         writer.openDivTag("panel uploadpanel");
         writer.openDivTag("header");
-        String title = messages.getMessage("EditorHandler.editor.uploadPanel.title");
+        String title = messages.getMessage(EDITOR_UPLOADPANEL_TITLE_KEY);
         writer.htmlText(EscapeUtils.escapeHtml(title));
         writer.closeTag(); // div.header
 
@@ -428,14 +458,14 @@ public class EditorHandler {
         writer.openFormTag("uploadForm");
 
         writer.openDivTag("section", "id=\"fileSelectId\"");
-        String fileLabel = messages.getMessage("EditorHandler.editor.uploadPanel.file");
+        String fileLabel = messages.getMessage(EDITOR_UPLOADPANEL_FILE_KEY);
         writer.htmlText("<label for=\"fileInputId\">" + EscapeUtils.escapeHtml(fileLabel) + "</label>");
         writer.htmlNewLine();
         writer.htmlText("<input type=\"file\" id=\"fileInputId\" name=\"fileSelect\" />");
         writer.closeTag(); // div.section
 
         writer.openDivTag("section");
-        String repositoryLabel = messages.getMessage("EditorHandler.editor.uploadPanel.repositoryPath");
+        String repositoryLabel = messages.getMessage(EDITOR_UPLOADPANEL_REPOSITORY_PATH_KEY);
         writer.htmlText("<label for=\"uploadRepositoryPathId\">" + EscapeUtils.escapeHtml(repositoryLabel) + "</label>");
         writer.htmlNewLine();
         writer.htmlText("<input type=\"text\" id=\"uploadRepositoryPathId\" name=\"uploadRepositoryPath\" />");
@@ -443,19 +473,19 @@ public class EditorHandler {
 
         writer.openDivTag("section");
         writer.htmlText("<input type=\"checkbox\" id=\"generateImageTagId\" name=\"generateImageTag\" checked=\"true\">");
-        String imageTagLabel = messages.getMessage("EditorHandler.editor.uploadPanel.imageTag");
+        String imageTagLabel = messages.getMessage(EDITOR_UPLOADPANEL_IMAGE_TAG_KEY);
         writer.htmlText("<label id=\"generateImageTagLabelId\" for=\"generateImageTagId\">" + EscapeUtils.escapeHtml(imageTagLabel) + "</label>");
         writer.htmlNewLine();
         writer.htmlText("<input type=\"checkbox\" id=\"generateFileTagId\" name=\"generateFileTag\" checked=\"true\">");
-        String fileTagLabel = messages.getMessage("EditorHandler.editor.uploadPanel.fileTag");
+        String fileTagLabel = messages.getMessage(EDITOR_UPLOADPANEL_FILE_TAG_KEY);
         writer.htmlText("<label id=\"generateFileTagLabelId\" for=\"generateFileTagId\">" + EscapeUtils.escapeHtml(fileTagLabel) + "</label>");
         writer.closeTag(); // div.section
 
         writer.openDivTag("footer");
-        String saveButton = messages.getMessage("EditorHandler.editor.uploadPanel.save");
+        String saveButton = messages.getMessage(EDITOR_UPLOADPANEL_SAVE_KEY);
         writer.htmlText("<button type=\"button\" name=\"uploadButton\" class=\"save\" onclick=\"handleFileUpload('uploadPanelId')\">"
                 + EscapeUtils.escapeHtml(saveButton) + "</button>");
-        String cancelButton = messages.getMessage("EditorHandler.editor.uploadPanel.cancel");
+        String cancelButton = messages.getMessage(EDITOR_UPLOADPANEL_CANCEL_KEY);
         writer.htmlText("<button type=\"button\" name=\"cancelButton\" class=\"cancel\" onclick=\"hidePanel('uploadPanelId')\">"
                 + EscapeUtils.escapeHtml(cancelButton) + "</button>");
         writer.closeTag(); // div.footer
@@ -511,13 +541,13 @@ public class EditorHandler {
         // catch invalid filename
         if (filePath.length() == 0 || filePath.endsWith("/")) {
             logger.write("Upload file name '" + filePath + "' is invalid");
-            String msg = messages.getMessage("EditorHandler.upload.invalidName", filePath);
+            String msg = messages.getMessage(UPLOAD_INVALID_NAME_KEY, filePath);
             return generateJsonResponse(400, msg);
         }
         // catch backwards path navigation
         if (filePath.contains("..")) {
             logger.write("Upload file name '" + filePath + "' contains illegal parent navigation");
-            String msg = messages.getMessage("EditorHandler.upload.parentNavigation", filePath);
+            String msg = messages.getMessage(UPLOAD_PARENT_NAVIGATION_KEY, filePath);
             return generateJsonResponse(400, msg);
         }
         if (filePath.charAt(0) != '/') {
@@ -527,7 +557,7 @@ public class EditorHandler {
         try {
             if (repositoryService.getFile(filePath) != null) {
                 logger.write("Upload file name '" + filePath + "' already exists");
-                String msg = messages.getMessage("EditorHandler.upload.alreadyExisting", filePath);
+                String msg = messages.getMessage(UPLOAD_ALREADY_EXISTING_KEY, filePath);
                 throw new Exception(msg);
             }
             AnyFile anyFile = new AnyFile(filePath);
