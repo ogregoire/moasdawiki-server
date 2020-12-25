@@ -112,7 +112,7 @@ public class WikiPage2Html {
 	 * Übersetzt ein einzelnes Seitenelement.
 	 *
 	 * Wiki-interne Elemente werden hier ignoriert.
-	 * Diese müssen vorher durch Plugins in normale Elemente umgewandelt worden sein.
+	 * Diese müssen vorher durch Transformer in normale Elemente umgewandelt worden sein.
 	 * 
 	 * @param element Das zu übersetzende Seitenelement.
 	 */
@@ -804,7 +804,7 @@ public class WikiPage2Html {
 
 	/**
 	 * Gibt den Inhalt des SemanticTag aus, ohne den Namen des semantischen Tags selbst auszugeben.
-	 * Offensichtlich war kein Plugin vorhanden, das dieses Tag behandelt hat.
+	 * Offensichtlich war kein Transformer vorhanden, das dieses Tag behandelt hat.
 	 */
 	private void convertPageElement(@NotNull XmlTag xmlTag) {
 		// XML-Tag selbst ist unsichtbar -> ignorieren

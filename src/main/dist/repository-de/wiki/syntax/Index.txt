@@ -270,7 +270,7 @@ Kommentar */%%@@
 
 Zu den speziellen Wiki-Befehlen gibt es eine [[Wiki-Befehle | detailliertere Syntaxbeschreibung]].
 
-= Semantische Tags und Plugins
+= Semantische Tags
 
 {|fullwidth
 |Meine Adresse:
@@ -301,4 +301,4 @@ Zu den speziellen Wiki-Befehlen gibt es eine [[Wiki-Befehle | detailliertere Syn
 |-
 |}
 
-Für weitere Details siehe [[../Plugins]] und [[Kontakte und Termine]].
+Für weitere Details siehe [[Kontakte und Termine]].

@@ -20,7 +20,3 @@ Um ein Java-Applet in einer Wiki-Seite anzuzeigen, folgenden Codeabschnitt einf√
 Das Applet muss kompiliert werden und die class-Datei (im obigen Beispiel MyApplet.class) ins root-Verzeichnis im Repository kopiert werden.
 
 Eine Anleitung zum Schreiben eines Java-Applets gibt es z.B. unter [[http://www.tutego.com/javabuch/javainsel6/javainsel_19_001.htm]].
-
-= Kann ##MoasdaWiki## erweitert werden?
-
-Ja, ''MoasdaWiki'' ist √ºber Plugins erweiterbar. Eine Anleitung dazu ist auf der Seite [[Plugins]] zu finden.

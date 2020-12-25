@@ -298,5 +298,3 @@ See also the [[WikiCommands | detailed syntax description]] on wiki commands.
 // to define a name space.%%@@
 |-
 |}
-
-See also [[../Plugins]].

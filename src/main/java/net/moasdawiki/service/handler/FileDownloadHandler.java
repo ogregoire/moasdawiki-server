@@ -30,8 +30,8 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Bearbeitet Anfragen zum Download von statischen Dateien. Anhand der
- * Dateiendung wird automatisch ein passender Content-Type ermittelt. Dieses
- * Plugin wird bei den URLs <tt>/*.*</tt>, <tt>/img/...</tt> und
+ * Dateiendung wird automatisch ein passender Content-Type ermittelt. Diese
+ * Klasse wird bei den URLs <tt>/*.*</tt>, <tt>/img/...</tt> und
  * <tt>/file/...</tt> aufgerufen.<br>
  * <br>
  * Mit <tt>/...</tt> werden Dateien im Wurzelordner ("root") des Repositories

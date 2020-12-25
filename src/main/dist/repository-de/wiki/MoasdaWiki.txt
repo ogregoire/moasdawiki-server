@@ -23,7 +23,6 @@ Das Besondere an ''MoasdaWiki'' ist:
 * keine Installation notwendig, daher auch auf USB-Stick lauffähig
 * keine besonderen Systemanforderungen wie Datenbank oder Webserver
 * auf jedem System mit einer Java VM ab 1.8 lauffähig
-* erweiterbar durch [[Plugins]]
 * kostenlos nutzbar, Quelltext verfügbar
 
 °°Siehe auch°°
@@ -45,7 +44,7 @@ Das Besondere an ''MoasdaWiki'' ist:
 ** Header und Footer der Webseiten über die Seiten [[SeiteKopfzeilen]] und [[SeiteFusszeilen]] anpassbar
 ** anpassbarer HTML-Header über sie Seite [[HtmlHeader]], um z.B. eigene Stylesheets oder JavaScript-Bibliotheken einzubinden
 ** Änderung der Konfiguration über die Seite [[/config]]
-* erweiterbar durch [[Plugins]], Internationalisierung durch [[messages]]
+* Internationalisierung durch [[messages]]
 * Anzeige der zuletzt geänderten und zuletzt besuchten Seiten
 
 = Was ist MoasdaWiki ##nicht##?

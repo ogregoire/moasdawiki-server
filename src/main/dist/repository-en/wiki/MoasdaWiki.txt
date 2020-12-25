@@ -23,7 +23,6 @@ The key features are:
 * No setup necessary, can be run from a USB stick
 * No special system requirements like database or application server
 * Runs on any system with a Java VM 1.8 or higher
-* Extendable by plugins
 * Free of charge, open source
 
 °°See also°°
@@ -43,7 +42,6 @@ The key features are:
 ** Page header and footer can be modified
 ** Customizable HTML header, e.g. to include your own CSS stylesheets and JavaScript libraries
 ** Configuration file withs lots of options
-* Extensible via plugins
 * Internationalization via message files
 * List of recently modified and viewed pages
 

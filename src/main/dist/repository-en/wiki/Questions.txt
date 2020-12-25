@@ -16,7 +16,3 @@ Add the following code snipped to your wiki page:
   </applet>
 {{/html}}
 @@
-
-= Can I extend ##MoasdaWiki##?
-
-Yes, ''MoasdaWiki'' is extensible by plug-ins. For a detailed manual see [[Plugins]].

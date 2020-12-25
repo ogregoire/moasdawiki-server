@@ -31,7 +31,7 @@ import net.moasdawiki.util.EscapeUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Stellt eine Wikiseite als HTML-Seite dar. Dieses Plugin wird über die URLs
+ * Stellt eine Wikiseite als HTML-Seite dar. Diese Klasse wird über die URLs
  * <tt>/view/...</tt> und <tt>/</tt> (Root-Pfad) aufgerufen.<br>
  * <br>
  * Ordnerlisting: Endet der Pfad mit <tt>/</tt>, dann wird der Ordner-Index
@@ -40,7 +40,7 @@ import org.jetbrains.annotations.NotNull;
  * Wikiseite mit dem Namen <tt>Index</tt> im Ordner gesucht. Wenn es keine
  * solche Wikiseite gibt, die die Standard-Indexseite verwendet. Dies kann über
  * die Einstellungen <tt>page.index.name</tt> und <tt>page.index.default</tt>
- * konfiguriert werden. Sind beide Einstellungen nicht definiert, ist das
+ * konfiguriert werden. Sind beide Einstellungen leer, ist das
  * Ordnerlisting abgeschaltet.
  */
 public class ViewPageHandler {

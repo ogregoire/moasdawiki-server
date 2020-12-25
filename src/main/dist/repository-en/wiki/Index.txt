@@ -7,7 +7,6 @@ Utility pages
 ** [[syntax/WikiCommands]]
 * [[WikiSearch]]
 * [[Templates]]
-* [[Plugins | Write own Plug-ins]]
 * [[Questions | Questions and Answers]]
 
 Configuration

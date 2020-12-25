@@ -13,7 +13,6 @@ For documentation see https://moasdawiki.net/.
 - No setup necessary, can be run from a USB stick
 - No special system requirements like database or application server
 - Runs on any system with a Java VM 1.8 or higher
-- Extendable by plugins
 - App available, always have a copy of the Wiki content on your mobile device, see https://gitlab.com/moasdawiki/moasdawiki-app.
 - Free of charge, open source
 
@@ -30,7 +29,6 @@ For documentation see https://moasdawiki.net/.
   - Page header and footer can be modified
   - Customizable HTML header, e.g. to include your own CSS stylesheets and JavaScript libraries
   - Configuration file withs lots of options
-- Extensible via plugins
 - Internationalization via message files
 - List of recently modified and viewed pages
 

@@ -1,6 +1,6 @@
 = Kontakte anlegen
 
-''MoasdaWiki'' enthält ein Plugin zur Unterstützung einer eigenen Kontaktsammlung.
+''MoasdaWiki'' enthält eine Unterstützung einer eigenen Kontaktsammlung.
 
 Features
 * einheitliche Darstellung von Kontaktseiten

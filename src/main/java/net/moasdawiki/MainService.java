@@ -78,11 +78,11 @@ public class MainService {
 		// transformers
 		IncludePageTransformer includePageTransformer = new IncludePageTransformer(logger, wikiService);
 		KontaktseiteTransformer kontaktseiteTransformer = new KontaktseiteTransformer();
-		TerminTransformer terminPlugin = new TerminTransformer(logger, messages, repositoryService, wikiService);
+		TerminTransformer terminTransformer = new TerminTransformer(logger, messages, repositoryService, wikiService);
 		SynchronizationPageTransformer synchronizationPageTransformer = new SynchronizationPageTransformer(messages, synchronizationService);
 		WikiTagsTransformer wikiTagsTransformer = new WikiTagsTransformer(logger, settings, messages, wikiService);
 		// list of transformers, the order matters
-		TransformWikiPage[] transformers = {includePageTransformer, kontaktseiteTransformer, terminPlugin, synchronizationPageTransformer, wikiTagsTransformer};
+		TransformWikiPage[] transformers = {includePageTransformer, kontaktseiteTransformer, terminTransformer, synchronizationPageTransformer, wikiTagsTransformer};
 		TransformerService transformerService = new TransformerService(transformers);
 
 		// more services
