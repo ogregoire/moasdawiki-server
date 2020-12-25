@@ -1,28 +1,13 @@
-/*
- * Allgemeine Hilfsfunktionen.
- */
+/******************************************
+  General helper methods
+*******************************************/
 
+/* Create Ajax communication object. */
 createRequestObject = function() {
-	try {
-		return new XMLHttpRequest(); // Mozilla, Opera 8+, Safari, IE 7+
-	} catch (e) {
-		// Internet Explorer
-		try {
-			return new ActiveXObject("Microsoft.XMLHTTP"); // IE 6
-		} catch (e) {
-			try {
-				return new ActiveXObject("Msxml2.XMLHTTP"); // IE 5
-			} catch (e) {
-				return false;
-			}
-		}
-	}
+	return new XMLHttpRequest();
 };
 
-/**
- * Fügt eine CSS-Klasse zum Element hinzu. Wenn die CSS-Klasse bereits gesetzt
- * ist, passiert nichts.
- */
+/* Add a CSS class to a HTML element. */
 addCssClass = function(elementOrId, cssClass) {
 	var elementNode;
 	if (typeof (elementOrId) == 'string') {
@@ -35,10 +20,7 @@ addCssClass = function(elementOrId, cssClass) {
 	}
 };
 
-/**
- * Entfernt einen CSS-Klasse von einem Element. Ist keine solche CSS-Klasse
- * gesetzt, passiert nichts.
- */
+/* Remove a CSS class from a HTML element. */
 removeCssClass = function(elementOrId, cssClass) {
 	var elementNode;
 	if (typeof (elementOrId) == 'string') {
@@ -52,10 +34,7 @@ removeCssClass = function(elementOrId, cssClass) {
 	}
 };
 
-/**
- * Setzt oder entfernt die CSS-Klasse bei einem Element abhängig vom parameter
- * "enable".
- */
+/* Add or remove a CSS class to/from a HTML element. */
 setCssClass = function(elementOrId, cssClass, enable) {
 	if (enable) {
 		addCssClass(elementOrId, cssClass);
@@ -64,9 +43,7 @@ setCssClass = function(elementOrId, cssClass, enable) {
 	}
 };
 
-/**
- * Gibt zurück, ob eine bestimmte CSS-Klasse bei einem Element gesetzt ist.
- */
+/* Check if a CSS class is present at a HTML element. */
 isCssClassSet = function(elementOrId, cssClass) {
 	var elementNode;
 	if (typeof (elementOrId) == 'string') {
@@ -78,11 +55,8 @@ isCssClassSet = function(elementOrId, cssClass) {
 	return (elementNode && (elementNode.className.match(re) != null));
 };
 
-/**
- * Macht ein Element sichtbar oder unsichtbar.
- * 
- * @param (boolean)
- *            show <code>true</code> --> sichtbar machen, ansonsten unsichtbar
+/* Makes a HTML element visible or invisible.
+ * show: boolean
  */
 setDisplay = function(elementOrId, show) {
 	var elementNode;
@@ -99,9 +73,7 @@ setDisplay = function(elementOrId, show) {
 	}
 };
 
-/**
- * Fügt Text in das angegebene Textfeld ein.
- */
+/* Inserts text in the text area. */
 insertIntoTextarea = function(elementOrId, text) {
 	var elementNode;
 	if (typeof (elementOrId) == 'string') {
@@ -114,7 +86,7 @@ insertIntoTextarea = function(elementOrId, text) {
 		var range = document.selection.createRange();
 		range.text = text;
 	} else if (typeof elementNode.selectionStart != 'undefined') {
-		// neuere auf Gecko basierende Browser
+		// Gecko based browsers
 		var start = elementNode.selectionStart;
 		var end = elementNode.selectionEnd;
 		elementNode.value = elementNode.value.substr(0, start) + text
@@ -124,21 +96,13 @@ insertIntoTextarea = function(elementOrId, text) {
 	}
 };
 
-/*
- * JavaScript-Unterstützung für den Wiki-Editor.
- * 
- * Einige Scripte setzen voraus, dass eine Variable "templates" mit der Liste
- * aller Wikivorlagen definiert ist. Beispiel:
- * 
- * var templates = [{name: "Name", content: "Inhalt"}];
- */
+/******************************************
+  Wiki editor helper methods
+*******************************************/
 
-/**
- * Löscht die aktuelle Wikiseite. Wird aufgerufen, wenn der Benutzer auf den
- * Löschen-Button klickt.
- */
+/* Ask for user confirmation before a wiki page is deleted. */
 sendDelete = function() {
-	if (confirm('Wikiseite wirklich löschen?')) {
+	if (confirm(deleteConfirmationMsg)) {
 		var form = document.forms['EditForm'];
 		var el = document.createElement('input');
 		el.type = 'hidden';
@@ -149,13 +113,7 @@ sendDelete = function() {
 	}
 };
 
-/**
- * Wird vom onchange-Event des Template-Dropdowns aufgerufen, wenn der Benutzer
- * einen Eintrag auswählt.
- * 
- * @param {Integer}
- *            selectedIndex
- */
+/* Called if user selects a template in the template dropdown. */
 insertTemplate = function(selectedIndex) {
 	if (selectedIndex >= 1) {
 		var templateContent = templates[selectedIndex - 1].content;
@@ -163,53 +121,44 @@ insertTemplate = function(selectedIndex) {
 	}
 };
 
-/**
- * Ermittelt browserübergreifend die aktuelle Innenhöhe des Browserfensters.
- * 
- * @see http://de.selfhtml.org/javascript/objekte/window.htm#inner_height
- */
+/* Determine the inner height of the browser window. */
 getWindowHeight = function() {
 	if (window.innerHeight) {
-		// Firefox und andere Browser
+		// Firefox and others
 		return window.innerHeight;
 	} else if (document.documentElement
 			&& document.documentElement.clientHeight) {
-		// IE im standardkonformen Modus
+		// IE in standard-compliant mode
 		return document.documentElement.clientHeight;
 	} else if (document.body && document.body.clientHeight) {
-		// IE im Normalmodus
+		// IE in normal mode
 		return document.body.clientHeight;
 	} else {
 		return undefined;
 	}
 };
 
-/**
- * Passt die Höhe des mehrzeiligen Editors an die Höhe des Browserfensters an.
- */
+/* Adopt the edit area to the browser height. */
 resizeEditor = function() {
 	var contenteditorTop = document.forms["EditForm"].elements["contenteditor"].offsetTop;
 	var controlareaHeight = document.getElementById('controlarea').offsetHeight;
 	var height = getWindowHeight() - controlareaHeight - contenteditorTop - 10;
 	if (height > 50) {
-		document.forms["EditForm"].elements["contenteditor"].style.height = height
-				+ "px";
+		document.forms["EditForm"].elements["contenteditor"].style.height = height + "px";
 	}
 };
 
 getShortPath = function(path) {
 	if (path.indexOf(folderPath) == 0) {
-		// selber oder Unterordner --> relativ
+		// same folder or subfolder --> relative
 		return path.substring(folderPath.length);
 	} else {
-		// anderer Pfad --> absolut lassen
+		// different folder --> keep absolute
 		return path;
 	}
 };
 
-/**
- * Steuert den visuellen Effekt der "uploadarea" bei Drag&Drop-Vorgang.
- */
+/* Visual effect of "uploadares" during drag&drop. */
 handleFileDragOver = function(event) {
 	event.stopPropagation();
 	event.preventDefault();
@@ -220,10 +169,7 @@ handleFileDragOver = function(event) {
 	}
 };
 
-/**
- * Wird aufgerufen, wenn eine Datei per Drag&Drop abgelegt wird. Öffnet das
- * Upload-Panel.
- */
+/* Called after a file is dropped on the upload area. */
 handleFileDrop = function(event) {
 	// hover entfernen
 	handleFileDragOver(event);
@@ -233,36 +179,34 @@ handleFileDrop = function(event) {
 		return;
 	}
 	if (files.length < 1) {
-		alert('Keine Datei ausgewählt!');
+		alert(uploadNoFileMsg);
 		return;
 	}
 	if (files.length > 1) {
-		alert('Bitte nur eine Datei auswählen!');
+		alert(uploadMultipleFilesMsg);
 		return;
 	}
 	if (files[0].size > 1000000) {
-		alert('Datei darf nicht größer als 1 MB sein!');
+		alert(uploadTooBigMsg);
 		return;
 	}
 
 	showPanel('uploadPanelId', files[0]);
 };
 
-/**
- * Wird aufgerufen, wenn im Panel eine Datei ausgewählt wird.
- */
+/* Called if the user selects a file in the panel. */
 handleFileSelect = function(event) {
 	var files = event.target.files;
 	if (!files) {
 		// nichts tun
 	} else if (files.length < 1) {
-		alert('Keine Datei ausgewählt!');
+		alert(uploadNoFileMsg);
 		files = null;
 	} else if (files.length > 1) {
-		alert('Bitte nur eine Datei auswählen!');
+		alert(uploadMultipleFilesMsg);
 		files = null;
 	} else if (files[0].size > 1000000) {
-		alert('Datei darf nicht größer als 1 MB sein!');
+		alert(uploadTooBigMsg);
 		files = null;
 	}
 
@@ -273,45 +217,32 @@ handleFileSelect = function(event) {
 	}
 };
 
-/**
- * Initialisiert die Panelfelder und zeigt das Panel an.
- * 
- * @param (String)
- *            panelId DIV, das das Panel enthält. Wird sichtbar gemacht.
- * @param (File)
- *            selectedFile Wenn gesetzt, wurde per Drag&Drop bereits eine Datei
- *            ausgewählt. Dann wird die Dateiauswahl im Panel unterdrückt.
+/* Initialize the upload panel and make it visible.
+ * panelId: String, panelId DIV
+ * selectedFile: File, dropped on upload area, null -> show file select in panel
  */
 showPanel = function(panelId, selectedFile) {
-	// Formularfelder leeren
 	document.uploadForm.reset();
 
-	// Dateiauswahl ggf. unsichtbar machen
 	var showFileSelect = (typeof (selectedFile) == 'undefined');
 	setDisplay('fileSelectId', showFileSelect);
 
-	// weitere Felder initialisieren
 	fillUploadInfo(selectedFile);
 
-	// Panel anzeigen
 	setDisplay(panelId, true);
 };
 
-/**
- * Macht das Panel unsichtbar.
- * 
- * @param (String)
- *            panelId DIV, das das Panel enthält. Wird unsichtbar gemacht.
+/* Hide the upload panel.
+ * panelId: String, panelId DIV
  */
 hidePanel = function(panelId) {
-	// Panel verbergen
 	setDisplay(panelId, false);
 };
 
 fillUploadInfo = function(selectedFile) {
 	var selectedFileDefined = (typeof selectedFile != 'undefined');
 
-	// Repository-Dateiname vorschlagen
+	// Suggest a repository file name
 	var uploadPath = folderPath;
 	if (selectedFileDefined) {
 		uploadPath += selectedFile.name;
@@ -319,7 +250,7 @@ fillUploadInfo = function(selectedFile) {
 	document.uploadForm.uploadRepositoryPath.value = uploadPath;
 	document.uploadForm.uploadRepositoryPath.disabled = !selectedFileDefined;
 
-	// Bild-Tag-Checkbox nur bei einem Bild anbieten
+	// show image tag checkbox only for an image
 	var isImage = (selectedFile && selectedFile.name
 			.match(/\.(gif|jpg|jpeg|png)$/i) != null);
 	document.uploadForm.generateImageTag.checked = isImage;
@@ -327,27 +258,24 @@ fillUploadInfo = function(selectedFile) {
 	setCssClass('generateImageTagLabelId', 'disabled',
 			!document.uploadForm.generateImageTag.checked);
 
-	// Download-Link
+	// download link
 	document.uploadForm.generateFileTag.disabled = !selectedFileDefined;
 	document.uploadForm.generateFileTag.checked = selectedFileDefined
 			&& !document.uploadForm.generateImageTag.checked;
 	setCssClass('generateFileTagLabelId', 'disabled', !selectedFileDefined);
 
-	// Upload-Button
+	// upload button
 	document.uploadForm.uploadButton.disabled = !selectedFileDefined;
 
-	// Datei merken
+	// remember file
 	lastSelectedFile = selectedFile;
 };
 
-/**
- * Wird vom Upload-Button aufgerufen.
- */
+/* Called if user clicks on upload button. */
 handleFileUpload = function(panelId) {
-	// Datei hochladen
 	var uploadPath = document.uploadForm.uploadRepositoryPath.value;
 	if (uploadPath.length > 0 && uploadPath.charAt(0) != '/') {
-		// relativen Pfad absolut machen
+		// make relative path absolute
 		uploadPath = folderPath + uploadPath;
 	}
 	var url = '/upload' + uploadPath;
@@ -358,10 +286,10 @@ handleFileUpload = function(panelId) {
 	}
 	http.onreadystatechange = function(e) {
 		if (http.readyState == 4) {
-			// Ende des Uploads
+			// upload finished
 			hidePanel(panelId);
 			if (http.status == 200) {
-				// Tags in Wikitext einfügen
+				// add tags to wiki page content
 				if (document.uploadForm.generateImageTag.checked) {
 					var tag = '{{image:' + getShortPath(uploadPath) + '}}\n';
 					insertIntoTextarea(document.EditForm.contenteditor, tag);
@@ -371,7 +299,6 @@ handleFileUpload = function(panelId) {
 					insertIntoTextarea(document.EditForm.contenteditor, tag);
 				}
 			} else {
-				// Fehler anzeigen
 				var jsonObj = eval('(' + http.responseText + ')');
 				alert('Konnte die Datei nicht hochladen: ' + jsonObj.message);
 			}
@@ -379,16 +306,10 @@ handleFileUpload = function(panelId) {
 	};
 };
 
-/**
- * Wird vom onload-Event der Editorseite aufgerufen, um die Seitenelemente zu
- * initialisieren.
- * 
- * @param {Boolean}
- *            newPage true -> neue Wikiseite wird erstellt,<br>
- *            false -> eine bestehende Wikiseite wird bearbeitet.
+/* Called after web page loading.
+ * newPage: Boolean, true -> new wiki page, false -> existing wiki page
  */
 initPage = function(newPage) {
-	// Fokus in Editor setzen
 	if (newPage) {
 		var field = document.forms["EditForm"].elements["titleeditor"];
 		field.focus();
@@ -401,18 +322,18 @@ initPage = function(newPage) {
 		field.selectionEnd = 0;
 	}
 
-	// Template-Dropdown befüllen
+	// fill template dropdown
 	var templateSelectTag = document.forms["EditForm"].elements["TemplateSelect"];
 	for (i = 0; i < templates.length; i++) {
 		templateSelectTag.options[templateSelectTag.options.length] = new Option(
 				templates[i].name);
 	}
 
-	// Editorhöhe anpassen
+	// resize editor area
 	resizeEditor();
 	window.onresize = resizeEditor;
 
-	// Events einhängen
+	// attach listeners
 	var uploadarea = document.getElementById('uploadarea');
 	uploadarea.addEventListener("dragover", handleFileDragOver, false);
 	uploadarea.addEventListener("dragleave", handleFileDragOver, false);
@@ -421,9 +342,9 @@ initPage = function(newPage) {
 	fileInput.addEventListener('change', handleFileSelect, false);
 };
 
-/*
- * JavaScript-Unterstützung für das SynchronizationPlugin.
- */
+/******************************************
+  JavaScript support for synchronization
+*******************************************/
 
 syncPermitSession = function(sessionId) {
 	var url = '/sync-gui/session-permit?session-id=' + sessionId;
@@ -434,18 +355,17 @@ syncPermitSession = function(sessionId) {
 	}
 	http.onreadystatechange = function(e) {
 		if (http.readyState == 4) {
-			// Ende des Requests, Antwort ist da
+			// request finished
 			if (http.status == 200) {
 				var jsonObj = eval('(' + http.responseText + ')');
 				if (jsonObj.code == 0) {
 					location.reload();
 				} else {
-					alert('Fehler: ' + jsonObj.message);
+					alert('Error: ' + jsonObj.message);
 				}
 
 			} else {
-				// Fehler anzeigen
-				alert('HTTP-Status-Code: ' + http.status);
+				alert('HTTP Status Code: ' + http.status);
 			}
 		}
 	};
@@ -460,18 +380,17 @@ syncDropSession = function(sessionId) {
 	}
 	http.onreadystatechange = function(e) {
 		if (http.readyState == 4) {
-			// Ende des Requests, Antwort ist da
+			// request finished
 			if (http.status == 200) {
 				var jsonObj = eval('(' + http.responseText + ')');
 				if (jsonObj.code == 0) {
 					location.reload();
 				} else {
-					alert('Fehler: ' + jsonObj.message);
+					alert('Error: ' + jsonObj.message);
 				}
 
 			} else {
-				// Fehler anzeigen
-				alert('HTTP-Status-Code: ' + http.status);
+				alert('HTTP Status Code: ' + http.status);
 			}
 		}
 	};

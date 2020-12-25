@@ -17,6 +17,7 @@ wiki.server.url = The wiki server can be accessed by the URL:
 wiki.server.url.unmapped = Unsupported URL {0}
 
 EditorHandler.delete.error = Wiki page ''{0}'' couldn''t be deleted: {1}
+EditorHandler.delete.confirmation = Delete wiki page?
 EditorHandler.editor.error = Wiki page ''{0}'' cannot be edited: {1}
 EditorHandler.editor.help = Show syntax overview
 EditorHandler.editor.input.cancel = Cancel
@@ -42,6 +43,9 @@ EditorHandler.save.scanRepository = Error updating repository after saving wiki 
 EditorHandler.upload.alreadyExisting = File ''{0}'' couldn''t be uploaded, because there is already a file with the same name. Please choose another name.
 EditorHandler.upload.invalidName = File couldn''t be uploaded, because its name ''{0}'' is invalid! Please choose a valid name.
 EditorHandler.upload.parentNavigation = File ''{0}'' couldn''t be uploaded, because the file name contains a illegal parent navigation!
+EditorHandler.upload.no-file-selected = No file selected!
+EditorHandler.upload.multiple-files-selected = Only select one file, please!
+EditorHandler.upload.file-too-big = File size must not exceed 1 MB!
 EditorHandler.url.invalid = Invalid URL ''{0}''
 EditorHandler.error = General error: {0}
 

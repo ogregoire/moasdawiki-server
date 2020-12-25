@@ -17,6 +17,7 @@ wiki.server.url = Der Wiki-Server ist über folgende URL erreichbar:
 wiki.server.url.unmapped = Die aufgerufene URL wird nicht unterstützt: {0}
 
 EditorHandler.delete.error = Wikiseite ''{0}'' konnte nicht gelöscht werden: {1}
+EditorHandler.delete.confirmation = Wikiseite wirklich löschen?
 EditorHandler.editor.error = Wikiseite ''{0}'' kann nicht editiert werden: {1}
 EditorHandler.editor.help = Syntax-Hilfe öffnen
 EditorHandler.editor.input.cancel = Abbrechen
@@ -42,6 +43,9 @@ EditorHandler.save.scanRepository = Nach dem Speichern der Wikiseite ''{0}'' kon
 EditorHandler.upload.alreadyExisting = Die Datei ''{0}'' konnte nicht hochgeladen werden, weil bereits eine Datei mit diesem Namen existiert! Bitte wählen Sie einen anderen Namen.
 EditorHandler.upload.invalidName = Die Datei konnte nicht hochgeladen werden, weil der Name ''{0}'' ungültig ist! Bitte geben Sie einen gültigen Namen ein.
 EditorHandler.upload.parentNavigation = Die Datei ''{0}'' konnte nicht hochgeladen werden, weil der Dateipfad eine unerlaubte Rückwärtsnavigation enthält!
+EditorHandler.upload.no-file-selected = Keine Datei ausgewählt!
+EditorHandler.upload.multiple-files-selected = Bitte nur eine Datei auswählen!
+EditorHandler.upload.file-too-big = Datei darf nicht größer als 1 MB sein!
 EditorHandler.url.invalid = Ungültige URL ''{0}''
 EditorHandler.error = Allgemeiner Fehler: {0}
 
