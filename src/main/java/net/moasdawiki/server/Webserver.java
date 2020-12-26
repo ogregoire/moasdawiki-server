@@ -136,19 +136,6 @@ public class Webserver {
 		}
 	}
 
-	/**
-	 * Gibt den vom Webserver verwendeten Port zurück. <code>null</code> -->
-	 * Webserver läuft nicht.
-	 */
-	@Nullable
-	public Integer getPort() {
-		if (server != null) {
-			return server.getLocalPort();
-		} else {
-			return null;
-		}
-	}
-
 	private void handleConnection(Socket client) {
 		long ts1 = System.currentTimeMillis();
 		try {
