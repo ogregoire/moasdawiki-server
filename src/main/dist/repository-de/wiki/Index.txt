@@ -6,7 +6,6 @@ Hilfeseiten
 ** [[syntax/Grafiken]]
 ** [[syntax/Wiki-Befehle]]
 ** [[syntax/Kontakte und Termine]]
-* [[Wiki-Suche]]
 * [[Templates | Vorlagen]]
 * [[Fragen | Häufige Fragen]]
 

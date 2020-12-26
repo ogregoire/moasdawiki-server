@@ -32,16 +32,15 @@ Das Besondere an ''MoasdaWiki'' ist:
 = Feature-Liste
 
 * Datenablage in lesbaren Textdateien, keine Installation einer Datenbank erforderlich
-* schnelle und mächtige Volltextsuche (siehe [[Wiki-Suche]])
 * eingebauter Webserver, keine Installation eines Webservers erforderlich
 * unter vielen Betriebssystemen mit einer Java VM lauffähig
 * Webseiten ohne Menü ausdruckbar
 * umfangreiche [[syntax/ | Wiki-Syntax]] inkl. Tabellen, Grafiken
-* frei definierbare [[Vorlagen]] zum Erstellen einheitlich aussehender Webseiten
+* frei definierbare [[Templates | Vorlagen]] zum Erstellen einheitlich aussehender Webseiten
 * frei konfigurierbare Oberfläche
 ** Navigation über die Seite [[Navigation]] anpassbar
 ** Layout der Webseite per Stylesheet änderbar
-** Header und Footer der Webseiten über die Seiten [[SeiteKopfzeilen]] und [[SeiteFusszeilen]] anpassbar
+** Header und Footer der Webseiten über die Seiten [[PageHeader]] und [[PageFooter]] anpassbar
 ** anpassbarer HTML-Header über sie Seite [[HtmlHeader]], um z.B. eigene Stylesheets oder JavaScript-Bibliotheken einzubinden
 ** Änderung der Konfiguration über die Seite [[/config]]
 * Internationalisierung durch [[messages]]

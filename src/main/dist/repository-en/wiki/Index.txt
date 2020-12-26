@@ -5,7 +5,6 @@ Utility pages
 ** [[syntax/Tables]]
 ** [[syntax/Images]]
 ** [[syntax/WikiCommands]]
-* [[WikiSearch]]
 * [[Templates]]
 * [[Questions | Questions and Answers]]
 
