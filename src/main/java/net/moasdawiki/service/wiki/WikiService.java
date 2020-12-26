@@ -318,7 +318,7 @@ public class WikiService {
 	}
 
 	/**
-	 * List wiki pages modified after the given date.
+	 * List wiki pages modified after the given date (exact match excluded).
 	 *
 	 * @param modifiedAfter date, files have to be newer;
 	 *                      <code>null</code> --> no filter, list all files.
@@ -346,7 +346,7 @@ public class WikiService {
 	/**
 	 * List the latest modifies wiki pages.
 	 * .
-	 * @param count maximum number of pages.
+	 * @param count Maximum number of wiki pages to be returned.
 	 *              -1 -> no filter, list all pages
 	 */
 	@NotNull

@@ -32,20 +32,14 @@ import java.util.*;
 import java.util.function.Predicate;
 
 /**
- * Serviceschicht für den Zugriff auf alle Dateien im Wiki-Repository, einem
- * Unterordner im Dateisystem. Das Repository enthält sämtlichen Wikiseiten
- * sowie Bilder, CSS, JavaScript und weitere Binärdateien (z.B. PDF).<br>
- * <br>
- * Wenn eine Repository-Cachedatei vorhanden ist, wird die Dateiliste aus der
- * Cachedatei eingelesen anstatt das Repository zu scannen. Andernfalls wird das
- * Repository gescannt und die Cachedatei automatisch angelegt.
+ * Access to the files in the wiki repository.
  */
 public class FilesystemRepositoryService implements RepositoryService {
 
 	/**
-	 * Pfad der Cachedatei mit der Liste aller Repository-Dateien.<br>
-	 * <br>
-	 * Zeilenformat: Dateipfad im Repository '\t' Änderungs-Zeitstempel im ISO 8601-Format "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+	 * Path of the file list cache file.
+	 *
+	 * Row format: File path in repository '\t' modification timestamp in ISO 8601 format "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 	 */
 	public static final String FILELIST_CACHE_FILEPATH = "/filelist.cache";
 
@@ -53,30 +47,26 @@ public class FilesystemRepositoryService implements RepositoryService {
 	protected final Logger logger;
 
 	/**
-	 * Basisordner des Repositories. Nicht <code>null</code>.
+	 * Repository base folder {@link File}.
 	 */
 	@NotNull
 	protected final File repositoryBase;
 
 	/**
-	 * Absoluter Pfad des Basisordners. Nicht <code>null</code>.
+	 * Repository base folder path.
 	 */
 	@NotNull
 	protected final String repositoryBasePath;
 
 	/**
-	 * Cacht die Metadaten aller Dateien im Repository-Ordner.<br>
-	 * Map: Dateipfad innerhalb des Repositories inkl. Dateiendung -> {@link AnyFile}.
+	 * Metadata cache for all files in the repository.
+	 * Map: File path in repository -> {@link AnyFile}.
 	 */
 	@NotNull
 	protected final Map<String, AnyFile> fileMap;
 
 	/**
-	 * Konstruktor.
-	 * 
-	 * @param logger Logger. Nicht <code>null</code>.
-	 * @param repositoryBase Basisordner des Repositories. Nicht
-	 *        <code>null</code>.
+	 * Constructor.
 	 */
 	public FilesystemRepositoryService(@NotNull Logger logger, @NotNull File repositoryBase) {
 		super();
@@ -87,6 +77,10 @@ public class FilesystemRepositoryService implements RepositoryService {
 		logger.write("Repository base path: " + this.repositoryBasePath);
 	}
 
+	/**
+	 * Initialize the cache. Must be called after the constructor.
+	 * Required for the App.
+	 */
 	public void init() {
 		if (!readCacheFile()) {
 			rebuildCache();
@@ -94,9 +88,9 @@ public class FilesystemRepositoryService implements RepositoryService {
 	}
 
 	/**
-	 * Liest die Liste aller Dateien im Repository aus der Cachedatei ein.
-	 * 
-	 * @return Konnte die Cachedatei erfolgreich eingelesen werden?
+	 * Read the file list cache file.
+	 *
+	 * @return true if the cache file was read successfully
 	 */
 	protected boolean readCacheFile() {
 		String cacheContent;
@@ -120,6 +114,9 @@ public class FilesystemRepositoryService implements RepositoryService {
 		}
 	}
 
+	/**
+	 * Parse the cache file content.
+	 */
 	@Contract(value = "_ -> new", pure = true)
 	@NotNull
 	protected Map<String, AnyFile> parseCacheContent(@NotNull String cacheContent) throws ServiceException {
@@ -129,7 +126,7 @@ public class FilesystemRepositoryService implements RepositoryService {
 			String line;
 			while ((line = reader.readLine()) != null) {
 				if (line.isEmpty()) {
-					// Leerzeile (am Ende) ignorieren
+					// ignore empty line at end of file
 					continue;
 				}
 				int pos1 = line.indexOf('\t');
@@ -152,7 +149,7 @@ public class FilesystemRepositoryService implements RepositoryService {
 	}
 
 	/**
-	 * Schreibt die Cachedatei mit der Dateiliste.
+	 * Write the file list cache file.
 	 */
 	protected void writeCacheFile() {
 		List<String> filePathList = new ArrayList<>(fileMap.keySet());
@@ -172,16 +169,21 @@ public class FilesystemRepositoryService implements RepositoryService {
 		}
 		String cacheContent = sb.toString();
 
-		// Datei schreiben
 		AnyFile fileListCacheFile = new AnyFile(FILELIST_CACHE_FILEPATH);
 		try {
 			writeTextFile(fileListCacheFile, cacheContent);
 		} catch (ServiceException e) {
-			// nur Fehlermeldung loggen, dieser Fehler kann ansonsten toleriert werden
+			// only log error, do not escalate
 			logger.write("Error writing cache file " + FILELIST_CACHE_FILEPATH, e);
 		}
 	}
 
+	/**
+	 * Rebuild internal cache.
+	 *
+	 * Call this method only if the repository was modified outside this class.
+	 * The method might be very expensive if there are many files in the repository.
+	 */
 	public void rebuildCache() {
 		List<File> files = new ArrayList<>();
 		listFilesInFilesystem(repositoryBase, files);
@@ -191,29 +193,24 @@ public class FilesystemRepositoryService implements RepositoryService {
 		for (File file : files) {
 			String filesystemFilePath = file.getAbsolutePath();
 
-			// Seitenname und Zeitstempel bestimmen
 			String filePath = filesystem2RepositoryPath(filesystemFilePath);
 			if (filePath == null) {
-				// ungültiger Dateiname --> ignorieren
+				// ignore invalid file name
 				continue;
 			}
 			Date fileTimestamp = new Date(file.lastModified());
-
-			// Datei noch nicht im Cache vorhanden oder nicht mehr aktuell?
 			AnyFile newAnyFile = new AnyFile(filePath, fileTimestamp);
 			newFileMap.put(filePath, newAnyFile);
 		}
 
-		// Cache aktualisieren
 		fileMap.clear();
 		fileMap.putAll(newFileMap);
 
-		// Cachedatei aktualisieren
 		writeCacheFile();
 	}
 
 	/**
-	 * Listet rekursiv alle Dateien im Repository-Ordner auf.
+	 * List all files in the repository, also scans sub-folders.
 	 */
 	protected synchronized void listFilesInFilesystem(@NotNull File folder, @NotNull List<File> fileList) {
 		File[] files = folder.listFiles();
@@ -229,6 +226,11 @@ public class FilesystemRepositoryService implements RepositoryService {
 		}
 	}
 
+	/**
+	 * Return the {@link AnyFile} object for a repository file.
+	 *
+	 * @return null --> file not found
+	 */
 	@Contract(pure = true)
 	@Nullable
 	@Override
@@ -236,6 +238,9 @@ public class FilesystemRepositoryService implements RepositoryService {
 		return fileMap.get(filePath);
 	}
 
+	/**
+	 * List all files in the repository.
+	 */
 	@Contract(value = "-> new", pure = true)
 	@NotNull
 	@Override
@@ -243,6 +248,12 @@ public class FilesystemRepositoryService implements RepositoryService {
 		return new HashSet<>(fileMap.values());
 	}
 
+	/**
+	 * List all files modified after the given date (exact match excluded).
+	 *
+	 * @param modifiedAfter date, files have to be newer;
+	 *                      <code>null</code> --> no filter, list all files.
+	 */
 	@Contract(value = "_ -> new", pure = true)
 	@NotNull
 	@Override
@@ -256,6 +267,13 @@ public class FilesystemRepositoryService implements RepositoryService {
 		return result;
 	}
 
+	/**
+	 * List the latest modifies files.
+	 *
+	 * @param count Maximum number of files to be returned.
+	 *              -1 -> no filter, list all pages
+	 * @param filter Filter for files that match the suffix.
+	 */
 	@Contract(pure = true)
 	@NotNull
 	@Override
@@ -270,11 +288,13 @@ public class FilesystemRepositoryService implements RepositoryService {
 		return fileList.subList(0, Math.min(fileList.size(), count));
 	}
 
+	/**
+	 * Deletes a file from the repository.
+	 */
 	@Override
 	public synchronized void deleteFile(@NotNull AnyFile anyFile) throws ServiceException {
 		String filePath = anyFile.getFilePath();
 		try {
-			// Datei im Dateisystem löschen
 			String filename = repository2FilesystemPath(filePath);
 			File file = new File(filename);
 			if (!file.delete()) {
@@ -288,12 +308,16 @@ public class FilesystemRepositoryService implements RepositoryService {
 			throw new ServiceException(message, e);
 		}
 
-		// Cache aktualisieren
+		// update cache
 		fileMap.remove(filePath);
 		writeCacheFile();
 		logger.write("File '" + filePath + "' deleted");
 	}
 
+	/**
+	 * Read the content of a text file.
+	 * Throws an exception if the file doesn't exist.
+	 */
 	@Override
 	@NotNull
 	public synchronized String readTextFile(@NotNull AnyFile anyFile) throws ServiceException {
@@ -301,6 +325,9 @@ public class FilesystemRepositoryService implements RepositoryService {
 		return new String(contentBytes, StandardCharsets.UTF_8);
 	}
 
+	/**
+	 * Write the content of a text file.
+	 */
 	@NotNull
 	@Override
 	public synchronized AnyFile writeTextFile(@NotNull AnyFile anyFile, @NotNull String content) throws ServiceException {
@@ -308,6 +335,10 @@ public class FilesystemRepositoryService implements RepositoryService {
 		return writeBinaryFile(anyFile, contentBytes, null);
 	}
 
+	/**
+	 * Read the content of a binary file.
+	 * Throws an exception if the file doesn't exist.
+	 */
 	@Override
 	@NotNull
 	public synchronized byte[] readBinaryFile(@NotNull AnyFile anyFile) throws ServiceException {
@@ -316,17 +347,16 @@ public class FilesystemRepositoryService implements RepositoryService {
 		String filename = repository2FilesystemPath(filePath);
 		File file = new File(filename);
 
-		// Ggf. Cache aktualisieren
+		// update cache
 		if (!fileMap.containsKey(filePath) && file.exists()) {
 			logger.write("Detected new file '" + filePath + "' in repository, adding to cache");
 			Date fileTimestamp = new Date(file.lastModified());
 			AnyFile newAnyFile = new AnyFile(filePath, fileTimestamp);
 			fileMap.put(filePath, newAnyFile);
 
-			// Cache schreiben
 			if (!FILELIST_CACHE_FILEPATH.equals(filePath)) {
-				// Cachedatei selbst ausnehmen, damit die Cachedatei nicht schon
-				// vor dem Einlesen derselben mit leerem Inhalt überschrieben wird
+				// Don't write cache file while it is read,
+				// otherwise it will be overwritten with empty content.
 				writeCacheFile();
 			}
 		}
@@ -344,6 +374,10 @@ public class FilesystemRepositoryService implements RepositoryService {
 		}
 	}
 
+	/**
+	 * Write the content of a binary file.
+	 * If the file already exists it will be overwritten.
+	 */
 	@NotNull
 	public synchronized AnyFile writeBinaryFile(@NotNull AnyFile anyFile, @NotNull byte[] content, @Nullable Date contentTimestamp) throws ServiceException {
 		String filePath = anyFile.getFilePath();
@@ -351,7 +385,6 @@ public class FilesystemRepositoryService implements RepositoryService {
 		String filename = repository2FilesystemPath(filePath);
 		File file = new File(filename);
 
-		// Datei schreiben
 		createFolders(file);
 		try (FileOutputStream out = new FileOutputStream(file)) {
 			out.write(content);
@@ -365,7 +398,6 @@ public class FilesystemRepositoryService implements RepositoryService {
 			throw new ServiceException(message, e);
 		}
 
-		// Cache aktualisieren
 		if (contentTimestamp == null) {
 			contentTimestamp = new Date(file.lastModified());
 		}
@@ -373,19 +405,15 @@ public class FilesystemRepositoryService implements RepositoryService {
 		fileMap.put(filePath, newAnyFile);
 		logger.write("Content for file '" + filePath + "' successfully written");
 
-		// Cache schreiben
 		if (!FILELIST_CACHE_FILEPATH.equals(filePath)) {
-			// Cachedatei selbst ausnehmen, damit keine Endlosrekursion entsteht
+			// avoid endless loop
 			writeCacheFile();
 		}
 		return newAnyFile;
 	}
 
 	/**
-	 * Legt alle Unterordner im Repository an, falls sie noch nicht existieren,
-	 * damit die angegebene Datei angelegt werden kann.
-	 * 
-	 * @param file Datei, deren Ordner angelegt werden soll.
+	 * Create all sub-folders required to write a file.
 	 */
 	protected void createFolders(@NotNull File file) throws ServiceException {
 		File fileFolder = file.getParentFile();
@@ -397,30 +425,25 @@ public class FilesystemRepositoryService implements RepositoryService {
 	}
 
 	/**
-	 * Generiert aus einem Dateipfad im Repository den zugehörigen absoluten
-	 * Dateipfad im Dateisystem. Dabei werden Sonderzeichen umgewandelt.
-	 * Enthaltene Ordner-Trennzeichen '/' werden automatisch in das
-	 * entsprechende betriebssystemspezifische Trennzeichen umgewandelt.<br>
-	 * <br>
-	 * Beispiel:<br>
-	 * Repositorypfad: <tt>/pfad/zur/datei</tt><br>
-	 * Dateisystempfad: <tt>/pfad/zum/repository/pfad/zur/datei</tt>
-	 * 
-	 * @param repositoryPath Relativer Pfad innerhalb des Repositories.
-	 * @return Absoluter Pfad im Dateisystem.
+	 * Convert a repository file path to an absolute file system path.
+	 * Escapes special characters.
+	 *
+	 * Example:<br>
+	 * Repository path:  <tt>/path/to/file</tt><br>
+	 * File system path: <tt>/path/to/repository/path/to/file</tt>
 	 */
 	@Contract(value = "null -> null; !null -> !null", pure = true)
 	@Nullable
-	protected String repository2FilesystemPath(String repositoryPath) {
+	protected String repository2FilesystemPath(@Nullable String repositoryPath) {
 		if (repositoryPath == null) {
 			return null;
 		}
 
-		// in Windows nicht erlaubte Zeichen: "*/:<>?\|
-		// in Linux nicht erlaubte Zeichen: /
-		// '%' wird als Escape-Zeichen verwendet und ebenfalls allein verboten
-		// '/' wird als Ordnertrennzeichen interpretiert
-		// "." und ".." werden escaped
+		// Invalid characters in Windows: "*/:<>?\|
+		// Invalid characters in Linux:   /
+		// Escape character: '%'
+		// Folder separator: '/'
+		// "." and ".." are escaped
 		final String forbiddenChars = "\"%*:<>?\\|";
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < repositoryPath.length(); i++) {
@@ -429,37 +452,32 @@ public class FilesystemRepositoryService implements RepositoryService {
 					|| c == '.' && (i - 1 >= 0 && i + 2 <= repositoryPath.length() && "/./".contentEquals(repositoryPath.subSequence(i - 1, i + 2))
 							|| i - 1 >= 0 && i + 3 <= repositoryPath.length() && "/../".contentEquals(repositoryPath.subSequence(i - 1, i + 3))
 							|| i - 2 >= 0 && i + 2 <= repositoryPath.length() && "/../".contentEquals(repositoryPath.subSequence(i - 2, i + 2)))) {
-				// in Darstellung "%wxyz" umwandeln
+				// convert to "%wxyz" representation
 				String hex = Integer.toString(c, 16);
 				sb.append('%');
 				for (int k = hex.length(); k < 4; k++) {
-					sb.append('0'); // mit führenden Nullen auffüllen
+					sb.append('0');
 				}
 				sb.append(hex);
 			} else {
-				sb.append(c); // Zeichen direkt übernehmen
+				sb.append(c);
 			}
 		}
 
-		// Pfad zusammenbauen
 		String filePath = PathUtils.convertWebPath2FilePath(sb.toString());
 		return PathUtils.concatFilePaths(repositoryBasePath, filePath);
 	}
 
 	/**
-	 * Wandelt einen absoluten Dateipfad im Dateisystem um in einen relativen
-	 * Pfad innerhalb des Repositories. Enthaltene betriebssystemspezifische
-	 * Ordner-Trennzeichen werden automatisch in das Trennzeichen '/'
-	 * umgewandelt.<br>
-	 * <br>
-	 * Beispiel:<br>
-	 * Dateisystempfad: <tt>/pfad/zum/repository/pfad/zur/datei</tt><br>
-	 * Repositorypfad: <tt>/pfad/zur/datei</tt>
-	 * 
-	 * @param filesystemPath Absoluter Pfad im Dateisystem.
-	 * @return Relativer Pfad innerhalb des Repositories. <code>null</code> ->
-	 *         Pfad befindet sich nicht innerhalb des Repositories oder ist
-	 *         ungültig.
+	 * Convert an absolute file system path to a repository file path.
+	 * Unescapes special characters.
+	 *
+	 * Example:<br>
+	 * File system path: <tt>/path/to/repository/path/to/file</tt>
+	 * Repository path:  <tt>/path/to/file</tt><br>
+	 *
+	 * @return Repository file path;
+	 *         <code>null</code> -> path is outside of the repository or invalid.
 	 */
 	@Contract(value = "null -> null", pure = true)
 	@Nullable
@@ -473,21 +491,19 @@ public class FilesystemRepositoryService implements RepositoryService {
 			return null;
 		}
 
-		// Pfad zum Repository abschneiden
+		// cut off path to repository root
 		StringBuilder sb = new StringBuilder(filesystemPath);
 		sb.delete(0, repositoryBasePath.length());
 		if (sb.length() == 0 || sb.charAt(0) != File.separatorChar) {
-			// führendes Separatorzeichen einfügen
 			sb.insert(0, File.separatorChar);
 		}
 
-		// Escaping "%wxyz" zurückübersetzen
+		// Unescape "%wxyz"
 		for (int i = 0; i < sb.length(); i++) {
 			char c = sb.charAt(i);
 			if (c == '%' && i + 4 < sb.length()) {
 				try {
-					// Darstellung "%wxyz" zurückübersetzen in ein Zeichen
-					String hex = sb.substring(i + 1, i + 5); // Hex-Zeichen ohne '%'
+					String hex = sb.substring(i + 1, i + 5);
 					char d = (char) Integer.parseInt(hex, 16);
 					sb.setCharAt(i, d);
 					sb.delete(i + 1, i + 5);
