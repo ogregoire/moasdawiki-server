@@ -89,14 +89,12 @@ public class WikiServiceImplTest {
     @Test
     public void testResetWithCacheFile() {
         // prepare cache
-        wikiService.wikiFileMap.put("/a", mock(WikiFile.class));
         wikiService.viewHistory.add("/a");
         // test method
         wikiService.reset();
         assertEquals(wikiService.childParentMap.size(), 2);
         assertTrue(wikiService.childParentMap.get("/page").isEmpty());
         assertTrue(wikiService.childParentMap.get("/page-with-parent").contains("/parent-page"));
-        assertTrue(wikiService.wikiFileMap.isEmpty());
         assertTrue(wikiService.viewHistory.isEmpty());
     }
 
@@ -111,8 +109,6 @@ public class WikiServiceImplTest {
         wikiService.reset();
         assertEquals(wikiService.childParentMap.size(), 1);
         assertTrue(wikiService.childParentMap.get("/page").isEmpty());
-        assertEquals(wikiService.wikiFileMap.size(), 1);
-        assertEquals(wikiService.wikiFileMap.get("/page").getWikiFilePath(), "/page");
     }
 
     @Test
@@ -124,67 +120,31 @@ public class WikiServiceImplTest {
     }
 
     @Test
-    public void testExistsWikiFileInRepository() {
-        wikiService.wikiFileMap.clear();
+    public void testExistsWikiFile() {
         assertTrue(wikiService.existsWikiFile("/page"));
         assertFalse(wikiService.existsWikiFile("/unknown-page"));
     }
 
     @Test
-    public void testExistsWikiFileInCache() {
-        // not in cache -> false
-        assertFalse(wikiService.existsWikiFile("/page-in-cache"));
-        // in cache -> true
-        wikiService.wikiFileMap.put("/page-in-cache", mock(WikiFile.class));
-        assertTrue(wikiService.existsWikiFile("/page-in-cache"));
-    }
-
-    @Test
-    public void testGetWikiFileFromRepository() throws Exception {
-        // ensure the page is not in cache
-        assertFalse(wikiService.wikiFileMap.containsKey("/page"));
-        // test method
+    public void testGetWikiFile() throws Exception {
         WikiFile wikiFile = wikiService.getWikiFile("/page");
         assertNotNull(wikiFile);
         assertEquals(wikiFile.getWikiFilePath(), "/page");
         assertEquals(wikiFile.getWikiText(), "testcontent");
         assertEquals(wikiFile.getWikiPage().getPagePath(), "/page");
         assertEquals(wikiFile.getRepositoryFile().getFilePath(), "/page.txt");
-        // check cache update
-        assertTrue(wikiService.wikiFileMap.containsKey("/page"));
     }
 
-    @Test
-    public void testGetWikiFileFromCache() throws Exception {
-        // Prepare cache
-        WikiFile wikiFileMock = mock(WikiFile.class);
-        when(wikiFileMock.cloneTyped()).thenReturn(wikiFileMock);
-        wikiService.wikiFileMap.put("/page-in-cache", wikiFileMock);
-        reset(repositoryServiceMock);
-        // test method
-        assertNotNull(wikiService.getWikiFile("/page-in-cache"));
-        verify(repositoryServiceMock, never()).readTextFile(any());
-    }
-
-    @SuppressWarnings("unchecked")
     @Test
     public void testDeleteWikiFile() throws Exception {
-        // prepare internal caches
-        wikiService.wikiFileMap.put("/page-in-cache", mock(WikiFile.class));
-        WikiFile parentWikiFile = mock(WikiFile.class);
-        Set<String> parentChilds = mock(Set.class);
-        when(parentWikiFile.getChildren()).thenReturn(parentChilds);
-        wikiService.wikiFileMap.put("/parent-page", parentWikiFile);
         wikiService.viewHistory.add("/page-in-cache");
         wikiService.childParentMap.put("/page-in-cache", Collections.singleton("/parent-page"));
         // test method
         wikiService.deleteWikiFile("/page-in-cache");
         // check cache updates
-        assertFalse(wikiService.wikiFileMap.containsKey("/page-in-cache"));
         assertFalse(wikiService.viewHistory.contains("/page-in-cache"));
         assertFalse(wikiService.childParentMap.containsKey("/page-in-cache"));
         verify(repositoryServiceMock, times(1)).deleteFile(any());
-        verify(parentChilds).remove("/page-in-cache");
     }
 
     @Test
@@ -205,44 +165,13 @@ public class WikiServiceImplTest {
     }
 
     @Test
-    public void testWriteWikiTextNewInCache() throws Exception {
-        assertFalse(wikiService.wikiFileMap.containsKey("/new-page"));
-        // test method
+    public void testWriteWikiText() throws Exception {
         WikiFile wikiFile = wikiService.writeWikiText("/new-page", new WikiText("testcontent"));
         assertEquals(wikiFile.getWikiFilePath(), "/new-page");
         assertEquals(wikiFile.getWikiText(), "testcontent");
         assertNotNull(wikiFile.getWikiPage());
         assertEquals(wikiFile.getRepositoryFile().getFilePath(), "/new-page.txt");
-        // check cache updates
-        assertSame(wikiService.wikiFileMap.get("/new-page"), wikiFile);
         verify(repositoryServiceMock, times(1)).writeTextFile(any(), eq("testcontent"));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testWriteWikiTextWithCacheUpdate() throws Exception {
-        // prepare internal caches
-        Set<String> parent1Childs = mock(Set.class);
-        {
-            WikiFile parent1WikiFile = mock(WikiFile.class);
-            when(parent1WikiFile.getChildren()).thenReturn(parent1Childs);
-            wikiService.wikiFileMap.put("/parent-page1", parent1WikiFile);
-        }
-        Set<String> parent2Childs = mock(Set.class);
-        {
-            WikiFile parent2WikiFile = mock(WikiFile.class);
-            when(parent2WikiFile.getChildren()).thenReturn(parent2Childs);
-            wikiService.wikiFileMap.put("/parent-page2", parent2WikiFile);
-        }
-        wikiService.childParentMap.put("/page", Collections.singleton("/parent-page1"));
-        // test method
-        wikiService.writeWikiText("/page", new WikiText("{{parent:/parent-page2}}"));
-        // check cache updates
-        Set<String> parents = wikiService.wikiFileMap.get("/page").getParents();
-        assertEquals(parents.size(), 1);
-        assertTrue(parents.contains("/parent-page2"));
-        verify(parent1Childs).remove("/page");
-        verify(parent2Childs).add("/page");
     }
 
     @Test
@@ -250,7 +179,6 @@ public class WikiServiceImplTest {
         // prepare internal cache
         WikiFile wikiFile = mock(WikiFile.class);
         when(wikiFile.getWikiText()).thenReturn("testcontent");
-        wikiService.wikiFileMap.put("/page", wikiFile);
         // test method
         WikiFile newWikiFile = wikiService.writeWikiText("/page", new WikiText("-subcon-", 4, 7));
         assertEquals(newWikiFile.getWikiText(), "test-subcon-tent");
