@@ -48,34 +48,33 @@ public abstract class WikiHelper {
         if (addNavigation && settings.getNavigationPagePath() != null) {
             try {
                 WikiFile navigationWikiFile = wikiService.getWikiFile(settings.getNavigationPagePath());
-                content.add(new Html("<div class=\"menu\">"));
-                content.add(navigationWikiFile.getWikiPage());
-                content.add(new Html("</div>"));
+                content.add(new HtmlTag("nav", navigationWikiFile.getWikiPage()));
             } catch (ServiceException e) {
                 logger.write("Error reading navigation page to assemble an integrated page, ignoring it", e);
             }
         }
 
-        content.add(new Html("<div class=\"wikipage\">"));
+        PageElementList wikiPageWithHeaderAndFooter = new PageElementList();
         if (addHeader && settings.getHeaderPagePath() != null) {
             try {
                 WikiFile headerWikiFile = wikiService.getWikiFile(settings.getHeaderPagePath());
-                content.add(headerWikiFile.getWikiPage());
+                wikiPageWithHeaderAndFooter.add(new HtmlTag("header", headerWikiFile.getWikiPage()));
             } catch (ServiceException e) {
                 logger.write("Error reading header page to assemble an integrated page, ignoring it", e);
             }
         }
-        content.add(wikiPage);
+
+        wikiPageWithHeaderAndFooter.add(wikiPage);
 
         if (addFooter && settings.getFooterPagePath() != null) {
             try {
                 WikiFile footerWikiFile = wikiService.getWikiFile(settings.getFooterPagePath());
-                content.add(footerWikiFile.getWikiPage());
+                wikiPageWithHeaderAndFooter.add(new HtmlTag("footer", footerWikiFile.getWikiPage()));
             } catch (ServiceException e) {
                 logger.write("Error reading footer page to assemble an integrated page, ignoring it", e);
             }
         }
-        content.add(new Html("</div>"));
+        content.add(new HtmlTag("div", "class=\"wikipage\"", wikiPageWithHeaderAndFooter));
 
         return new WikiPage(wikiPage.getPagePath(), content, null, null);
     }

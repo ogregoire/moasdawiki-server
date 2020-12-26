@@ -273,15 +273,13 @@ public class KontaktseiteTransformer implements TransformWikiPage {
 		PageElementList result = new PageElementList();
 
 		if (kontakt.fotos.size() > 0) {
-			result.add(new Html("<div class=\"kontaktseite-bilder\">"));
 			PageElementList imageContainer = new PageElementList();
 			for (String foto : kontakt.fotos) {
 				Map<String, String> options = new HashMap<>();
 				options.put("class", "kontaktseite-bild");
 				imageContainer.add(new Image(foto, options, null, null));
 			}
-			result.add(imageContainer);
-			result.add(new Html("</div>"));
+			result.add(new HtmlTag("div", "class=\"kontaktseite-bilder\"", imageContainer));
 		}
 		if (kontakt.titel != null) {
 			addString(result, kontakt.titel);

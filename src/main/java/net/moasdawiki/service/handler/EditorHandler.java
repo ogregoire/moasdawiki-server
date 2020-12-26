@@ -350,12 +350,12 @@ public class EditorHandler {
         writer.closeTag(); // script
 
         // navigation
-        writer.openDivTag("menu");
+        writer.openTag("nav");
         if (menuPage != null) {
             WikiPage2Html html = new WikiPage2Html(settings, messages, wikiService, false);
             writer.addHtmlWriter(html.generate(menuPage));
         }
-        writer.closeTag(); // menu
+        writer.closeTag(); // nav
 
         writer.openDivTag("wikipage editor");
         writer.setContinueInNewLine();

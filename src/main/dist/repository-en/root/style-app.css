@@ -1,9 +1,10 @@
 /**** Modifications for rendering inside the App ****/
+
 body {
 	font-size: 18px;
 }
 
-div.menu {
+nav {
 	display: none;
 }
 

@@ -22,39 +22,49 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Enthält einen einzelnen, nummerierten Aufzählungspunkt. Ein Aufzählungspunkt
- * kann unterschiedliche Gliederungsebenen haben.
+ * Represents a generic HTML tag.
  */
-public class OrderedListItem extends PageElementWithChild {
+public class HtmlTag extends PageElementWithChild {
 
-	/**
-	 * Einzug des Aufzählungspunkts. 1 = oberste Ebene. Muss >= 1 sein.
-	 */
-	private final int level;
+	@NotNull
+	private final String tagName;
 
-	public OrderedListItem(int level, @Nullable PageElement content, @Nullable Integer fromPos, @Nullable Integer toPos) {
-		super(content, fromPos, toPos);
-		this.level = Math.max(level, 1);
+	@Nullable
+	private final String tagAttributes;
+
+	public HtmlTag(@NotNull String tagName, @Nullable PageElement content) {
+		this(tagName, null, content, null, null);
 	}
 
-	/**
-	 * Gibt den Einzug des Aufzählungspunkts zurück. 1 = oberste Ebene. Muss >=
-	 * 1 sein.
-	 */
-	public int getLevel() {
-		return level;
+	public HtmlTag(@NotNull String tagName, @Nullable String tagAttributes, @Nullable PageElement content) {
+		this(tagName, tagAttributes, content, null, null);
+	}
+
+	public HtmlTag(@NotNull String tagName, @Nullable String tagAttributes, @Nullable PageElement content,
+				   @Nullable Integer fromPos, @Nullable Integer toPos) {
+		super(content, fromPos, toPos);
+		this.tagName = tagName;
+		this.tagAttributes = tagAttributes;
+	}
+
+	public String getTagName() {
+		return tagName;
+	}
+
+	public String getTagAttributes() {
+		return tagAttributes;
 	}
 
 	public boolean isInline() {
-		return false;
+		return true;
 	}
 
 	@NotNull
 	public PageElement clonePageElement() {
 		if (child != null) {
-			return new OrderedListItem(level, child.clonePageElement(), fromPos, toPos);
+			return new HtmlTag(tagName, tagAttributes, child.clonePageElement(), fromPos, toPos);
 		} else {
-			return new OrderedListItem(level, null, fromPos, toPos);
+			return new HtmlTag(tagName, tagAttributes, null, fromPos, toPos);
 		}
 	}
 }

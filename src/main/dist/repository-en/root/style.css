@@ -1,4 +1,5 @@
 /**** global settings ****/
+
 * {
 	margin: 0;
 	padding: 0;
@@ -112,8 +113,9 @@ button:disabled, button:disabled:active {
 	border-color: #e0e0e0;
 }
 
-/**** Navigationsbereich auf der linken Seite ****/
-div.menu {
+/**** Navigation area ****/
+
+nav {
 	position: fixed;
 	top: 0px;
 	left: 0px;
@@ -125,16 +127,17 @@ div.menu {
 }
 
 @media print {
-	div.menu {
+	nav {
 		display: none;
 	}
 }
 
-div.menu .center {
+nav .center {
 	text-align: center;
 }
 
-div.menu h1 {
+nav > div > b {
+    display: block;
 	font-size: 1.2em;
 	color: inherit;
 	margin-top: 10px;
@@ -142,41 +145,42 @@ div.menu h1 {
 	padding: 10px 0 10px 10px;
 }
 
-div.menu input {
+nav input {
 	width: 100%;
 	margin: 10px 1px;
 }
 
-div.menu ul {
+nav ul {
 	list-style: none;
 	margin: 0 0;
 	padding: 0;
 }
 
-div.menu ul li {
+nav ul li {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	padding: 0px 0 0 10px;
 }
 
-div.menu ul li a {
+nav ul li a {
 	display: block;
 }
 
-div.menu a {
-	color: inherit;
+nav a {
+	color: inherit !important;
 }
 
-div.menu a:hover {
-	color: #80c426;
+nav a:hover {
+	color: #80c426 !important;
 }
 
-div.menu a.editsection {
+nav a.editsection {
 	display: none;
 }
 
-/**** Hauptseite rechts ****/
+/**** Main area with wiki page content ****/
+
 div.wikipage {
 	margin-left: 152px;
 	top: 0px;
@@ -468,7 +472,8 @@ div.wikipage h3 {
 	margin: 10px 0;
 }
 
-/* Bearbeitung von Seitenausschnitten */
+/* Section editing */
+
 div.wikipage h1, div.wikipage h2, div.wikipage h3 {
 	position: relative;
 }
@@ -608,7 +613,8 @@ div.wikipage.editor .TemplateSelect {
 	vertical-align: middle;
 }
 
-/**** Dialog-Panel ****/
+/**** Upload panel ****/
+
 div.panelbackground {
 	position: absolute;
 	top: 0;

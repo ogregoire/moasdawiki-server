@@ -11,8 +11,10 @@
 * [[/wiki/ | Hilfe]]
 * [[wiki:shutdown]]
 
-= Zuletzt geändert
+''Zuletzt geändert''
+
 {{listedithistory | length=10}}
 
-= Zuletzt besucht
+''Zuletzt besucht''
+
 {{listviewhistory | length=10}}
