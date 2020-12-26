@@ -35,13 +35,7 @@ import java.io.StringReader;
 import java.util.*;
 
 /**
- * Serviceschicht für den Zugriff auf alle Wikidateien im Wiki-Repository.<br>
- * <br>
- * Behält eingelesene Wikiseiten im Cache, inkl. Parsebaum. Es wird vermieden,
- * unnötig viele Wikiseiten einzulesen, um den Serverstart zu beschleunigen.<br>
- * <br>
- * Liest die Parent-Liste aus der Cachedatei. Wenn die Cachedatei nicht
- * existiert, wird sie automatisch generiert und dazu alle Wikiseiten eingelesen und geparst.
+ * Provides access to the wiki pages as a parsed syntax tree.
  */
 public class WikiServiceImpl implements WikiService {
 
@@ -54,17 +48,17 @@ public class WikiServiceImpl implements WikiService {
 	private final RepositoryService repositoryService;
 
 	/**
-	 * Pfad der Cachedatei mit der Vater-Kind-Liste aller Wikidateien.<br>
-	 * <br>
-	 * Zeilenformat: Dateipfad im Repository '\t' Dateipfad der Kindseite 1 '\t' Dateipfad der Kindseite 2 usw.
+	 * Path of the parent-child cache file.
+	 *
+	 * Row format: file path in repository '\t' file path of child page 1 '\t' file path of child page 2 etc.
 	 */
 	public static final String CHILD_PARENT_CACHE_FILEPATH = "/parentrelations.cache";
 
 	/**
-	 * Cacht die Kind-Vater-Beziehungen aller Wikiseiten im Repository.
-	 * Wird beim Starten der Anwendung aus der Cachedatei geladen und bei jeder Änderung einer
-	 * Wikiseite aktualisiert.
+	 * Child-parent relation of all wiki pages in the repository.
+	 * Is loaded on application start and is kept up to date after every change of a wiki page.
 	 */
+	@NotNull
 	final Map<String, Set<String>> childParentMap;
 
 	/**
@@ -78,16 +72,13 @@ public class WikiServiceImpl implements WikiService {
 	final Map<String, WikiFile> wikiFileMap;
 
 	/**
-	 * Liste der zuletzt angesehenen Wikiseiten, chronologisch aufsteigend
-	 * sortiert, d.h. die zuletzt besuchte Wikiseite befindet sich am
-	 * Listenende. Ist nach dem Serverstart zunächst leer. Nicht
-	 * <code>null</code>.
+	 * List of last visited wiki pages since application start.
 	 */
 	@NotNull
 	final LinkedList<String> viewHistory;
 
 	/**
-	 * Konstruktor.
+	 * Constructor.
 	 */
 	public WikiServiceImpl(@NotNull Logger logger, @NotNull RepositoryService repositoryService) {
 		this.logger = logger;
@@ -100,6 +91,9 @@ public class WikiServiceImpl implements WikiService {
 		reset();
 	}
 
+	/**
+	 * Reset the cache content, same as application restart.
+	 */
 	public void reset() {
 		childParentMap.clear();
 		wikiFileMap.clear();
@@ -169,7 +163,7 @@ public class WikiServiceImpl implements WikiService {
 	}
 
 	/**
-	 * Reads all wiki pages from scratch.
+	 * Read all wiki pages from scratch.
 	 */
 	private void readAllWikiFiles() {
 		Set<AnyFile> repositoryFiles = repositoryService.getFiles();
@@ -190,6 +184,9 @@ public class WikiServiceImpl implements WikiService {
 		writeChildParentCacheFile();
 	}
 
+	/**
+	 * List of all wiki pages.
+	 */
 	@Override
 	@NotNull
 	public synchronized Set<String> getWikiFilePaths() {
@@ -204,6 +201,9 @@ public class WikiServiceImpl implements WikiService {
 		return result;
 	}
 
+	/**
+	 * Check if the wiki page exists.
+	 */
 	@Override
 	public synchronized boolean existsWikiFile(@NotNull String wikiFilePath) {
 		if (wikiFileMap.containsKey(wikiFilePath)) {
@@ -214,10 +214,8 @@ public class WikiServiceImpl implements WikiService {
 	}
 
 	/**
-	 * Gibt die angeforderte Wikidatei zurück. Erstellt eine Kopie, damit das
-	 * Original nicht verändert werden kann. Falls noch nicht vorhanden, wird
-	 * vorher der Wikitext eingelesen und geparst. Im zurückgegebenen
-	 * WikiFile-Objekt sind alle Felder gefüllt.
+	 * Return the parsed wiki page.
+	 * Throws an Exception if the wiki page doesn't exist.
 	 */
 	@NotNull
 	@Override
@@ -226,6 +224,9 @@ public class WikiServiceImpl implements WikiService {
 		return wikiFile.cloneTyped();
 	}
 
+	/**
+	 * Delete a wiki page.
+	 */
 	@Override
 	public synchronized void deleteWikiFile(@NotNull String wikiFilePath) throws ServiceException {
 		// Remove from internal cache
@@ -242,12 +243,22 @@ public class WikiServiceImpl implements WikiService {
 		writeChildParentCacheFile();
 	}
 
+	/**
+	 * Return the raw text of a wiki page or a section of it.
+	 * Throws an Exception if the wiki page doesn't exist.
+	 *
+	 * @param wikiFilePath wiki file path
+	 * @param fromPos position of the first character of a section;
+	 *                <code>null</code> --> return whole page.
+	 * @param toPos position after the last character of a section;
+	 *              <code>null</code> --> return whole page.
+	 */
 	@NotNull
 	@Override
 	public synchronized WikiText readWikiText(@NotNull String wikiFilePath, @Nullable Integer fromPos, @Nullable Integer toPos) throws ServiceException {
 		WikiFile wikiFile = getWikiFileInternal(wikiFilePath, true);
 		if (fromPos != null && toPos != null) {
-			// Auf Ausschnitt der Wikiseite reduzieren
+			// reduce to section
 			try {
 				return new WikiText(wikiFile.getWikiText().substring(fromPos, toPos), fromPos, toPos);
 			} catch (IndexOutOfBoundsException e) {
@@ -258,13 +269,19 @@ public class WikiServiceImpl implements WikiService {
 		}
 	}
 
+	/**
+	 * Write the raw wiki text of a wiki page or a section of it.
+	 * Update internal caches.
+	 *
+	 * @param wikiFilePath wiki file path
+	 * @param wikiText raw text
+	 */
 	@NotNull
 	@Override
 	public synchronized WikiFile writeWikiText(@NotNull String wikiFilePath, @NotNull WikiText wikiText) throws ServiceException {
-		// Alte Vater- und Kind-Verweise entfernen
 		uninstallParentAndChildLinks(wikiFilePath);
 
-		// Neuen Wikitext bestimmen, ggf. Seitenausschnitt ersetzen
+		// replace section
 		String newText;
 		if (wikiText.getFromPos() != null && wikiText.getToPos() != null) {
 			WikiFile oldWikiFile = wikiFileMap.get(wikiFilePath);
@@ -280,7 +297,7 @@ public class WikiServiceImpl implements WikiService {
 			newText = wikiText.getText();
 		}
 
-		// Datei schreiben
+		// write file
 		AnyFile newRepositoryFile;
 		try {
 			String repositoryPath = wikiFilePath2RepositoryPath(wikiFilePath);
@@ -292,13 +309,12 @@ public class WikiServiceImpl implements WikiService {
 			throw new ServiceException(message, e);
 		}
 
-		// Wikiseite parsen
+		// parse wiki text
 		PageElement pageContent = parseWikiText(newText);
 		WikiPage wikiPage = new WikiPage(wikiFilePath, pageContent, 0, newText.length());
 		WikiFile newWikiFile = new WikiFile(wikiFilePath, newText, wikiPage, newRepositoryFile);
 		wikiFileMap.put(wikiFilePath, newWikiFile);
 
-		// Vater- und Kind-Verweise setzen
 		if (installParentAndChildLinks(newWikiFile)) {
 			writeChildParentCacheFile();
 		}
@@ -307,9 +323,15 @@ public class WikiServiceImpl implements WikiService {
 		return newWikiFile;
 	}
 
+	/**
+	 * List wiki pages modified after the given date.
+	 *
+	 * @param modifiedAfter date, files have to be newer;
+	 *                      <code>null</code> --> no filter, list all files.
+	 */
 	@NotNull
 	@Override
-	public Set<String> getModifiedAfter(Date modifiedAfter) {
+	public Set<String> getModifiedAfter(@Nullable Date modifiedAfter) {
 		Set<AnyFile> modifiedFiles = repositoryService.getModifiedAfter(modifiedAfter);
 		if (modifiedFiles.isEmpty()) {
 			return Collections.emptySet();
@@ -328,6 +350,12 @@ public class WikiServiceImpl implements WikiService {
 		return result;
 	}
 
+	/**
+	 * List the latest modifies wiki pages.
+	 * .
+	 * @param count maximum number of pages.
+	 *              -1 -> no filter, list all pages
+	 */
 	@NotNull
 	@Override
 	public synchronized List<String> getLastModified(int count) {
@@ -340,6 +368,12 @@ public class WikiServiceImpl implements WikiService {
 		return result;
 	}
 
+	/**
+	 * List the latest viewed wiki pages.
+	 *
+	 * @param count maximum number of pages.
+	 * 	           -1 -> no filter, list all pages
+	 */
 	@NotNull
 	@Override
 	public synchronized List<String> getLastViewedWikiFiles(int count) {
@@ -350,12 +384,18 @@ public class WikiServiceImpl implements WikiService {
 		return result;
 	}
 
+	/**
+	 * Add a wiki page to the list of viewed pages.
+	 */
 	@Override
 	public synchronized void addLastViewedWikiFile(@NotNull String wikiFilePath) {
 		viewHistory.remove(wikiFilePath);
 		viewHistory.add(wikiFilePath);
 	}
 
+	/**
+	 * Parse a raw wiki text.
+	 */
 	@NotNull
 	@Override
 	public PageElementList parseWikiText(@NotNull String wikiText) throws ServiceException {
@@ -411,17 +451,17 @@ public class WikiServiceImpl implements WikiService {
 	}
 
 	/**
-	 * Gibt zurück, ob der angegebene Dateiname den Suffix einer Wikidatei hat.
+	 * Check if the given file path refers to a wiki page.
 	 */
 	static boolean isWikiFilePath(@NotNull String repositoryPath) {
 		return repositoryPath.endsWith(PAGE_SUFFIX);
 	}
 
 	/**
-	 * Schneidet die Dateiendung beim Namen einer Wikidatei ab.
-	 * 
-	 * @param repositoryPath Dateipfad innerhalb des Repositories.
-	 * @return Name der Wikidatei.
+	 * Cut off the file path extension to convert a repository file path to a wiki page path.
+	 *
+	 * @param repositoryPath Repository file path
+	 * @return Wiki page path
 	 */
 	@NotNull
 	static String repositoryPath2WikiFilePath(@NotNull String repositoryPath) {
@@ -433,10 +473,10 @@ public class WikiServiceImpl implements WikiService {
 	}
 
 	/**
-	 * Ergänzt den Namen einer Wikidatei um die Dateiendung.
-	 * 
-	 * @param wikiFilePath Name der Wikidatei.
-	 * @return Dateipfad innerhalb des Repositories.
+	 * Append the file path extension of wiki pages to convert a wiki page path to a repository file path.
+	 *
+	 * @param wikiFilePath Wiki page path
+	 * @return Repository file path
 	 */
 	@NotNull
 	static String wikiFilePath2RepositoryPath(@NotNull String wikiFilePath) {
@@ -444,14 +484,14 @@ public class WikiServiceImpl implements WikiService {
 	}
 
 	/**
-	 * Durchsucht die angegebene Wikiseite nach Parent-Beziehungen und fügt
-	 * diese in die Liste der Parent-Links und im Child-Parent-Cache ein.
-	 * Ergänzt zudem die Children-Links in anderen Wikiseiten.
+	 * Scan a wiki file for parent relations (<code>{{parent:...}}</code>)
+	 * and add them to the parent link list and the child-parent cache.
+	 * Also add the child links to other wiki pages.
 	 *
 	 * @return true if the childParentMap cache was changed.
 	 */
 	private boolean installParentAndChildLinks(@NotNull WikiFile wikiFile) {
-		// Vater-Verweise aus der Wikiseite extrahieren
+		// extract parent relations from wiki page
 		Set<String> parentFilePaths = new HashSet<>();
 		PageElementConsumer<Parent, Set<String>> consumer = (parent, context) -> {
 			WikiPage wikiPage = WikiHelper.getContextWikiPage(parent, false);
@@ -462,18 +502,18 @@ public class WikiServiceImpl implements WikiService {
 		};
 		WikiHelper.traversePageElements(wikiFile.getWikiPage(), consumer, Parent.class, parentFilePaths, false);
 
-		// Vater-Verweise in der Wikiseite eintragen
+		// add to parent list
 		wikiFile.getParents().clear();
 		wikiFile.getParents().addAll(parentFilePaths);
 
-		// Vater-Verweise im Kind-Vater-Cache eintragen
+		// add to child-parent cache
 		String wikiFilePath = wikiFile.getWikiFilePath();
 		boolean cacheModified = !childParentMap.containsKey(wikiFilePath) || !parentFilePaths.containsAll(childParentMap.get(wikiFilePath));
 		if (cacheModified) {
 			childParentMap.put(wikiFilePath, parentFilePaths);
 		}
 
-		// Children-Links in anderen Wikiseiten aktualisieren
+		// add child links to other wiki pages
 		for (String parentFilePath : parentFilePaths) {
 			WikiFile parentWikiFile = wikiFileMap.get(parentFilePath);
 			if (parentWikiFile != null) {
@@ -481,7 +521,7 @@ public class WikiServiceImpl implements WikiService {
 			}
 		}
 
-		// Children-Links in dieser Wikiseite ergänzen
+		// add child links to this wiki page
 		wikiFile.getChildren().clear();
 		for (String childFilePath : childParentMap.keySet()) {
 			Set<String> parents = childParentMap.get(childFilePath);
@@ -494,17 +534,15 @@ public class WikiServiceImpl implements WikiService {
 	}
 
 	/**
-	 * Entfernt Vater-Verweise aus dem Cache und Children-Links von anderen Wikiseiten.
-	 * Wird aufgerufen, wenn eine Wikiseite gelöscht oder durch eine neuere Version ersetzt wird.
+	 * Remove parent relations from cache and child links from other wiki pages.
+	 * Called if a wiki page is deleted or replaced by a newer version.
 	 */
 	private void uninstallParentAndChildLinks(@NotNull String wikiFilePath) {
-		// Vater-Verweise aus Kind-Vater-Cache entfernen
 		Set<String> parentFilePaths = childParentMap.remove(wikiFilePath);
 		if (parentFilePaths == null) {
 			return;
 		}
 
-		// Children-Links in anderen Wikiseiten entfernen
 		for (String parentFilePath : parentFilePaths) {
 			WikiFile parentWikiFile = wikiFileMap.get(parentFilePath);
 			if (parentWikiFile != null) {
