@@ -47,10 +47,12 @@ public class HtmlTag extends PageElementWithChild {
 		this.tagAttributes = tagAttributes;
 	}
 
+	@NotNull
 	public String getTagName() {
 		return tagName;
 	}
 
+	@Nullable
 	public String getTagAttributes() {
 		return tagAttributes;
 	}

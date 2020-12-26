@@ -149,7 +149,7 @@ public class MainService {
 	/**
 	 * Free memory. Method is required by Apache Commons Daemon.
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings({"unused", "EmptyMethod"})
 	public void destroy() {
 		// noop
 	}

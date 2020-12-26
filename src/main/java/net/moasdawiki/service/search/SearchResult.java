@@ -89,7 +89,7 @@ public class SearchResult {
 		/**
 		 * Matching relevance. Positive integer.
 		 */
-		public final int relevance;
+		private final int relevance;
 
 		/**
 		 * Constructor.

@@ -195,7 +195,7 @@ public class SearchService {
 		}
 
 		// Sort matches by descending relevance
-		searchResult.getResultList().sort((p1, p2) -> Integer.compare(p2.relevance, p1.relevance));
+		searchResult.getResultList().sort((p1, p2) -> Integer.compare(p2.getRelevance(), p1.getRelevance()));
 		return searchResult;
 	}
 

@@ -129,7 +129,7 @@ public class SearchHandler {
 		}
 
 		// Relevanz anzeigen
-		String relevanceText = messages.getMessage(RELEVANCE_KEY, pageDetails.relevance);
+		String relevanceText = messages.getMessage(RELEVANCE_KEY, pageDetails.getRelevance());
 		pageElementList.add(new TextOnly(relevanceText));
 		pageElementList.add(new VerticalSpace());
 
