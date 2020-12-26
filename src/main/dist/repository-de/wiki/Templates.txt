@@ -3,6 +3,6 @@ Die Kindseiten dieser Wiki-Seite dienen als Inhaltsvorlagen für neue Wiki-Seite
 
 Um eine neue Vorlage zu erstellen, muss diese das Tag
 @@
-{{parent:/wiki/Vorlagen}}
+{{parent:/wiki/Templates}}
 @@
 in der ersten Zeile enthalten.
