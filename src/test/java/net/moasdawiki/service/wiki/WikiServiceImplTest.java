@@ -38,7 +38,7 @@ public class WikiServiceImplTest {
     private static final String[] REPOSITORY_FILE_PATHS = {"/page.txt", "/page-with-parent.txt", "/c.dat"};
 
     private RepositoryService repositoryServiceMock;
-    private WikiServiceImpl wikiService;
+    private WikiService wikiService;
 
     @BeforeMethod
     public void setUp() throws Exception {
@@ -47,7 +47,7 @@ public class WikiServiceImplTest {
         when(repositoryServiceMock.getFiles()).thenAnswer(this::getFilesMock);
         when(repositoryServiceMock.readTextFile(any())).thenAnswer(this::readTextFileMockWithCacheFile);
         when(repositoryServiceMock.writeTextFile(any(), anyString())).thenAnswer(this::writeTextFileMock);
-        wikiService = new WikiServiceImpl(new Logger(null), repositoryServiceMock);
+        wikiService = new WikiService(new Logger(null), repositoryServiceMock);
     }
 
     private AnyFile getFileMock(InvocationOnMock invocationOnMock) {
@@ -371,18 +371,18 @@ public class WikiServiceImplTest {
 
     @Test
     public void testIsWikiFilePath() {
-        assertFalse(WikiServiceImpl.isWikiFilePath("/a"));
-        assertTrue(WikiServiceImpl.isWikiFilePath("/a.txt"));
+        assertFalse(WikiService.isWikiFilePath("/a"));
+        assertTrue(WikiService.isWikiFilePath("/a.txt"));
     }
 
     @Test
     public void testRepositoryPath2WikiFilePath() {
-        assertEquals(WikiServiceImpl.repositoryPath2WikiFilePath("/a.txt"), "/a");
-        assertEquals(WikiServiceImpl.repositoryPath2WikiFilePath("/a.dat"), "/a.dat");
+        assertEquals(WikiService.repositoryPath2WikiFilePath("/a.txt"), "/a");
+        assertEquals(WikiService.repositoryPath2WikiFilePath("/a.dat"), "/a.dat");
     }
 
     @Test
     public void testWikiFilePath2RepositoryPath() {
-        assertEquals(WikiServiceImpl.wikiFilePath2RepositoryPath("/a"), "/a.txt");
+        assertEquals(WikiService.wikiFilePath2RepositoryPath("/a"), "/a.txt");
     }
 }

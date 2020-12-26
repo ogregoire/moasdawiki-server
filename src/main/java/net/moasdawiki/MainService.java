@@ -33,7 +33,6 @@ import net.moasdawiki.service.search.SearchService;
 import net.moasdawiki.service.sync.SynchronizationService;
 import net.moasdawiki.service.transform.*;
 import net.moasdawiki.service.wiki.WikiService;
-import net.moasdawiki.service.wiki.WikiServiceImpl;
 
 import java.io.File;
 
@@ -71,7 +70,7 @@ public class MainService {
 		repositoryService.init();
 		settings = new Settings(logger, repositoryService, Settings.getConfigFileServer());
 		messages = new Messages(logger, settings, repositoryService);
-		WikiService wikiService = new WikiServiceImpl(logger, repositoryService);
+		WikiService wikiService = new WikiService(logger, repositoryService);
 		SearchService searchService = new SearchService(logger, repositoryService, wikiService, false);
 		SynchronizationService synchronizationService = new SynchronizationService(logger, settings, repositoryService);
 
