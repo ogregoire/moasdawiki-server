@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.4.0 (2020-12-26)
+
+- Internationalize wiki editor and synchronization page
+- Upgrade to HTML 5
+- HTML pages specify language code
+- Refactoring: Remove plugin support
+- Refactoring: Remove RepositoryService interface
+- Refactoring: Remove WikiService interface
+- Refactoring: Remove WikiService file content cache
+- Clean up config file
+- Upgrade build dependencies
+- Update JavaDoc comments
+
 ## 2.3.3 (2020-10-11)
 
 - Add SearchService read-only mode for App
