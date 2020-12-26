@@ -34,18 +34,18 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import static net.moasdawiki.service.repository.FilesystemRepositoryService.FILELIST_CACHE_FILEPATH;
+import static net.moasdawiki.service.repository.RepositoryService.FILELIST_CACHE_FILEPATH;
 import static org.testng.Assert.*;
 
-public class FilesystemRepositoryServiceTest {
+public class RepositoryServiceTest {
 
     private static final String REPOSITORY_BASE_PATH = "src/test/resources/repository-with-cache";
 
-    private FilesystemRepositoryService frs;
+    private RepositoryService frs;
 
     @BeforeMethod
     public void setUp() {
-        frs = new FilesystemRepositoryService(new Logger(null), new File(REPOSITORY_BASE_PATH));
+        frs = new RepositoryService(new Logger(null), new File(REPOSITORY_BASE_PATH));
         frs.init();
     }
 
@@ -55,7 +55,7 @@ public class FilesystemRepositoryServiceTest {
         //noinspection ResultOfMethodCallIgnored
         new File("src/test/resources/repository-without-cache" + FILELIST_CACHE_FILEPATH).delete();
         // Start service, it will create the cache file automatically
-        FilesystemRepositoryService frsWithoutCache = new FilesystemRepositoryService(new Logger(null), new File("src/test/resources/repository-without-cache"));
+        RepositoryService frsWithoutCache = new RepositoryService(new Logger(null), new File("src/test/resources/repository-without-cache"));
         frsWithoutCache.init();
         assertEquals(frsWithoutCache.getFiles().size(), 2);
         // Check if cache file was generated

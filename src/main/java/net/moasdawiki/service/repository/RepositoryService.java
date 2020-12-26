@@ -18,121 +18,494 @@
 
 package net.moasdawiki.service.repository;
 
+import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.ServiceException;
+import net.moasdawiki.util.DateUtils;
+import net.moasdawiki.util.PathUtils;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
- * Serviceschicht für den Zugriff auf alle Dateien im Wiki-Repository. Das
- * Repository enthält sämtlichen Wikiseiten sowie Bilder, CSS, JavaScript und
- * weitere Binärdateien (z.B. PDF).
+ * Access to the files in the wiki repository.
  */
-public interface RepositoryService {
+public class RepositoryService {
 
-    /**
-     * Initialisiert den Service. Soll unmittelbar nach dem Konstruktur aufgerufen werden.
-     * Wird für die App benötigt.
-     */
-    void init();
+	/**
+	 * Path of the file list cache file.
+	 *
+	 * Row format: File path in repository '\t' modification timestamp in ISO 8601 format "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+	 */
+	public static final String FILELIST_CACHE_FILEPATH = "/filelist.cache";
 
-    /**
-     * Internen Cache neu aufbauen. Soll nur dann aufgerufen werden, wenn
-     * Repository-Dateien außerhalb dieser Klasse geändert wurden, weil diese Operation
-     * bei vielen Dateien recht aufwändig sein kann.
-     */
-    void rebuildCache();
+	@NotNull
+	protected final Logger logger;
 
-    /**
-     * Gibt das AnyFile-Objekt für den angegebenen Dateinamen zurück.
-     * <code>null</code> --> Datei nicht vorhanden.
-     */
-    @Nullable
-    AnyFile getFile(@NotNull String filePath);
+	/**
+	 * Repository base folder {@link File}.
+	 */
+	@NotNull
+	protected final File repositoryBase;
 
-    /**
-     * Listet alle Dateien im Repository auf.
-     */
-    @NotNull
-    Set<AnyFile> getFiles();
+	/**
+	 * Repository base folder path.
+	 */
+	@NotNull
+	protected final String repositoryBasePath;
 
-    /**
-     * Listet alle Dateien auf, deren Inhalt nach dem angegebenen Zeitpunkt
-     * geändert wurde.
-     * <p>
-     * Der Änderungs-Zeitstempel einer Datei kann vom Datei-Zeitstempel des Dateisystems abweichen,
-     * wenn der Inhalt synchronisiert wurde und so den Zeitstempel des Server übernommen hat.
-     * <p>
-     * Die Änderungs-Zeitstempel werden aus einer Cachedatei gelesen, um nicht das ganze Repository
-     * scannen zu müssen.
-     * <p>
-     * Es werden nur Repository-Dateien mit vorhandenem Zeitstempel berücksichtigt, da nur
-     * diese zur Synchronisierung geeignet sind.
-     *
-     * @param modifiedAfter Frühester Änderungszeitpunkt (exklusive).
-     *                      <code>null</code> --> alle Dateien auflisten.
-     * @return Dateiliste.
-     */
-    @NotNull
-    Set<AnyFile> getModifiedAfter(@Nullable Date modifiedAfter);
+	/**
+	 * Metadata cache for all files in the repository.
+	 * Map: File path in repository -> {@link AnyFile}.
+	 */
+	@NotNull
+	protected final Map<String, AnyFile> fileMap;
 
-    /**
-     * Returns a list of the latest n modified files, sorted descending by timestamp.
-     *
-     * @param count  Maximum number of files to be returned.
-     * @param filter Filter for files that match the suffix.
-     */
-    @NotNull
-    List<AnyFile> getLastModifiedFiles(int count, @NotNull Predicate<AnyFile> filter);
+	/**
+	 * Constructor.
+	 */
+	public RepositoryService(@NotNull Logger logger, @NotNull File repositoryBase) {
+		super();
+		this.logger = logger;
+		this.repositoryBase = repositoryBase;
+		this.repositoryBasePath = repositoryBase.getAbsolutePath();
+		fileMap = new HashMap<>();
+		logger.write("Repository base path: " + this.repositoryBasePath);
+	}
 
-    /**
-     * Löscht die angegebene Datei aus dem Repository.
-     */
-    void deleteFile(@NotNull AnyFile anyFile) throws ServiceException;
+	/**
+	 * Initialize the cache. Must be called after the constructor.
+	 * Required for the App.
+	 */
+	public void init() {
+		if (!readCacheFile()) {
+			rebuildCache();
+		}
+	}
 
-    /**
-     * Liest eine Textdatei aus dem Repository ein.
-     *
-     * @param anyFile Datei im Repository.
-     * @return Textinhalt der Datei.
-     */
-    @NotNull
-    String readTextFile(@NotNull AnyFile anyFile) throws ServiceException;
+	/**
+	 * Read the file list cache file.
+	 *
+	 * @return true if the cache file was read successfully
+	 */
+	protected boolean readCacheFile() {
+		String cacheContent;
+		AnyFile fileListCacheFile = new AnyFile(FILELIST_CACHE_FILEPATH);
+		try {
+			cacheContent = readTextFile(fileListCacheFile);
+		} catch (ServiceException e) {
+			logger.write("Error reading cache file " + FILELIST_CACHE_FILEPATH);
+			return false;
+		}
 
-    /**
-     * Schreibt eine Textdatei ins Repository. Wenn die Datei bereits existiert,
-     * wird sie überschrieben.
-     *
-     * @param anyFile Datei im Repository.
-     * @param content Inhalt der Datei.
-     * @return Neues Dateiobjekt mit aktualisierten Attributen.
-     */
-    @NotNull
-    AnyFile writeTextFile(@NotNull AnyFile anyFile, @NotNull String content) throws ServiceException;
+		try {
+			Map<String, AnyFile> newFileMap = parseCacheContent(cacheContent);
+			fileMap.clear();
+			fileMap.putAll(newFileMap);
+			logger.write("Repository cache filled from cache file, " + newFileMap.size() + " files known");
+			return true;
+		} catch (Exception e) {
+			logger.write("Error parsing cache file " + FILELIST_CACHE_FILEPATH, e);
+			return false;
+		}
+	}
 
-    /**
-     * Liest eine Binärdatei vom Repository ein.
-     *
-     * @param anyFile Datei im Repository.
-     * @return Inhalt der Datei.
-     */
-    @NotNull
-    byte[] readBinaryFile(@NotNull AnyFile anyFile) throws ServiceException;
+	/**
+	 * Parse the cache file content.
+	 */
+	@Contract(value = "_ -> new", pure = true)
+	@NotNull
+	protected Map<String, AnyFile> parseCacheContent(@NotNull String cacheContent) throws ServiceException {
+		try {
+			Map<String, AnyFile> result = new HashMap<>();
+			BufferedReader reader = new BufferedReader(new StringReader(cacheContent));
+			String line;
+			while ((line = reader.readLine()) != null) {
+				if (line.isEmpty()) {
+					// ignore empty line at end of file
+					continue;
+				}
+				int pos1 = line.indexOf('\t');
+				if (pos1 < 0) {
+					throw new ServiceException("Invalid file format, cancel parsing");
+				}
 
-    /**
-     * Schreibt eine Binärdatei ins Repository. Wenn die Datei bereits
-     * existiert, wird sie überschrieben.
-     *
-     * @param anyFile   Datei im Repository.
-     * @param content   Inhalt der Datei.
-     * @param timestamp Zeitstempel der Datei. Wird bei der Synchronisierung mit
-     *                  einem anderen Repository verwendet. <code>null</code> --> aktuelle Systemzeit verwenden.
-     * @return Neues Dateiobjekt mit aktualisierten Attributen.
-     */
-    @NotNull
-    AnyFile writeBinaryFile(@NotNull AnyFile anyFile, @NotNull byte[] content, @Nullable Date timestamp) throws ServiceException;
+				String filePath = line.substring(0, pos1).trim();
+				String contentTimestampStr = line.substring(pos1).trim();
+				Date contentTimestamp = DateUtils.parseUtcDate(contentTimestampStr);
+
+				AnyFile newAnyFile = new AnyFile(filePath, contentTimestamp);
+				result.put(filePath, newAnyFile);
+			}
+			reader.close();
+			return result;
+		} catch (IOException e) {
+			throw new ServiceException("Error parsing cache file content", e);
+		}
+	}
+
+	/**
+	 * Write the file list cache file.
+	 */
+	protected void writeCacheFile() {
+		List<String> filePathList = new ArrayList<>(fileMap.keySet());
+		Collections.sort(filePathList);
+
+		StringBuilder sb = new StringBuilder();
+		for (String filePath : filePathList) {
+			AnyFile anyFile = fileMap.get(filePath);
+			sb.append(filePath);
+
+			sb.append('\t');
+
+			String contentTimestampStr = DateUtils.formatUtcDate(anyFile.getContentTimestamp());
+			sb.append(contentTimestampStr);
+
+			sb.append('\n');
+		}
+		String cacheContent = sb.toString();
+
+		AnyFile fileListCacheFile = new AnyFile(FILELIST_CACHE_FILEPATH);
+		try {
+			writeTextFile(fileListCacheFile, cacheContent);
+		} catch (ServiceException e) {
+			// only log error, do not escalate
+			logger.write("Error writing cache file " + FILELIST_CACHE_FILEPATH, e);
+		}
+	}
+
+	/**
+	 * Rebuild internal cache.
+	 *
+	 * Call this method only if the repository was modified outside this class.
+	 * The method might be very expensive if there are many files in the repository.
+	 */
+	public void rebuildCache() {
+		List<File> files = new ArrayList<>();
+		listFilesInFilesystem(repositoryBase, files);
+		logger.write("Rebuilding repository cache, found " + files.size() + " files in repository folder");
+
+		Map<String, AnyFile> newFileMap = new HashMap<>();
+		for (File file : files) {
+			String filesystemFilePath = file.getAbsolutePath();
+
+			String filePath = filesystem2RepositoryPath(filesystemFilePath);
+			if (filePath == null) {
+				// ignore invalid file name
+				continue;
+			}
+			Date fileTimestamp = new Date(file.lastModified());
+			AnyFile newAnyFile = new AnyFile(filePath, fileTimestamp);
+			newFileMap.put(filePath, newAnyFile);
+		}
+
+		fileMap.clear();
+		fileMap.putAll(newFileMap);
+
+		writeCacheFile();
+	}
+
+	/**
+	 * List all files in the repository, also scans sub-folders.
+	 */
+	protected synchronized void listFilesInFilesystem(@NotNull File folder, @NotNull List<File> fileList) {
+		File[] files = folder.listFiles();
+		if (files == null) {
+			return;
+		}
+		for (File file : files) {
+			if (file.isDirectory()) {
+				listFilesInFilesystem(file, fileList);
+			} else {
+				fileList.add(file);
+			}
+		}
+	}
+
+	/**
+	 * Return the {@link AnyFile} object for a repository file.
+	 *
+	 * @return null --> file not found
+	 */
+	@Contract(pure = true)
+	@Nullable
+	public synchronized AnyFile getFile(@NotNull String filePath) {
+		return fileMap.get(filePath);
+	}
+
+	/**
+	 * List all files in the repository.
+	 */
+	@Contract(value = "-> new", pure = true)
+	@NotNull
+	public synchronized Set<AnyFile> getFiles() {
+		return new HashSet<>(fileMap.values());
+	}
+
+	/**
+	 * List all files modified after the given date (exact match excluded).
+	 *
+	 * @param modifiedAfter date, files have to be newer;
+	 *                      <code>null</code> --> no filter, list all files.
+	 */
+	@Contract(value = "_ -> new", pure = true)
+	@NotNull
+	public synchronized Set<AnyFile> getModifiedAfter(Date modifiedAfter) {
+		Set<AnyFile> result = new HashSet<>();
+		for (AnyFile anyFile : fileMap.values()) {
+			if (modifiedAfter == null || modifiedAfter.before(anyFile.getContentTimestamp())) {
+				result.add(anyFile);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * List the latest modifies files.
+	 *
+	 * @param count Maximum number of files to be returned.
+	 *              -1 -> no filter, list all pages
+	 * @param filter Filter for files that match the suffix.
+	 */
+	@Contract(pure = true)
+	@NotNull
+	public List<AnyFile> getLastModifiedFiles(int count, @NotNull Predicate<AnyFile> filter) {
+		List<AnyFile> fileList = new ArrayList<>(fileMap.values());
+		fileList.removeIf(filter.negate());
+		fileList.sort((anyFile1, anyFile2) -> {
+			Date timestamp1 = anyFile1.getContentTimestamp();
+			Date timestamp2 = anyFile2.getContentTimestamp();
+			return timestamp2.compareTo(timestamp1);
+		});
+		return fileList.subList(0, Math.min(fileList.size(), count));
+	}
+
+	/**
+	 * Deletes a file from the repository.
+	 */
+	public synchronized void deleteFile(@NotNull AnyFile anyFile) throws ServiceException {
+		String filePath = anyFile.getFilePath();
+		try {
+			String filename = repository2FilesystemPath(filePath);
+			File file = new File(filename);
+			if (!file.delete()) {
+				String message = "Error deleting file '" + filePath + "', because the file system denied the action";
+				logger.write(message);
+				throw new ServiceException(message);
+			}
+		} catch (SecurityException e) {
+			String message = "Error deleting file '" + filePath + "', because of a security violation";
+			logger.write(message, e);
+			throw new ServiceException(message, e);
+		}
+
+		// update cache
+		fileMap.remove(filePath);
+		writeCacheFile();
+		logger.write("File '" + filePath + "' deleted");
+	}
+
+	/**
+	 * Read the content of a text file.
+	 * Throws an exception if the file doesn't exist.
+	 */
+	@NotNull
+	public synchronized String readTextFile(@NotNull AnyFile anyFile) throws ServiceException {
+		byte[] contentBytes = readBinaryFile(anyFile);
+		return new String(contentBytes, StandardCharsets.UTF_8);
+	}
+
+	/**
+	 * Write the content of a text file.
+	 */
+	@NotNull
+	public synchronized AnyFile writeTextFile(@NotNull AnyFile anyFile, @NotNull String content) throws ServiceException {
+		byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
+		return writeBinaryFile(anyFile, contentBytes, null);
+	}
+
+	/**
+	 * Read the content of a binary file.
+	 * Throws an exception if the file doesn't exist.
+	 */
+	@NotNull
+	public synchronized byte[] readBinaryFile(@NotNull AnyFile anyFile) throws ServiceException {
+		String filePath = anyFile.getFilePath();
+		filePath = PathUtils.makeWebPathAbsolute(filePath, null);
+		String filename = repository2FilesystemPath(filePath);
+		File file = new File(filename);
+
+		// update cache
+		if (!fileMap.containsKey(filePath) && file.exists()) {
+			logger.write("Detected new file '" + filePath + "' in repository, adding to cache");
+			Date fileTimestamp = new Date(file.lastModified());
+			AnyFile newAnyFile = new AnyFile(filePath, fileTimestamp);
+			fileMap.put(filePath, newAnyFile);
+
+			if (!FILELIST_CACHE_FILEPATH.equals(filePath)) {
+				// Don't write cache file while it is read,
+				// otherwise it will be overwritten with empty content.
+				writeCacheFile();
+			}
+		}
+
+		logger.write("Reading file '" + filePath + "' from repository");
+		try (FileInputStream is = new FileInputStream(file)) {
+			byte[] fileContent = new byte[is.available()];
+			//noinspection ResultOfMethodCallIgnored
+			is.read(fileContent);
+			return fileContent;
+		} catch (IOException e) {
+			String message = "Error reading file '" + filePath + "'";
+			logger.write(message, e);
+			throw new ServiceException(message, e);
+		}
+	}
+
+	/**
+	 * Write the content of a binary file.
+	 * If the file already exists it will be overwritten.
+	 */
+	@NotNull
+	public synchronized AnyFile writeBinaryFile(@NotNull AnyFile anyFile, @NotNull byte[] content, @Nullable Date contentTimestamp) throws ServiceException {
+		String filePath = anyFile.getFilePath();
+		filePath = PathUtils.makeWebPathAbsolute(filePath, null);
+		String filename = repository2FilesystemPath(filePath);
+		File file = new File(filename);
+
+		createFolders(file);
+		try (FileOutputStream out = new FileOutputStream(file)) {
+			out.write(content);
+		} catch (SecurityException e) {
+			String message = "Error saving file '" + filePath + "', because of a security violation";
+			logger.write(message, e);
+			throw new ServiceException(message, e);
+		} catch (IOException e) {
+			String message = "Error saving file '" + filePath + "'";
+			logger.write(message, e);
+			throw new ServiceException(message, e);
+		}
+
+		if (contentTimestamp == null) {
+			contentTimestamp = new Date(file.lastModified());
+		}
+		AnyFile newAnyFile = new AnyFile(filePath, contentTimestamp);
+		fileMap.put(filePath, newAnyFile);
+		logger.write("Content for file '" + filePath + "' successfully written");
+
+		if (!FILELIST_CACHE_FILEPATH.equals(filePath)) {
+			// avoid endless loop
+			writeCacheFile();
+		}
+		return newAnyFile;
+	}
+
+	/**
+	 * Create all sub-folders required to write a file.
+	 */
+	protected void createFolders(@NotNull File file) throws ServiceException {
+		File fileFolder = file.getParentFile();
+		if (!fileFolder.exists() && !fileFolder.mkdirs()) {
+			String message = "Error creating folder '" + fileFolder.getAbsolutePath() + "'";
+			logger.write(message);
+			throw new ServiceException(message);
+		}
+	}
+
+	/**
+	 * Convert a repository file path to an absolute file system path.
+	 * Escapes special characters.
+	 *
+	 * Example:<br>
+	 * Repository path:  <tt>/path/to/file</tt><br>
+	 * File system path: <tt>/path/to/repository/path/to/file</tt>
+	 */
+	@Contract(value = "null -> null; !null -> !null", pure = true)
+	@Nullable
+	protected String repository2FilesystemPath(@Nullable String repositoryPath) {
+		if (repositoryPath == null) {
+			return null;
+		}
+
+		// Invalid characters in Windows: "*/:<>?\|
+		// Invalid characters in Linux:   /
+		// Escape character: '%'
+		// Folder separator: '/'
+		// "." and ".." are escaped
+		final String forbiddenChars = "\"%*:<>?\\|";
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < repositoryPath.length(); i++) {
+			char c = repositoryPath.charAt(i);
+			if (c < 32 || c > 255 || forbiddenChars.indexOf(c) >= 0
+					|| c == '.' && (i - 1 >= 0 && i + 2 <= repositoryPath.length() && "/./".contentEquals(repositoryPath.subSequence(i - 1, i + 2))
+							|| i - 1 >= 0 && i + 3 <= repositoryPath.length() && "/../".contentEquals(repositoryPath.subSequence(i - 1, i + 3))
+							|| i - 2 >= 0 && i + 2 <= repositoryPath.length() && "/../".contentEquals(repositoryPath.subSequence(i - 2, i + 2)))) {
+				// convert to "%wxyz" representation
+				String hex = Integer.toString(c, 16);
+				sb.append('%');
+				for (int k = hex.length(); k < 4; k++) {
+					sb.append('0');
+				}
+				sb.append(hex);
+			} else {
+				sb.append(c);
+			}
+		}
+
+		String filePath = PathUtils.convertWebPath2FilePath(sb.toString());
+		return PathUtils.concatFilePaths(repositoryBasePath, filePath);
+	}
+
+	/**
+	 * Convert an absolute file system path to a repository file path.
+	 * Unescapes special characters.
+	 *
+	 * Example:<br>
+	 * File system path: <tt>/path/to/repository/path/to/file</tt>
+	 * Repository path:  <tt>/path/to/file</tt><br>
+	 *
+	 * @return Repository file path;
+	 *         <code>null</code> -> path is outside of the repository or invalid.
+	 */
+	@Contract(value = "null -> null", pure = true)
+	@Nullable
+	protected String filesystem2RepositoryPath(@Nullable String filesystemPath) {
+		if (filesystemPath == null) {
+			return null;
+		}
+
+		if (!filesystemPath.startsWith(repositoryBasePath)) {
+			logger.write("filePath2PagePath: Invalid file name '" + filesystemPath + "', doesn't exist in repository '" + repositoryBasePath + "'");
+			return null;
+		}
+
+		// cut off path to repository root
+		StringBuilder sb = new StringBuilder(filesystemPath);
+		sb.delete(0, repositoryBasePath.length());
+		if (sb.length() == 0 || sb.charAt(0) != File.separatorChar) {
+			sb.insert(0, File.separatorChar);
+		}
+
+		// Unescape "%wxyz"
+		for (int i = 0; i < sb.length(); i++) {
+			char c = sb.charAt(i);
+			if (c == '%' && i + 4 < sb.length()) {
+				try {
+					String hex = sb.substring(i + 1, i + 5);
+					char d = (char) Integer.parseInt(hex, 16);
+					sb.setCharAt(i, d);
+					sb.delete(i + 1, i + 5);
+				} catch (NumberFormatException e) {
+					logger.write("filePath2PagePath: Invalid file name '" + filesystemPath + "'", e);
+					return null;
+				}
+			}
+		}
+
+		return PathUtils.convertFilePath2WebPath(sb.toString());
+	}
 }

@@ -28,7 +28,7 @@ import net.moasdawiki.service.handler.FileDownloadHandler;
 import net.moasdawiki.service.handler.SearchHandler;
 import net.moasdawiki.service.handler.ViewPageHandler;
 import net.moasdawiki.service.render.HtmlService;
-import net.moasdawiki.service.repository.FilesystemRepositoryService;
+import net.moasdawiki.service.repository.RepositoryService;
 import net.moasdawiki.service.search.SearchService;
 import net.moasdawiki.service.sync.SynchronizationService;
 import net.moasdawiki.service.transform.*;
@@ -66,7 +66,7 @@ public class MainService {
 		}
 
 		// basic services
-		FilesystemRepositoryService repositoryService = new FilesystemRepositoryService(logger, repositoryRoot);
+		RepositoryService repositoryService = new RepositoryService(logger, repositoryRoot);
 		repositoryService.init();
 		settings = new Settings(logger, repositoryService, Settings.getConfigFileServer());
 		messages = new Messages(logger, settings, repositoryService);
