@@ -145,18 +145,20 @@ public class WikiParserTestBlockElements {
             String text = "* item level 1";
             PageElementList pel = new WikiParser(new StringReader(text)).parse();
             assertEquals(pel.size(), 1);
-            assertTrue(pel.get(0) instanceof UnorderedListItem);
-            UnorderedListItem item = (UnorderedListItem) pel.get(0);
+            assertTrue(pel.get(0) instanceof ListItem);
+            ListItem item = (ListItem) pel.get(0);
             assertEquals(item.getLevel(), 1);
+            assertFalse(item.isOrdered());
             assertEquals(WikiHelper.getStringContent(item), "item level 1");
         }
         {
             String text = "** item level 2";
             PageElementList pel = new WikiParser(new StringReader(text)).parse();
             assertEquals(pel.size(), 1);
-            assertTrue(pel.get(0) instanceof UnorderedListItem);
-            UnorderedListItem item = (UnorderedListItem) pel.get(0);
+            assertTrue(pel.get(0) instanceof ListItem);
+            ListItem item = (ListItem) pel.get(0);
             assertEquals(item.getLevel(), 2);
+            assertFalse(item.isOrdered());
             assertEquals(WikiHelper.getStringContent(item), "item level 2");
         }
     }
@@ -167,18 +169,20 @@ public class WikiParserTestBlockElements {
             String text = "# item level 1";
             PageElementList pel = new WikiParser(new StringReader(text)).parse();
             assertEquals(pel.size(), 1);
-            assertTrue(pel.get(0) instanceof OrderedListItem);
-            OrderedListItem item = (OrderedListItem) pel.get(0);
+            assertTrue(pel.get(0) instanceof ListItem);
+            ListItem item = (ListItem) pel.get(0);
             assertEquals(item.getLevel(), 1);
+            assertTrue(item.isOrdered());
             assertEquals(WikiHelper.getStringContent(item), "item level 1");
         }
         {
             String text = "## item level 2";
             PageElementList pel = new WikiParser(new StringReader(text)).parse();
             assertEquals(pel.size(), 1);
-            assertTrue(pel.get(0) instanceof OrderedListItem);
-            OrderedListItem item = (OrderedListItem) pel.get(0);
+            assertTrue(pel.get(0) instanceof ListItem);
+            ListItem item = (ListItem) pel.get(0);
             assertEquals(item.getLevel(), 2);
+            assertTrue(item.isOrdered());
             assertEquals(WikiHelper.getStringContent(item), "item level 2");
         }
     }

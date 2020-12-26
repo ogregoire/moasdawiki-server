@@ -25,40 +25,7 @@ import net.moasdawiki.base.Settings;
 import net.moasdawiki.service.render.HtmlWriter.Method;
 import net.moasdawiki.service.wiki.WikiHelper;
 import net.moasdawiki.service.wiki.WikiService;
-import net.moasdawiki.service.wiki.structure.Anchor;
-import net.moasdawiki.service.wiki.structure.Bold;
-import net.moasdawiki.service.wiki.structure.Code;
-import net.moasdawiki.service.wiki.structure.Color;
-import net.moasdawiki.service.wiki.structure.Heading;
-import net.moasdawiki.service.wiki.structure.Html;
-import net.moasdawiki.service.wiki.structure.Image;
-import net.moasdawiki.service.wiki.structure.Italic;
-import net.moasdawiki.service.wiki.structure.LineBreak;
-import net.moasdawiki.service.wiki.structure.LinkExternal;
-import net.moasdawiki.service.wiki.structure.LinkLocalFile;
-import net.moasdawiki.service.wiki.structure.LinkPage;
-import net.moasdawiki.service.wiki.structure.LinkWiki;
-import net.moasdawiki.service.wiki.structure.Monospace;
-import net.moasdawiki.service.wiki.structure.Nowiki;
-import net.moasdawiki.service.wiki.structure.OrderedListItem;
-import net.moasdawiki.service.wiki.structure.PageElement;
-import net.moasdawiki.service.wiki.structure.PageElementList;
-import net.moasdawiki.service.wiki.structure.Paragraph;
-import net.moasdawiki.service.wiki.structure.SearchInput;
-import net.moasdawiki.service.wiki.structure.Separator;
-import net.moasdawiki.service.wiki.structure.Small;
-import net.moasdawiki.service.wiki.structure.Strikethrough;
-import net.moasdawiki.service.wiki.structure.Style;
-import net.moasdawiki.service.wiki.structure.Table;
-import net.moasdawiki.service.wiki.structure.TableCell;
-import net.moasdawiki.service.wiki.structure.TableRow;
-import net.moasdawiki.service.wiki.structure.Task;
-import net.moasdawiki.service.wiki.structure.TextOnly;
-import net.moasdawiki.service.wiki.structure.Underlined;
-import net.moasdawiki.service.wiki.structure.UnorderedListItem;
-import net.moasdawiki.service.wiki.structure.VerticalSpace;
-import net.moasdawiki.service.wiki.structure.WikiPage;
-import net.moasdawiki.service.wiki.structure.XmlTag;
+import net.moasdawiki.service.wiki.structure.*;
 import net.moasdawiki.util.EscapeUtils;
 import net.moasdawiki.util.PathUtils;
 import net.moasdawiki.util.StringUtils;
@@ -109,19 +76,19 @@ public class WikiPage2Html {
 		return writer;
 	}
 
+	private void convertGeneric(@Nullable PageElement element) {
+		convertGeneric(element, null);
+	}
+
 	/**
 	 * Convert a single page element.
+	 * Dispatches to the corresponding typed converter method.
 	 *
 	 * Wiki-internal elements are ignored as they have to be transformed in advance.
 	 */
-	private void convertGeneric(@Nullable PageElement element) {
+	private void convertGeneric(@Nullable PageElement element, @Nullable int[] listItemSequence) {
 		if (element == null) {
 			return;
-		}
-
-		// close open enumerations
-		if (!(element instanceof UnorderedListItem) && !(element instanceof OrderedListItem)) {
-			setEnumerationLevel(0, false);
 		}
 
 		// Begin a new HTML line for a block element.
@@ -142,10 +109,8 @@ public class WikiPage2Html {
 			convertPageElementVerticalSpace();
 		} else if (element instanceof Task) {
 			convertPageElement((Task) element);
-		} else if (element instanceof UnorderedListItem) {
-			convertPageElement((UnorderedListItem) element);
-		} else if (element instanceof OrderedListItem) {
-			convertPageElement((OrderedListItem) element);
+		} else if (element instanceof ListItem) {
+			convertPageElement((ListItem) element, listItemSequence);
 		} else if (element instanceof Table) {
 			convertPageElement((Table) element);
 		} else if (element instanceof Paragraph) {
@@ -172,6 +137,8 @@ public class WikiPage2Html {
 			convertPageElement((Nowiki) element);
 		} else if (element instanceof Html) {
 			convertPageElement((Html) element);
+		} else if (element instanceof HtmlTag) {
+			convertPageElement((HtmlTag) element);
 		} else if (element instanceof LinkPage) {
 			convertPageElement((LinkPage) element);
 		} else if (element instanceof LinkWiki) {
@@ -206,8 +173,10 @@ public class WikiPage2Html {
 	}
 
 	private void convertPageElement(@NotNull PageElementList pageElementList) {
+		// Ordered list item sequence numbers by level (1..5)
+		int[] listItemSequence = { 0, 0, 0, 0, 0 };
 		for (PageElement pe : pageElementList) {
-			convertGeneric(pe);
+			convertGeneric(pe, listItemSequence);
 		}
 	}
 
@@ -330,56 +299,36 @@ public class WikiPage2Html {
 		writer.closeTags(depth);
 	}
 
-	private void convertPageElement(@NotNull UnorderedListItem unorderedListItem) {
-		setEnumerationLevel(unorderedListItem.getLevel(), true);
-		int depth = writer.openTag("li");
-		convertGeneric(unorderedListItem.getChild());
-		writer.closeTags(depth); // li
-	}
-
-	private void convertPageElement(@NotNull OrderedListItem orderedListItem) {
-		setEnumerationLevel(orderedListItem.getLevel(), false);
-		int depth = writer.openTag("li");
-		convertGeneric(orderedListItem.getChild());
-		writer.closeTags(depth); // li
+	private void convertPageElement(@NotNull ListItem listItem, @Nullable int[] listItemSequence) {
+		int depth;
+		if (listItem.isOrdered()) {
+			int sequenceNo = getNextListItemSequence(listItem.getLevel(), listItemSequence);
+			depth = writer.openTag("ol", "start=\"" + sequenceNo + "\"");
+		} else {
+			depth = writer.openTag("ul");
+		}
+		writer.openTag("li", "class=\"level" + listItem.getLevel() + "\"");
+		convertGeneric(listItem.getChild());
+		writer.closeTags(depth); // ol/ul
 	}
 
 	/**
-	 * Opens or closes enumeration tags to reach the given target stack depth.
+	 * Return the next ordered list item sequence number.
+	 * The sequence numbers for higher levels will be reset automatically.
+	 *
+	 * @param level 1..5
 	 */
-	private void setEnumerationLevel(int level, boolean unordered) {
-		// determine current stack depth
-		int currentLevel = 0;
-		while (writer.getCurrentTag(currentLevel) != null
-				&& ("ul".equals(writer.getCurrentTag(currentLevel)) || "ol".equals(writer.getCurrentTag(currentLevel)))) {
-			currentLevel++;
+	static int getNextListItemSequence(int level, @Nullable int[] listItemSequence) {
+		if (listItemSequence == null || level < 1 || level > listItemSequence.length) {
+			return 1;
 		}
 
-		// reduce stack depth
-		while (currentLevel > level) {
-			writer.closeTag();
-			writer.setContinueInNewLine();
-			currentLevel--;
+		// reset sequence numbers for higher levels
+		for (int i = level; i < listItemSequence.length; i++) {
+			listItemSequence[i] = 0;
 		}
 
-		// adjust enumeration type
-		if (currentLevel > 0 && currentLevel == level
-				&& ((unordered && !"ul".equals(writer.getCurrentTag())) || (!unordered && !"ol".equals(writer.getCurrentTag())))) {
-			writer.closeTag();
-			writer.setContinueInNewLine();
-			currentLevel--;
-		}
-
-		// increase stack depth
-		while (currentLevel < level) {
-			if (unordered) {
-				writer.openTag("ul");
-			} else {
-				writer.openTag("ol");
-			}
-			writer.setContinueInNewLine();
-			currentLevel++;
-		}
+		return ++listItemSequence[level - 1];
 	}
 
 	private void convertPageElement(@NotNull Table table) {
@@ -455,7 +404,7 @@ public class WikiPage2Html {
 	private void convertPageElement(@NotNull Paragraph paragraph) {
 		// add vertical space
 		if (paragraph.hasVerticalSpacing()
-				&& (previousElement instanceof Paragraph || previousElement instanceof UnorderedListItem || previousElement instanceof OrderedListItem || previousElement instanceof Table)) {
+				&& (previousElement instanceof Paragraph || previousElement instanceof ListItem || previousElement instanceof Table)) {
 			convertPageElementVerticalSpace();
 		}
 
@@ -597,6 +546,12 @@ public class WikiPage2Html {
 
 	private void convertPageElement(@NotNull Html html) {
 		writer.htmlText(html.getText());
+	}
+
+	private void convertPageElement(@NotNull HtmlTag htmlTag) {
+		int depth = writer.openTag(htmlTag.getTagName(), htmlTag.getTagAttributes());
+		convertGeneric(htmlTag.getChild());
+		writer.closeTags(depth);
 	}
 
 	private void convertPageElement(@NotNull LinkPage link) {

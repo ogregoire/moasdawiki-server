@@ -49,7 +49,6 @@ import net.moasdawiki.service.wiki.structure.ListWantedPages;
 import net.moasdawiki.service.wiki.structure.Listable.PageNameFormat;
 import net.moasdawiki.service.wiki.structure.Monospace;
 import net.moasdawiki.service.wiki.structure.Nowiki;
-import net.moasdawiki.service.wiki.structure.OrderedListItem;
 import net.moasdawiki.service.wiki.structure.PageElement;
 import net.moasdawiki.service.wiki.structure.PageElementList;
 import net.moasdawiki.service.wiki.structure.PageName;
@@ -67,7 +66,7 @@ import net.moasdawiki.service.wiki.structure.TableOfContents;
 import net.moasdawiki.service.wiki.structure.Task;
 import net.moasdawiki.service.wiki.structure.TextOnly;
 import net.moasdawiki.service.wiki.structure.Underlined;
-import net.moasdawiki.service.wiki.structure.UnorderedListItem;
+import net.moasdawiki.service.wiki.structure.ListItem;
 import net.moasdawiki.service.wiki.structure.VerticalSpace;
 import net.moasdawiki.service.wiki.structure.WikiTag;
 import net.moasdawiki.service.wiki.structure.WikiVersion;
@@ -378,7 +377,7 @@ public class WikiParser {
 	 * Schachtelung.
 	 */
 	@Nullable
-	private UnorderedListItem parseUnorderedList() throws IOException {
+	private ListItem parseUnorderedList() throws IOException {
 		int fromPos = lineReader.getCharsReadTotal();
 		String line = lineReader.getLine();
 		if (line == null) {
@@ -404,7 +403,7 @@ public class WikiParser {
 		PageElementList inlineList = parseInlineList();
 		int toPos = lineReader.getCharsReadTotal();
 
-		return new UnorderedListItem(level, inlineList, fromPos, toPos);
+		return new ListItem(level, false, inlineList, fromPos, toPos);
 	}
 
 	/**
@@ -413,7 +412,7 @@ public class WikiParser {
 	 * Schachtelung.
 	 */
 	@Nullable
-	private OrderedListItem parseOrderedList() throws IOException {
+	private ListItem parseOrderedList() throws IOException {
 		int fromPos = lineReader.getCharsReadTotal();
 		String line = lineReader.getLine();
 		if (line == null) {
@@ -439,7 +438,7 @@ public class WikiParser {
 		PageElementList inlineList = parseInlineList();
 		int toPos = lineReader.getCharsReadTotal();
 
-		return new OrderedListItem(level, inlineList, fromPos, toPos);
+		return new ListItem(level, true, inlineList, fromPos, toPos);
 	}
 
 	/**

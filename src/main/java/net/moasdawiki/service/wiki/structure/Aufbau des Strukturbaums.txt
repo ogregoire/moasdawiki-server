@@ -13,8 +13,7 @@ PageElement
   |- TableOfContents
   |- Parent          [wird nicht angezeigt]
   |- Task            = PageElementList
-  |- UnorderedList   = PageElementList
-  |- OrderedList     = PageElementList
+  |- ListItem        = PageElementList
   |- Table           = List<TableRow>, weitere Tabelleneigenschaften
   |- Paragraph       = PageElementList, zentriert, Einzug
   |- Code            = Text mit Zeilenwechsel

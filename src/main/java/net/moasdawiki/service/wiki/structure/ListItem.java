@@ -22,23 +22,29 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Enthält einen einzelnen, unnummerierten Aufzählungspunkt.
- * Ein Aufzählungspunkt kann unterschiedliche Gliederungsebenen haben.
+ * Represents an item of an unordered or ordered list.
  */
-public class UnorderedListItem extends PageElementWithChild {
+public class ListItem extends PageElementWithChild {
 
 	/**
-	 * 1 = oberste Ebene. Muss >= 1 sein.
+	 * Level, must be >= 1, 1 = top level.
 	 */
 	private final int level;
 
-	public UnorderedListItem(int level, @Nullable PageElement content, @Nullable Integer fromPos, @Nullable Integer toPos) {
+	private final boolean ordered;
+
+	public ListItem(int level, boolean ordered, @Nullable PageElement content, @Nullable Integer fromPos, @Nullable Integer toPos) {
 		super(content, fromPos, toPos);
 		this.level = Math.max(level, 1);
+		this.ordered = ordered;
 	}
 
 	public int getLevel() {
 		return level;
+	}
+
+	public boolean isOrdered() {
+		return ordered;
 	}
 
 	public boolean isInline() {
@@ -48,9 +54,9 @@ public class UnorderedListItem extends PageElementWithChild {
 	@NotNull
 	public PageElement clonePageElement() {
 		if (child != null) {
-			return new UnorderedListItem(level, child.clonePageElement(), fromPos, toPos);
+			return new ListItem(level, ordered, child.clonePageElement(), fromPos, toPos);
 		} else {
-			return new UnorderedListItem(level, null, fromPos, toPos);
+			return new ListItem(level, ordered, null, fromPos, toPos);
 		}
 	}
 }

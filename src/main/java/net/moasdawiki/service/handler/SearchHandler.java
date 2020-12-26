@@ -102,7 +102,7 @@ public class SearchHandler {
 		// Suchergebnisse ausgeben
 		for (PageDetails pageDetails : searchResult.getResultList()) {
 			PageElementList formattedpageDetails = generate(pageDetails);
-			pageContent.add(new UnorderedListItem(1, formattedpageDetails, null, null));
+			pageContent.add(new ListItem(1, false, formattedpageDetails, null, null));
 		}
 
 		return new WikiPage(null, pageContent, null, null);

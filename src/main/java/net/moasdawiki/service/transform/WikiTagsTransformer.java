@@ -479,7 +479,7 @@ public class WikiTagsTransformer implements TransformWikiPage {
                     pageElementList.add(linkPage);
                 } else {
                     // list entries as bullet points
-                    pageElementList.add(new UnorderedListItem(1, linkPage, null, null));
+                    pageElementList.add(new ListItem(1, false, linkPage, null, null));
                 }
             }
             return pageElementList;
