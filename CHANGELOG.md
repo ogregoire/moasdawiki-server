@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.1 (2020-12-27)
+
+- Small changes for App support
+- Bug fixes
+
 ## 2.4.0 (2020-12-26)
 
 - Internationalize wiki editor and synchronization page
