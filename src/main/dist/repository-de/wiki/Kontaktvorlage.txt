@@ -1,4 +1,4 @@
-{{parent:/wiki/Vorlagen}}
+{{parent:/wiki/Templates}}
 // Dies ist eine Vorlage für Kontaktdaten.
 //
 // Ausfüllhinweise:
