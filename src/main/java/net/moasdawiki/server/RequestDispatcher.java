@@ -38,6 +38,11 @@ public class RequestDispatcher {
     private final SearchHandler searchHandler;
     private final EditorHandler editorHandler;
     private final FileDownloadHandler fileDownloadHandler;
+
+    /**
+     * Is null in App.
+     */
+    @Nullable
     private final SynchronizationService synchronizationService;
 
     /**
@@ -46,7 +51,7 @@ public class RequestDispatcher {
     public RequestDispatcher(@NotNull HtmlService htmlService, @NotNull ViewPageHandler viewPageHandler,
                              @NotNull SearchHandler searchHandler, @NotNull EditorHandler editorHandler,
                              @NotNull FileDownloadHandler fileDownloadHandler,
-                             @NotNull SynchronizationService synchronizationService) {
+                             @Nullable SynchronizationService synchronizationService) {
         this.htmlService = htmlService;
         this.viewPageHandler = viewPageHandler;
         this.searchHandler = searchHandler;
@@ -101,6 +106,10 @@ public class RequestDispatcher {
 
     @Nullable
     private HttpResponse handleSynchronizationService(@NotNull HttpRequest httpRequest) {
+        if (synchronizationService == null) {
+            return null;
+        }
+
         String urlPath = httpRequest.urlPath;
         switch (urlPath) {
             case "/sync-gui/session-permit": {
