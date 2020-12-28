@@ -3,16 +3,17 @@
 #  MoasdaWiki Server
 #
 #  Script to run MoasdaWiki server as Linux daemon.
-#  See README for installation tutorial. 
+#  See README.md for installation tutorial.
 #
 
-JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre        # binary folder of JRE
-JSVC_HOME=/usr/bin                                     # binary folder of jsvc
-COMMONS_DAEMON_JAR=/usr/share/java/commons-daemon.jar  # path to commons-daemon.jar
-MOASDAWIKI_HOME=/home/username/moasdawiki              # folder containing MoasdaWiki.jar
-MOASDAWIKI_REPOSITORY=$MOASDAWIKI_HOME/repository-en   # repository folder, change language on demand
-MOASDAWIKI_USER=username
-CLASSPATH=$COMMONS_DAEMON_JAR:$MOASDAWIKI_HOME/MoasdaWiki-version.jar  # JAR file to run, replace version string
+MOASDAWIKI_USER=youruser
+MOASDAWIKI_HOME=/home/$MOASDAWIKI_USER/moasdawiki            # folder containing MoasdaWiki.jar
+MOASDAWIKI_REPOSITORY=$MOASDAWIKI_HOME/repository-en         # repository folder, change language on demand
+MOASDAWIKI_JAR=$MOASDAWIKI_HOME/moasdawiki-server-2.x.y.jar  # JAR file name, replace version string
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre              # binary folder of JRE
+JSVC_HOME=/usr/bin                                           # binary folder of jsvc
+COMMONS_DAEMON_JAR=/usr/share/java/commons-daemon.jar        # path to commons-daemon.jar
+CLASSPATH=$COMMONS_DAEMON_JAR:$MOASDAWIKI_JAR
 PID_FILE=/var/run/moasdawiki.pid
 
 export LANG=de_DE.UTF-8
