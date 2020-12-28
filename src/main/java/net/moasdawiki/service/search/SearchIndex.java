@@ -205,6 +205,7 @@ public class SearchIndex {
                 result.retainAll(wikiFilePaths);
             }
         }
+        logger.write("Found " + result.size() + " wiki page candidates for detail search");
         return result;
     }
 

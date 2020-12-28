@@ -214,6 +214,7 @@ public class SearchService {
 
 		// Sort matches by descending relevance
 		searchResult.getResultList().sort((p1, p2) -> Integer.compare(p2.getRelevance(), p1.getRelevance()));
+		logger.write("Search result contains " + searchResult.getResultList().size() + " wiki pages");
 		return searchResult;
 	}
 
