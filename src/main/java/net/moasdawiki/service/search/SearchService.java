@@ -55,22 +55,42 @@ public class SearchService {
 	private final SearchIndex searchIndex;
 
 	/**
-	 * If true, only read index from cache file, don't update from wiki changes.
-	 * This is used by the App to ensure fast search.
+	 * Is repository scanning allowed to update the cache content?
+	 * Is set to false for the App as the cache file is updates by synchronization.
 	 */
-	private final boolean cacheOnlyMode;
+	private final boolean scanRepository;
 
 	/**
 	 * Constructor.
 	 */
 	public SearchService(@NotNull Logger logger, @NotNull RepositoryService repositoryService,
-						 @NotNull WikiService wikiService, boolean cacheOnlyMode) {
+						 @NotNull WikiService wikiService, boolean scanRepository) {
 		super();
 		this.logger = logger;
 		this.wikiService = wikiService;
 		this.searchIndex = new SearchIndex(logger, repositoryService, wikiService);
-		this.searchIndex.readCacheFile();
-		this.cacheOnlyMode = cacheOnlyMode;
+		this.scanRepository = scanRepository;
+		reset();
+	}
+
+	/**
+	 * Rereads the cache file.
+	 * Is called in App environment after synchronization with server.
+	 */
+	public void reset() {
+		if (!readCacheFile()) {
+			rebuildCache();
+		}
+	}
+
+	private boolean readCacheFile() {
+		return searchIndex.readCacheFile();
+	}
+
+	private void rebuildCache() {
+		if (scanRepository) {
+			searchIndex.updateIndex();
+		}
 	}
 
 	/**
@@ -152,9 +172,7 @@ public class SearchService {
 	 */
 	@NotNull
 	Set<String> searchWikiFilePathCandidates(@NotNull Set<String> words) {
-		if (!cacheOnlyMode) {
-			searchIndex.updateIndex();
-		}
+		rebuildCache();
 		return searchIndex.searchWikiFilePathCandidates(words);
 	}
 
@@ -450,7 +468,7 @@ public class SearchService {
 	 * <li>a match count > 9 is considered as 9</li>
 	 * </ul>
 	 * 
-	 * @param mc Match cound by category.
+	 * @param mc Match count by category.
 	 * @return Relevance >= <code>0</code>. <code>0</code> = no match.
 	 */
 	private int calculateRelevance(@NotNull MatchingCategories mc) {

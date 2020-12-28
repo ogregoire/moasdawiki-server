@@ -31,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -83,31 +84,28 @@ public class SearchIndex {
     /**
      * Reads the search index from a cache file.
      */
-    public void readCacheFile() {
-        // Read cache file content
-        AnyFile searchIndexCacheFile = new AnyFile(SEARCH_INDEX_FILEPATH);
-        String cacheContent;
+    public boolean readCacheFile() {
         try {
-            cacheContent = repositoryService.readTextFile(searchIndexCacheFile);
-        } catch (ServiceException e) {
-            logger.write("Error reading cache file " + searchIndexCacheFile.getFilePath());
-            return;
-        }
+            // Read cache file content
+            AnyFile searchIndexCacheFile = new AnyFile(SEARCH_INDEX_FILEPATH);
+            String cacheContent = repositoryService.readTextFile(searchIndexCacheFile);
 
-        // Parse cache content
-        try (BufferedReader reader = new BufferedReader(new StringReader(cacheContent))) {
-            // Read timestamp in first line
-            String timestampStr = reader.readLine();
-            Date cacheFileTimestamp = DateUtils.parseUtcDate(timestampStr);
+            try (BufferedReader reader = new BufferedReader(new StringReader(cacheContent))) {
+                // Read timestamp in first line
+                String timestampStr = reader.readLine();
+                Date cacheFileTimestamp = DateUtils.parseUtcDate(timestampStr);
 
-            // Parse search index from cache file
-            Map<String, Set<String>> parsedMap = StringUtils.parseMap(reader);
+                // Parse search index from cache file
+                Map<String, Set<String>> parsedMap = StringUtils.parseMap(reader);
 
-            word2WikiFilePathMap.putAll(parsedMap);
-            lastUpdate = cacheFileTimestamp;
-            logger.write(parsedMap.size() + " keys read from search index cache file");
-        } catch (Exception e) {
-            logger.write("Error reading cache file " + searchIndexCacheFile.getFilePath(), e);
+                word2WikiFilePathMap.putAll(parsedMap);
+                lastUpdate = cacheFileTimestamp;
+                logger.write(parsedMap.size() + " keys read from search index cache file");
+            }
+            return true;
+        } catch (ServiceException | IOException e) {
+            logger.write("Error reading cache file " + SEARCH_INDEX_FILEPATH, e);
+            return false;
         }
     }
 

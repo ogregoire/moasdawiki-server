@@ -75,6 +75,10 @@ public class Messages {
 		reset();
 	}
 
+	/**
+	 * Rereads the message file.
+	 * Is called in App environment after synchronization with server.
+	 */
 	public void reset() {
 		readMessages();
 		setMessageFormatLocale();

@@ -66,18 +66,17 @@ public class MainService {
 		}
 
 		// basic services
-		RepositoryService repositoryService = new RepositoryService(logger, repositoryRoot);
-		repositoryService.init();
+		RepositoryService repositoryService = new RepositoryService(logger, repositoryRoot, true);
 		settings = new Settings(logger, repositoryService, Settings.getConfigFileServer());
 		messages = new Messages(logger, settings, repositoryService);
-		WikiService wikiService = new WikiService(logger, repositoryService);
-		SearchService searchService = new SearchService(logger, repositoryService, wikiService, false);
+		WikiService wikiService = new WikiService(logger, repositoryService, true);
+		SearchService searchService = new SearchService(logger, repositoryService, wikiService, true);
 		SynchronizationService synchronizationService = new SynchronizationService(logger, settings, repositoryService);
 
 		// transformers
 		IncludePageTransformer includePageTransformer = new IncludePageTransformer(logger, wikiService);
 		KontaktseiteTransformer kontaktseiteTransformer = new KontaktseiteTransformer();
-		TerminTransformer terminTransformer = new TerminTransformer(logger, messages, repositoryService, wikiService);
+		TerminTransformer terminTransformer = new TerminTransformer(logger, messages, repositoryService, wikiService, true);
 		SynchronizationPageTransformer synchronizationPageTransformer = new SynchronizationPageTransformer(messages, synchronizationService);
 		WikiTagsTransformer wikiTagsTransformer = new WikiTagsTransformer(logger, settings, messages, wikiService);
 		// list of transformers, the order matters

@@ -63,18 +63,18 @@ public class TerminTransformer implements TransformWikiPage {
 	private static final int DEFAULT_TAGE_DANACH = 3;
 	private static final int DEFAULT_TAGE_DAVOR = 10;
 
-	/**
-	 * Pfad der Cachedatei.
-	 */
-	public static final String EVENTS_CACHE_FILEPATH = "/events.cache";
+	private static final String EVENTS_CACHE_FILEPATH = "/events.cache";
+
+	private final Logger logger;
+	private final Messages messages;
+	private final RepositoryService repositoryService;
+	private final WikiService wikiService;
 
 	/**
-	 * Zeitpunkt der letzten Cache-Aktualisierung. Dadurch kann der Caches nach
-	 * einer Synchronisierung effizient aktualisiert werden. <code>null</code>
-	 * --> noch nie.
+	 * Is repository scanning allowed to update the cache content?
+	 * Is set to false for the App as the cache file is updates by synchronization.
 	 */
-	@Nullable
-	private Date cacheTimestamp;
+	private final boolean scanRepository;
 
 	/**
 	 * Cache aller Geburtstage und Termine, um nicht bei jeder Auflistung alle
@@ -83,85 +83,37 @@ public class TerminTransformer implements TransformWikiPage {
 	@NotNull
 	private List<Event> eventCache;
 
-	private final Logger logger;
-	private final Messages messages;
-	private final RepositoryService repositoryService;
-	private final WikiService wikiService;
+	/**
+	 * Zeitpunkt der letzten Cache-Aktualisierung. Dadurch kann der Caches nach
+	 * einer Synchronisierung effizient aktualisiert werden.
+	 * <code>null</code> --> noch nie.
+	 */
+	@Nullable
+	private Date cacheTimestamp;
 
 	/**
 	 * Konstruktor.
 	 */
 	public TerminTransformer(@NotNull Logger logger, @NotNull Messages messages,
 							 @NotNull RepositoryService repositoryService,
-							 @NotNull WikiService wikiService) {
-		eventCache = new ArrayList<>();
+							 @NotNull WikiService wikiService, boolean scanRepository) {
+		this.wikiService = wikiService;
 		this.logger = logger;
 		this.messages = messages;
 		this.repositoryService = repositoryService;
-		this.wikiService = wikiService;
-
-		readEventsFromCacheFile();
-	}
-
-	@NotNull
-	public WikiPage transformWikiPage(@NotNull WikiPage wikiPage) {
-		return TransformerHelper.transformPageElements(wikiPage, this::transformPageElement);
-	}
-
-	@NotNull
-	private PageElement transformPageElement(@NotNull PageElement pageElement) {
-		if (pageElement instanceof XmlTag) {
-			XmlTag xmlTag = (XmlTag) pageElement;
-
-			if (xmlTag.getPrefix() == null && "terminliste".equalsIgnoreCase(xmlTag.getName())) {
-				String jahr = xmlTag.getOptions().get("jahr");
-				String tagedanach = xmlTag.getOptions().get("tagedanach");
-				String tagedavor = xmlTag.getOptions().get("tagedavor");
-
-				if (jahr != null) {
-					// Jahresübersicht erzeugen
-					try {
-						int jahrInt = Integer.parseInt(jahr);
-						return generateYearList(jahrInt);
-					} catch (NumberFormatException e) {
-						// falsche Syntax, unverändert lassen
-						return pageElement;
-					}
-
-				} else {
-					// nur aktuellen Ausschnitt erzeugen
-					try {
-						int tagedanachInt = DEFAULT_TAGE_DANACH;
-						if (tagedanach != null) {
-							tagedanachInt = Integer.parseInt(tagedanach);
-						}
-						int tagedavorInt = DEFAULT_TAGE_DAVOR;
-						if (tagedavor != null) {
-							tagedavorInt = Integer.parseInt(tagedavor);
-						}
-						return generateCurrentDaysList(tagedanachInt, tagedavorInt);
-					} catch (NumberFormatException e) {
-						// falsche Syntax, unverändert lassen
-						return pageElement;
-					}
-				}
-			} else {
-				// kein Terminliste-Tag, unverändert lassen
-				return pageElement;
-			}
-		} else {
-			// kein XML-Tag, unverändert lassen
-			return pageElement;
-		}
+		this.scanRepository = scanRepository;
+		this.eventCache = new ArrayList<>();
+		reset();
 	}
 
 	/**
-	 * Gibt alle Events auf Wikiseiten zurück. Wird vom CalendarSyncAdapter verwendet.
+	 * Rereads the cache file.
+	 * Is called in App environment after synchronization with server.
 	 */
-	@SuppressWarnings("unused")
-	@NotNull
-	public List<Event> getEvents() {
-		return Collections.unmodifiableList(eventCache);
+	public void reset() {
+		if (!readEventsFromCacheFile()) {
+			updateCache();
+		}
 	}
 
 	/**
@@ -180,7 +132,7 @@ public class TerminTransformer implements TransformWikiPage {
 	 * <li>Spalte 3 enthält die Beschreibung des Events (optional).</li>
 	 * </ul>
 	 */
-	private void readEventsFromCacheFile() {
+	private boolean readEventsFromCacheFile() {
 		try {
 			AnyFile anyFile = new AnyFile(EVENTS_CACHE_FILEPATH);
 			String cacheContent = repositoryService.readTextFile(anyFile);
@@ -188,8 +140,10 @@ public class TerminTransformer implements TransformWikiPage {
 			cacheTimestamp = cacheFile.timestamp;
 			eventCache = cacheFile.eventList;
 			logger.write(cacheFile.eventList.size() + " events read from cache file");
+			return true;
 		} catch (ServiceException e) {
 			logger.write("Error reading cache file " + EVENTS_CACHE_FILEPATH, e);
+			return false;
 		}
 	}
 
@@ -245,21 +199,108 @@ public class TerminTransformer implements TransformWikiPage {
 		}
 	}
 
+	@NotNull
+	public WikiPage transformWikiPage(@NotNull WikiPage wikiPage) {
+		return TransformerHelper.transformPageElements(wikiPage, this::transformPageElement);
+	}
+
+	@NotNull
+	private PageElement transformPageElement(@NotNull PageElement pageElement) {
+		if (pageElement instanceof XmlTag) {
+			XmlTag xmlTag = (XmlTag) pageElement;
+
+			if (xmlTag.getPrefix() == null && "terminliste".equalsIgnoreCase(xmlTag.getName())) {
+				String jahr = xmlTag.getOptions().get("jahr");
+				String tagedanach = xmlTag.getOptions().get("tagedanach");
+				String tagedavor = xmlTag.getOptions().get("tagedavor");
+
+				if (jahr != null) {
+					// Jahresübersicht erzeugen
+					try {
+						int jahrInt = Integer.parseInt(jahr);
+						return generateYearList(jahrInt);
+					} catch (NumberFormatException e) {
+						// falsche Syntax, unverändert lassen
+						return pageElement;
+					}
+
+				} else {
+					// nur aktuellen Ausschnitt erzeugen
+					try {
+						int tagedanachInt = DEFAULT_TAGE_DANACH;
+						if (tagedanach != null) {
+							tagedanachInt = Integer.parseInt(tagedanach);
+						}
+						int tagedavorInt = DEFAULT_TAGE_DAVOR;
+						if (tagedavor != null) {
+							tagedavorInt = Integer.parseInt(tagedavor);
+						}
+						return generateCurrentDaysList(tagedanachInt, tagedavorInt);
+					} catch (NumberFormatException e) {
+						// falsche Syntax, unverändert lassen
+						return pageElement;
+					}
+				}
+			} else {
+				// kein Terminliste-Tag, unverändert lassen
+				return pageElement;
+			}
+		} else {
+			// kein XML-Tag, unverändert lassen
+			return pageElement;
+		}
+	}
+
 	/**
-	 * Schreibt alle Eventgs in die Cachedatei.
+	 * Return all events from the internal cache.
+	 * Is called by the CalendarSyncAdapter in the App environment.
+	 */
+	@SuppressWarnings("unused")
+	@NotNull
+	public List<Event> getEvents() {
+		return Collections.unmodifiableList(eventCache);
+	}
+
+	/**
+	 * Update the cache content by scanning the repository for changes.
+	 */
+	private void updateCache() {
+		if (!scanRepository) {
+			return;
+		}
+
+		Set<String> modifiedWikiFilePaths = wikiService.getModifiedAfter(cacheTimestamp);
+		if (modifiedWikiFilePaths.isEmpty()) {
+			// no changes in repository, cache is still up to date
+			return;
+		}
+		logger.write("Scanning " + modifiedWikiFilePaths.size() + " new wiki files for events");
+
+		// scan changed files
+		cacheTimestamp = new Date();
+		for (String wikiFilePath : modifiedWikiFilePaths) {
+			removeEvents(wikiFilePath, eventCache);
+			readBirthday(wikiFilePath, eventCache);
+			readTasks(wikiFilePath, eventCache);
+		}
+
+		// remove events from deleted files
+		eventCache.removeIf(event -> !wikiService.existsWikiFile(event.pagePath));
+
+		writeEventsToCacheFile();
+	}
+
+	/**
+	 * Write all events to the cache file.
 	 */
 	private void writeEventsToCacheFile() {
 		StringBuilder sb = new StringBuilder();
 
-		// Zeitstempel in erste Zeile schreiben
-		if (cacheTimestamp == null) {
-			logger.write("Cannot write cache file, because the cache is not generated yet (no timestamp)");
-			return;
-		}
+		// write timestamp to first line
 		String timestampStr = DateUtils.formatUtcDate(cacheTimestamp);
 		sb.append(timestampStr).append('\n');
 
-		// Liste ausgeben
+		// write events
 		for (Event event : eventCache) {
 			sb.append(event.pagePath);
 			sb.append('\t');
@@ -272,49 +313,13 @@ public class TerminTransformer implements TransformWikiPage {
 		}
 		String cacheContent = sb.toString();
 
-		// Datei schreiben
+		// save cache file
 		try {
 			AnyFile anyFile = new AnyFile(EVENTS_CACHE_FILEPATH);
 			repositoryService.writeTextFile(anyFile, cacheContent);
 		} catch (ServiceException e) {
-			// nur Fehlermeldung loggen, dieser Fehler kann ansonsten toleriert
-			// werden
 			logger.write("Error writing cache file " + EVENTS_CACHE_FILEPATH, e);
 		}
-	}
-
-	/**
-	 * Aktualisiert den Cache, falls es geänderte Wikiseiten gibt.
-	 */
-	private void updateCache() {
-		Set<String> modifiedWikiFilePaths = wikiService.getModifiedAfter(cacheTimestamp);
-		if (modifiedWikiFilePaths.isEmpty()) {
-			// Cache ist immer noch aktuell
-			return;
-		}
-		logger.write("Scanning " + modifiedWikiFilePaths.size() + " new wiki files for events");
-
-		// Neu hinzugekommene Dateien scannen
-		cacheTimestamp = new Date();
-		for (String wikiFilePath : modifiedWikiFilePaths) {
-			removeEvents(wikiFilePath, eventCache);
-			readBirthday(wikiFilePath, eventCache);
-			readTasks(wikiFilePath, eventCache);
-		}
-
-		// Gelöschte Wikiseiten bereinigen
-		eventCache.removeIf(event -> !wikiService.existsWikiFile(event.pagePath));
-
-		// Cache persistieren
-		writeEventsToCacheFile();
-	}
-
-	/**
-	 * Enthält den geparsten Inhalt der Cachedatei.
-	 */
-	private static class CacheFile {
-		public Date timestamp;
-		public final List<Event> eventList = new ArrayList<>();
 	}
 
 	/**
@@ -843,5 +848,13 @@ public class TerminTransformer implements TransformWikiPage {
 		public enum Tense {
 			PAST, PRESENT, FUTURE
 		}
+	}
+
+	/**
+	 * Content of the cache file.
+	 */
+	private static class CacheFile {
+		public Date timestamp;
+		public final List<Event> eventList = new ArrayList<>();
 	}
 }

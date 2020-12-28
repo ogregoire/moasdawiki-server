@@ -74,21 +74,27 @@ public class WikiService {
 	final LinkedList<String> viewHistory;
 
 	/**
+	 * Is repository scanning allowed to update the cache content?
+	 * Is set to false for the App as the cache file is updates by synchronization.
+	 */
+	private final boolean scanRepository;
+
+	/**
 	 * Constructor.
 	 */
-	public WikiService(@NotNull Logger logger, @NotNull RepositoryService repositoryService) {
+	public WikiService(@NotNull Logger logger, @NotNull RepositoryService repositoryService, boolean scanRepository) {
 		this.logger = logger;
 		this.repositoryService = repositoryService;
 		this.childParentMap = new HashMap<>();
 		this.persistChildParentCache = true;
 		this.viewHistory = new LinkedList<>();
-
-		// Initialize cache
+		this.scanRepository = scanRepository;
 		reset();
 	}
 
 	/**
-	 * Reset the cache content, same as application restart.
+	 * Rereads the cache file.
+	 * Is called in App environment after synchronization with server.
 	 */
 	public void reset() {
 		childParentMap.clear();
@@ -136,16 +142,16 @@ public class WikiService {
 			return;
 		}
 
-		// Write timestamp in first line
+		// write timestamp in first line
 		StringBuilder sb = new StringBuilder();
 		String timestampStr = DateUtils.formatUtcDate(new Date());
 		sb.append(timestampStr).append('\n');
 
-		// Write list sorted alphabetically
+		// write list sorted alphabetically
 		String mapStr = StringUtils.serializeMap(childParentMap);
 		sb.append(mapStr);
 
-		// Write file
+		// write file
 		AnyFile parentRelationsCacheFile = new AnyFile(CHILD_PARENT_CACHE_FILEPATH);
 		try {
 			repositoryService.writeTextFile(parentRelationsCacheFile, sb.toString());
@@ -156,15 +162,11 @@ public class WikiService {
 	}
 
 	private synchronized void rebuildCache() {
-		logger.write("Rebuilding cache");
-		readAllWikiFiles();
-		logger.write("Finished rebuilding cache");
-	}
+		if (!scanRepository) {
+			return;
+		}
 
-	/**
-	 * Read all wiki pages from scratch.
-	 */
-	private void readAllWikiFiles() {
+		logger.write("Rebuilding cache");
 		try {
 			persistChildParentCache = false;
 			Set<AnyFile> repositoryFiles = repositoryService.getFiles();
@@ -187,6 +189,7 @@ public class WikiService {
 			persistChildParentCache = true;
 		}
 		writeChildParentCacheFile();
+		logger.write("Finished rebuilding cache");
 	}
 
 	/**

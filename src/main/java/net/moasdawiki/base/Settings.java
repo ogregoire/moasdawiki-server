@@ -92,7 +92,8 @@ public class Settings {
 	}
 
 	/**
-	 * Reads the configuration file.
+	 * Rereads the configuration file.
+	 * Is called in App environment after synchronization with server.
 	 */
 	public void reset() {
 		try {

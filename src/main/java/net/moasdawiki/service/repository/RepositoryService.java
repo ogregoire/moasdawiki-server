@@ -66,22 +66,30 @@ public class RepositoryService {
 	protected final Map<String, AnyFile> fileMap;
 
 	/**
+	 * Is repository scanning allowed to update the cache content?
+	 * Is set to false for the App as the cache file is updates by synchronization.
+	 */
+	private final boolean scanRepository;
+
+	/**
 	 * Constructor.
 	 */
-	public RepositoryService(@NotNull Logger logger, @NotNull File repositoryBase) {
+	public RepositoryService(@NotNull Logger logger, @NotNull File repositoryBase, boolean scanRepository) {
 		super();
 		this.logger = logger;
 		this.repositoryBase = repositoryBase;
 		this.repositoryBasePath = repositoryBase.getAbsolutePath();
-		fileMap = new HashMap<>();
+		this.fileMap = new HashMap<>();
+		this.scanRepository = scanRepository;
 		logger.write("Repository base path: " + this.repositoryBasePath);
+		reset();
 	}
 
 	/**
-	 * Initialize the cache. Must be called after the constructor.
-	 * Required for the App.
+	 * Rereads the cache file.
+	 * Is called in App environment after synchronization with server.
 	 */
-	public void init() {
+	public void reset() {
 		if (!readCacheFile()) {
 			rebuildCache();
 		}
@@ -180,11 +188,12 @@ public class RepositoryService {
 
 	/**
 	 * Rebuild internal cache.
-	 *
-	 * Call this method only if the repository was modified outside this class.
-	 * The method might be very expensive if there are many files in the repository.
 	 */
-	public void rebuildCache() {
+	private void rebuildCache() {
+		if (!scanRepository) {
+			return;
+		}
+
 		List<File> files = new ArrayList<>();
 		listFilesInFilesystem(repositoryBase, files);
 		logger.write("Rebuilding repository cache, found " + files.size() + " files in repository folder");
