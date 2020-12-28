@@ -142,7 +142,7 @@ public class TerminTransformer implements TransformWikiPage {
 			logger.write(cacheFile.eventList.size() + " events read from cache file");
 			return true;
 		} catch (ServiceException e) {
-			logger.write("Error reading cache file " + EVENTS_CACHE_FILEPATH, e);
+			logger.write("Error reading events cache file");
 			return false;
 		}
 	}
@@ -288,6 +288,7 @@ public class TerminTransformer implements TransformWikiPage {
 		eventCache.removeIf(event -> !wikiService.existsWikiFile(event.pagePath));
 
 		writeEventsToCacheFile();
+		logger.write("Event cache updated, contains " + eventCache.size() + " events");
 	}
 
 	/**

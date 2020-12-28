@@ -104,7 +104,7 @@ public class SearchIndex {
             }
             return true;
         } catch (ServiceException | IOException e) {
-            logger.write("Error reading cache file " + SEARCH_INDEX_FILEPATH, e);
+            logger.write("Error reading search index cache file");
             return false;
         }
     }
@@ -139,6 +139,7 @@ public class SearchIndex {
         cleanMap();
 
         Set<String> wikiFilePaths = wikiService.getModifiedAfter(lastUpdate);
+        logger.write("Scanning " + wikiFilePaths.size() + " files to rebuild search index");
         for (String wikiFilePath : wikiFilePaths) {
             try {
                 WikiFile wikiFile = wikiService.getWikiFile(wikiFilePath);

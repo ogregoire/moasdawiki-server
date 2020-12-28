@@ -166,10 +166,10 @@ public class WikiService {
 			return;
 		}
 
-		logger.write("Rebuilding cache");
 		try {
 			persistChildParentCache = false;
 			Set<AnyFile> repositoryFiles = repositoryService.getFiles();
+			logger.write("Scanning " + repositoryFiles.size() + " files to rebuild parent-child cache");
 			for (AnyFile repositoryFile : repositoryFiles) {
 				String repositoryPath = repositoryFile.getFilePath();
 				if (!isWikiFilePath(repositoryPath)) {
@@ -189,7 +189,7 @@ public class WikiService {
 			persistChildParentCache = true;
 		}
 		writeChildParentCacheFile();
-		logger.write("Finished rebuilding cache");
+		logger.write("Finished rebuilding parent-child cache");
 	}
 
 	/**
