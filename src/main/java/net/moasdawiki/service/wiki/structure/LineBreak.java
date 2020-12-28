@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Manueller Zeilenumbruch innerhalt eines Textabsatzes.
+ * Manual line break in a paragraph.
  */
 public class LineBreak extends PageElement {
 

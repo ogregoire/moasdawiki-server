@@ -24,21 +24,20 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Date;
 
 /**
- * Repräsentiert eine (Binär-)Datei im Wiki-Repository.
+ * Represents a (binary) file in the wiki repository.
  */
 public class AnyFile {
 
     /**
-     * Der absolute Pfad der Datei innerhalb des Repositories inkl. Dateiendung.
-     * Nicht <code>null</code>.
+     * Absolute file path inside the repository including the file name ending.
      */
     @NotNull
     private final String filePath;
 
     /**
-     * Gibt den Zeitstempel der letzten Inhaltsänderung der Datei zurück. Ist
-     * i.d.R. identisch mit Datei-Zeitstempel des Dateisystems. Beim Synchronisieren
-     * von Dateien wird der Zeitstempel allerdings auf denselben Wert wie der Synchronisierungspartner gesetzt.
+     * Last change timestamp of the file.
+     * Is identical to the file system timestamp most times
+     * but can differ after synchronization of a client with the server.
      */
     @NotNull
     private final Date contentTimestamp;
@@ -53,23 +52,11 @@ public class AnyFile {
         this.contentTimestamp = contentTimestamp;
     }
 
-    /**
-     * Gibt den absoluten Pfad der Datei innerhalb des Repositories inkl.
-     * Dateiendung zurück. Nicht <code>null</code>.
-     */
     @NotNull
     public String getFilePath() {
         return filePath;
     }
 
-	/**
-	 * Gibt den Zeitstempel der letzten Inhaltsänderung der Datei zurück. Ist
-	 * i.d.R. identisch mit Datei-Zeitstempel des Dateisystems. Beim Synchronisieren
-	 * von Dateien wird der Zeitstempel allerdings auf denselben Wert wie der Synchronisierungspartner gesetzt.
-	 *
-	 * @return Zeitstempel der letzten Inhaltsänderung. <code>null</code> -->
-	 * Zeitstempel unbekannt.
-	 */
     @NotNull
     public Date getContentTimestamp() {
         return contentTimestamp;

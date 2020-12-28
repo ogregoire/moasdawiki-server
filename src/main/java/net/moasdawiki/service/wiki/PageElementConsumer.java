@@ -34,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 public interface PageElementConsumer<T extends PageElement, C> {
 
     /**
-     * Comsumer method that is called for all matching tree nodes.
+     * Consumer method that is called for all matching tree nodes.
      *
      * @param pageElement A tree node. Must not be modified!
      * @param context     Context object to share data and pass the result.

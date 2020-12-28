@@ -151,7 +151,7 @@ public abstract class EscapeUtils {
 	}
 
 	/**
-	 * Inverse funtion of {@link #pagePath2Url(String)}.
+	 * Inverse function of {@link #pagePath2Url(String)}.
 	 */
 	@Nullable
 	@Contract(value = "null -> null; !null -> !null", pure = true)
