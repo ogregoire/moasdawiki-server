@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.2 (2020-12-28)
+
+- Refactoring cache updates for App support
+- Optimize log output
+
 ## 2.4.1 (2020-12-27)
 
 - Small changes for App support
