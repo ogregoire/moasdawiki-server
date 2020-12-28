@@ -26,7 +26,6 @@ import net.moasdawiki.service.render.HtmlService;
 import net.moasdawiki.service.render.HtmlWriter;
 import net.moasdawiki.util.EscapeUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.OutputStream;
