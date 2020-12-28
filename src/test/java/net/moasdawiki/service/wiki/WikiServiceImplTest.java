@@ -47,7 +47,7 @@ public class WikiServiceImplTest {
         when(repositoryServiceMock.getFiles()).thenAnswer(this::getFilesMock);
         when(repositoryServiceMock.readTextFile(any())).thenAnswer(this::readTextFileMockWithCacheFile);
         when(repositoryServiceMock.writeTextFile(any(), anyString())).thenAnswer(this::writeTextFileMock);
-        wikiService = new WikiService(new Logger(null), repositoryServiceMock);
+        wikiService = new WikiService(new Logger(null), repositoryServiceMock, true);
     }
 
     private AnyFile getFileMock(InvocationOnMock invocationOnMock) {

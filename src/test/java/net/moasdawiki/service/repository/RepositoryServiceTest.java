@@ -45,8 +45,7 @@ public class RepositoryServiceTest {
 
     @BeforeMethod
     public void setUp() {
-        frs = new RepositoryService(new Logger(null), new File(REPOSITORY_BASE_PATH));
-        frs.init();
+        frs = new RepositoryService(new Logger(null), new File(REPOSITORY_BASE_PATH), true);
     }
 
     @Test
@@ -55,8 +54,7 @@ public class RepositoryServiceTest {
         //noinspection ResultOfMethodCallIgnored
         new File("src/test/resources/repository-without-cache" + FILELIST_CACHE_FILEPATH).delete();
         // Start service, it will create the cache file automatically
-        RepositoryService frsWithoutCache = new RepositoryService(new Logger(null), new File("src/test/resources/repository-without-cache"));
-        frsWithoutCache.init();
+        RepositoryService frsWithoutCache = new RepositoryService(new Logger(null), new File("src/test/resources/repository-without-cache"), true);
         assertEquals(frsWithoutCache.getFiles().size(), 2);
         // Check if cache file was generated
         assertNotNull(frsWithoutCache.getFile(FILELIST_CACHE_FILEPATH));
