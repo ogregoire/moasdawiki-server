@@ -49,7 +49,7 @@ public class RequestDispatcher {
      * Constructor.
      */
     public RequestDispatcher(@NotNull HtmlService htmlService, @NotNull ViewPageHandler viewPageHandler,
-                             @NotNull SearchHandler searchHandler, @NotNull EditorHandler editorHandler,
+                             @NotNull SearchHandler searchHandler, @Nullable EditorHandler editorHandler,
                              @NotNull FileDownloadHandler fileDownloadHandler,
                              @Nullable SynchronizationService synchronizationService) {
         this.htmlService = htmlService;
@@ -79,10 +79,10 @@ public class RequestDispatcher {
             String query = httpRequest.urlParameters.get("text");
             httpResponse = searchHandler.handleSearchRequest(query);
         }
-        else if (urlPath.startsWith("/edit/")) {
+        else if (urlPath.startsWith("/edit/") && editorHandler != null) {
             httpResponse = editorHandler.handleEditRequest(urlPath, httpRequest.urlParameters);
         }
-        else if (urlPath.startsWith("/upload")) {
+        else if (urlPath.startsWith("/upload") && editorHandler != null) {
             httpResponse = editorHandler.handleUploadRequest(urlPath, httpRequest.httpBody);
         }
         else if (urlPath.startsWith("/sync")) {
