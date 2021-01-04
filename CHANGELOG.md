@@ -4,6 +4,8 @@
 
 - Update README.md
 - Code changes for App support
+- Bugfix: Reset enumeration counting
+- Fix primitive array annotation warnings
 - Update copyright year
 
 ## 2.4.2 (2020-12-28)
