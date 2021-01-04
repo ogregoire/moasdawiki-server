@@ -229,7 +229,7 @@ public class SynchronizationService {
 	 * &lt;/create-session-response>
 	 * </pre>
 	 */
-	public HttpResponse handleCreateSession(@NotNull byte[] httpBody) {
+	public HttpResponse handleCreateSession(byte @NotNull [] httpBody) {
 		try {
 			// XML einlesen
 			String requestXml = fromUtf8Bytes(httpBody);
@@ -298,7 +298,7 @@ public class SynchronizationService {
 	 * &lt;/check-session-response>
 	 * </pre>
 	 */
-	public HttpResponse handleCheckSession(@NotNull byte[] httpBody) {
+	public HttpResponse handleCheckSession(byte @NotNull [] httpBody) {
 		try {
 			// XML einlesen
 			String requestXml = fromUtf8Bytes(httpBody);
@@ -368,7 +368,7 @@ public class SynchronizationService {
 	 * </pre>
 	 */
 	@NotNull
-	public HttpResponse handleListModifiedFiles(@NotNull byte[] httpBody) {
+	public HttpResponse handleListModifiedFiles(byte @NotNull [] httpBody) {
 		try {
 			// XML einlesen
 			String requestXml = fromUtf8Bytes(httpBody);
@@ -465,7 +465,7 @@ public class SynchronizationService {
 	 * Nicht <code>null</code>.
 	 */
 	@NotNull
-	public HttpResponse handleReadFile(@NotNull byte[] httpBody) {
+	public HttpResponse handleReadFile(byte @NotNull [] httpBody) {
 		try {
 			// XML einlesen
 			String requestXml = fromUtf8Bytes(httpBody);

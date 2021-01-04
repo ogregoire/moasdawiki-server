@@ -86,7 +86,7 @@ public class WikiPage2Html {
 	 *
 	 * Wiki-internal elements are ignored as they have to be transformed in advance.
 	 */
-	private void convertGeneric(@Nullable PageElement element, int[] listItemSequence) {
+	private void convertGeneric(@Nullable PageElement element, int @Nullable [] listItemSequence) {
 		if (element == null) {
 			return;
 		}
@@ -302,7 +302,7 @@ public class WikiPage2Html {
 		writer.closeTags(depth);
 	}
 
-	private void convertPageElement(@NotNull ListItem listItem, int[] listItemSequence) {
+	private void convertPageElement(@NotNull ListItem listItem, int @Nullable [] listItemSequence) {
 		int depth;
 		if (listItem.isOrdered()) {
 			int sequenceNo = getNextListItemSequence(listItem.getLevel(), listItemSequence);
@@ -321,7 +321,7 @@ public class WikiPage2Html {
 	 *
 	 * @param level 1..5
 	 */
-	static int getNextListItemSequence(int level, int[] listItemSequence) {
+	static int getNextListItemSequence(int level, int @Nullable [] listItemSequence) {
 		if (listItemSequence == null || level < 1 || level > listItemSequence.length) {
 			return 1;
 		}

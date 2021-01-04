@@ -194,7 +194,7 @@ public abstract class EscapeUtils {
 	 * Encodes a byte array by Base64.
 	 */
 	@NotNull
-	public static String encodeBase64(@NotNull byte[] bytes) {
+	public static String encodeBase64(byte @NotNull [] bytes) {
 		// Padding with 0 to get a multiple of 3 length
 		int paddingLength = 0;
 		if (bytes.length % 3 > 0) {

@@ -341,8 +341,7 @@ public class RepositoryService {
 	 * Read the content of a binary file.
 	 * Throws an exception if the file doesn't exist.
 	 */
-	@NotNull
-	public synchronized byte[] readBinaryFile(@NotNull AnyFile anyFile) throws ServiceException {
+	public synchronized byte @NotNull [] readBinaryFile(@NotNull AnyFile anyFile) throws ServiceException {
 		String filePath = anyFile.getFilePath();
 		filePath = PathUtils.makeWebPathAbsolute(filePath, null);
 		String filename = repository2FilesystemPath(filePath);
@@ -380,7 +379,7 @@ public class RepositoryService {
 	 * If the file already exists it will be overwritten.
 	 */
 	@NotNull
-	public synchronized AnyFile writeBinaryFile(@NotNull AnyFile anyFile, @NotNull byte[] content, @Nullable Date contentTimestamp) throws ServiceException {
+	public synchronized AnyFile writeBinaryFile(@NotNull AnyFile anyFile, byte @NotNull [] content, @Nullable Date contentTimestamp) throws ServiceException {
 		String filePath = anyFile.getFilePath();
 		filePath = PathUtils.makeWebPathAbsolute(filePath, null);
 		String filename = repository2FilesystemPath(filePath);

@@ -534,7 +534,7 @@ public class EditorHandler {
 	 * Uploads a binary file to the repository.
      */
     @NotNull
-    public HttpResponse handleUploadRequest(@NotNull String urlPath, @NotNull byte[] httpBody) {
+    public HttpResponse handleUploadRequest(@NotNull String urlPath, byte @NotNull [] httpBody) {
         // cut off "/upload" prefix
         String filePath = urlPath.substring(7).trim();
 
