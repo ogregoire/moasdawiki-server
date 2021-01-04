@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.3 (2021-01-04)
+
+- Update README.md
+- Code changes for App support
+- Update copyright year
+
 ## 2.4.2 (2020-12-28)
 
 - Refactoring cache updates for App support
