@@ -213,7 +213,15 @@ public class SearchService {
 		}
 
 		// Sort matches by descending relevance
-		searchResult.getResultList().sort((p1, p2) -> Integer.compare(p2.getRelevance(), p1.getRelevance()));
+		searchResult.getResultList().sort((p1, p2) -> {
+			@SuppressWarnings("EqualsWithItself")
+			int cmp = Integer.compare(p1.getRelevance(), p1.getRelevance());
+			if (cmp != 0) {
+				return -cmp; // descending
+			} else {
+				return String.CASE_INSENSITIVE_ORDER.compare(p1.getPagePath(), p2.getPagePath());
+			}
+		});
 		logger.write("Search result contains " + searchResult.getResultList().size() + " wiki pages");
 		return searchResult;
 	}
