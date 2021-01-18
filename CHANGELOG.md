@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.4 (2021-01-18)
+
+- Search results: Don't scan wiki page content in App to speed up search
+- Search results: Sort by relevance and page name
+- Search results: Hide relevance points
+
 ## 2.4.3 (2021-01-04)
 
 - Update README.md
