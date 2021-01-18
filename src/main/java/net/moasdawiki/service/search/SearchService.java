@@ -56,7 +56,7 @@ public class SearchService {
 
 	/**
 	 * Is repository scanning allowed to update the cache content?
-	 * Is set to false for the App as the cache file is updates by synchronization.
+	 * Is set to false for the App as the cache file is updated by synchronization.
 	 */
 	private final boolean scanRepository;
 
@@ -199,7 +199,7 @@ public class SearchService {
 		for (String wikiFilePath : wikiService.getWikiFilePaths()) {
 			// scan wiki page content only if page is in candidates list
 			String wikiText;
-			if (wikiFilePathCandidates.contains(wikiFilePath)) {
+			if (wikiFilePathCandidates.contains(wikiFilePath) && scanRepository) {
 				// loads wiki file if not in cache yet, might be time consuming
 				WikiFile wikiFile = wikiService.getWikiFile(wikiFilePath);
 				wikiText = wikiFile.getWikiText();
