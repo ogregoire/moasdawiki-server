@@ -53,7 +53,6 @@ FileDownloadHandler.fileNotFound = File ''{0}'' not found.
 FileDownloadHandler.reverseNavigation = The file path ''{0}'' contains an invalid reverse navigation!
 
 SearchHandler.error = Search cannot be performed
-SearchHandler.relevance = Relevance points: {0}
 SearchHandler.summary.one = 1 page found.
 SearchHandler.summary.more = {0} pages found.
 SearchHandler.title = Search for ''{0}''

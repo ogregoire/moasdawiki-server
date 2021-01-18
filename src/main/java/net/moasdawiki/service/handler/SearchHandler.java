@@ -41,7 +41,6 @@ import org.jetbrains.annotations.NotNull;
 public class SearchHandler {
 
 	private static final String ERROR_KEY = "SearchHandler.error";
-	private static final String RELEVANCE_KEY = "SearchHandler.relevance";
 	private static final String SUMMARY_ONE_KEY = "SearchHandler.summary.one";
 	private static final String SUMMARY_MANY_KEY = "SearchHandler.summary.more";
 	private static final String TITLE_KEY = "SearchHandler.title";
@@ -127,11 +126,6 @@ public class SearchHandler {
 			pageElementList.add(formattedLine);
 			pageElementList.add(new LineBreak());
 		}
-
-		// Relevanz anzeigen
-		String relevanceText = messages.getMessage(RELEVANCE_KEY, pageDetails.getRelevance());
-		pageElementList.add(new TextOnly(relevanceText));
-		pageElementList.add(new VerticalSpace());
 
 		return pageElementList;
 	}
