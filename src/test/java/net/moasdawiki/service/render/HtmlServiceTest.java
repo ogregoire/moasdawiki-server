@@ -34,9 +34,9 @@ import org.testng.annotations.Test;
 
 import java.nio.charset.StandardCharsets;
 
+import static net.moasdawiki.AssertHelper.assertContains;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 public class HtmlServiceTest {
 
@@ -150,7 +150,7 @@ public class HtmlServiceTest {
         String expectedBody = "<body>\n" +
                 "  <b>key_arg</b>\n" +
                 "</body>";
-        assertTrue(responseStr.contains(expectedBody));
+        assertContains(responseStr, expectedBody);
         verify(messages, times(1)).getMessage(eq("key"), eq("arg"));
     }
 
@@ -159,13 +159,13 @@ public class HtmlServiceTest {
         HttpResponse httpResponse = htmlService.generateErrorPage(404, "key", "arg");
         assertEquals(404, httpResponse.statusCode);
         String responseStr = new String(httpResponse.content, StandardCharsets.UTF_8);
-        assertTrue(responseStr.contains("<title>wiki.errorpage.title | ProgName</title>"));
+        assertContains(responseStr, "<title>wiki.errorpage.title | ProgName</title>");
         String expectedBody = "<body>\n" +
                 "  <b>wiki.errorpage.message_key_arg</b><br>\n" +
                 "  <br>\n" +
                 "  wiki.errorpage.linkToStartpage\n" +
                 "</body>";
-        assertTrue(responseStr.contains(expectedBody));
+        assertContains(responseStr, expectedBody);
         verify(messages, times(1)).getMessage(eq("key"), eq("arg"));
     }
 
@@ -180,8 +180,8 @@ public class HtmlServiceTest {
                 "  <br>\n" +
                 "  wiki.errorpage.linkToStartpage\n" +
                 "</body>";
-        assertTrue(responseStr.contains("<title>wiki.errorpage.title | ProgName</title>"));
-        assertTrue(responseStr.contains(expectedBody));
+        assertContains(responseStr, "<title>wiki.errorpage.title | ProgName</title>");
+        assertContains(responseStr, expectedBody);
         verify(messages, times(1)).getMessage(eq("key"), eq("arg"));
     }
 }

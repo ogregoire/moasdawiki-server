@@ -23,8 +23,9 @@ import org.testng.annotations.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+import static net.moasdawiki.AssertHelper.assertContains;
+import static net.moasdawiki.AssertHelper.assertEndsWith;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 public class LoggerTest {
 
@@ -34,7 +35,7 @@ public class LoggerTest {
         Logger logger = new Logger(new PrintStream(out));
         logger.write("message");
 
-        assertTrue(out.toString().endsWith("message\n"));
+        assertEndsWith(out.toString(), "message\n");
         assertEquals(out.size(), 36);
     }
 
@@ -50,7 +51,7 @@ public class LoggerTest {
         Logger logger = new Logger(new PrintStream(out));
         logger.write("message", new Exception("errormessage"));
 
-        assertTrue(out.toString().contains("message: (java.lang.Exception) errormessage\n"));
+        assertContains(out.toString(), "message: (java.lang.Exception) errormessage\n");
     }
 
     @Test

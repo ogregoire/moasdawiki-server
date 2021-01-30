@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.*;
 
+import static net.moasdawiki.AssertHelper.*;
 import static org.testng.Assert.*;
 
 @SuppressWarnings({"ConstantConditions", "ResultOfMethodCallIgnored"})
@@ -129,13 +130,13 @@ public class StringUtilsTest {
     public void testParseMap() throws Exception {
         {
             // empty map
-            assertTrue(StringUtils.parseMap(new BufferedReader(new StringReader(""))).isEmpty());
+            assertIsEmpty(StringUtils.parseMap(new BufferedReader(new StringReader(""))));
         }
         {
             // empty values set
             Map<String, Set<String>> map = StringUtils.parseMap(new BufferedReader(new StringReader("a\n")));
-            assertTrue(map.containsKey("a"));
-            assertTrue(map.get("a").isEmpty());
+            assertContainsKey(map, "a");
+            assertIsEmpty(map.get("a"));
         }
         {
             // with values
@@ -143,12 +144,12 @@ public class StringUtilsTest {
             assertEquals(map.size(), 2);
             assertEquals(map.get("a").size(), 3);
 
-            assertTrue(map.get("a").contains("v1"));
-            assertTrue(map.get("a").contains("v2"));
-            assertTrue(map.get("a").contains("v3"));
+            assertContains(map.get("a"), "v1");
+            assertContains(map.get("a"), "v2");
+            assertContains(map.get("a"), "v3");
 
             assertEquals(map.get("b").size(), 1);
-            assertTrue(map.get("b").contains("v4"));
+            assertContains(map.get("b"), "v4");
         }
     }
 }

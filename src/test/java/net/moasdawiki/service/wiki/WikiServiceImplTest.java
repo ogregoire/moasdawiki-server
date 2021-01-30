@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static net.moasdawiki.AssertHelper.*;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -93,9 +94,9 @@ public class WikiServiceImplTest {
         // test method
         wikiService.reset();
         assertEquals(wikiService.childParentMap.size(), 2);
-        assertTrue(wikiService.childParentMap.get("/page").isEmpty());
-        assertTrue(wikiService.childParentMap.get("/page-with-parent").contains("/parent-page"));
-        assertTrue(wikiService.viewHistory.isEmpty());
+        assertIsEmpty(wikiService.childParentMap.get("/page"));
+        assertContains(wikiService.childParentMap.get("/page-with-parent"), "/parent-page");
+        assertIsEmpty(wikiService.viewHistory);
     }
 
     @Test
@@ -108,15 +109,15 @@ public class WikiServiceImplTest {
         // test method
         wikiService.reset();
         assertEquals(wikiService.childParentMap.size(), 1);
-        assertTrue(wikiService.childParentMap.get("/page").isEmpty());
+        assertIsEmpty(wikiService.childParentMap.get("/page"));
     }
 
     @Test
     public void testGetWikiFilePaths() {
         Set<String> filePaths = wikiService.getWikiFilePaths();
         assertEquals(filePaths.size(), 2);
-        assertTrue(filePaths.contains("/page"));
-        assertTrue(filePaths.contains("/page-with-parent"));
+        assertContains(filePaths, "/page");
+        assertContains(filePaths, "/page-with-parent");
     }
 
     @Test
@@ -142,8 +143,8 @@ public class WikiServiceImplTest {
         // test method
         wikiService.deleteWikiFile("/page-in-cache");
         // check cache updates
-        assertFalse(wikiService.viewHistory.contains("/page-in-cache"));
-        assertFalse(wikiService.childParentMap.containsKey("/page-in-cache"));
+        assertContainsNot(wikiService.viewHistory, "/page-in-cache");
+        assertContainsKeyNot(wikiService.childParentMap, "/page-in-cache");
         verify(repositoryServiceMock, times(1)).deleteFile(any());
     }
 
@@ -187,7 +188,7 @@ public class WikiServiceImplTest {
     @Test
     public void testGetModifiedAfterEmpty() {
         when(repositoryServiceMock.getModifiedAfter(any())).thenReturn(Collections.emptySet());
-        assertTrue(wikiService.getModifiedAfter(null).isEmpty());
+        assertIsEmpty(wikiService.getModifiedAfter(null));
     }
 
     @Test
@@ -197,8 +198,8 @@ public class WikiServiceImplTest {
         when(repositoryServiceMock.getModifiedAfter(any())).thenReturn(files);
         Set<String> paths = wikiService.getModifiedAfter(null);
         assertEquals(paths.size(), 2);
-        assertTrue(paths.contains("/b"));
-        assertTrue(paths.contains("/path/d"));
+        assertContains(paths, "/b");
+        assertContains(paths, "/path/d");
     }
 
     @Test
@@ -215,8 +216,8 @@ public class WikiServiceImplTest {
         when(repositoryServiceMock.getLastModifiedFiles(anyInt(), any())).thenReturn(files);
         List<String> paths = wikiService.getLastModified(-1);
         assertEquals(paths.size(), 2);
-        assertTrue(paths.contains("/a"));
-        assertTrue(paths.contains("/path/b"));
+        assertContains(paths, "/a");
+        assertContains(paths, "/path/b");
     }
 
     @Test
@@ -225,7 +226,7 @@ public class WikiServiceImplTest {
         when(repositoryServiceMock.getLastModifiedFiles(anyInt(), any())).thenReturn(files);
         List<String> paths = wikiService.getLastModified(1);
         assertEquals(paths.size(), 1);
-        assertTrue(paths.contains("/a"));
+        assertContains(paths, "/a");
     }
 
     @Test
@@ -255,7 +256,7 @@ public class WikiServiceImplTest {
         // test method
         List<String> paths = wikiService.getLastViewedWikiFiles(1);
         assertEquals(paths.size(), 1);
-        assertTrue(paths.contains("/b"));
+        assertContains(paths, "/b");
     }
 
     @Test

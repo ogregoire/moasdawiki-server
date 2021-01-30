@@ -34,6 +34,8 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
+import static net.moasdawiki.AssertHelper.assertContains;
+import static net.moasdawiki.AssertHelper.assertContainsNot;
 import static net.moasdawiki.service.repository.RepositoryService.FILELIST_CACHE_FILEPATH;
 import static org.testng.Assert.*;
 
@@ -90,10 +92,10 @@ public class RepositoryServiceTest {
         cal.set(2020, Calendar.JANUARY, 1);
         Set<AnyFile> files = frs.getModifiedAfter(cal.getTime());
         Set<String> filePaths = files.stream().map(AnyFile::getFilePath).collect(Collectors.toSet());
-        assertFalse(filePaths.contains("/file-2019-11-01.txt"));
-        assertFalse(filePaths.contains("/file-2020-01-01.txt"));
-        assertTrue(filePaths.contains("/file-2020-01-20.txt"));
-        assertTrue(filePaths.contains("/file-2020-02-01.txt"));
+        assertContainsNot(filePaths, "/file-2019-11-01.txt");
+        assertContainsNot(filePaths, "/file-2020-01-01.txt");
+        assertContains(filePaths, "/file-2020-01-20.txt");
+        assertContains(filePaths, "/file-2020-02-01.txt");
     }
 
     @Test

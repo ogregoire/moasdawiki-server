@@ -20,6 +20,7 @@ package net.moasdawiki.service.render;
 
 import org.testng.annotations.Test;
 
+import static net.moasdawiki.AssertHelper.assertIsEmpty;
 import static org.testng.Assert.*;
 
 public class HtmlWriterTest {
@@ -125,7 +126,7 @@ public class HtmlWriterTest {
             HtmlWriter writer = new HtmlWriter();
             // close without open tag -> nothing happens
             writer.closeTag();
-            assertTrue(writer.getBodyLines().isEmpty());
+            assertIsEmpty(writer.getBodyLines());
         }
         {
             HtmlWriter writer = new HtmlWriter();
