@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static net.moasdawiki.AssertHelper.*;
 import static org.testng.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -44,95 +45,73 @@ public class SearchIndexTest {
     @BeforeMethod
     public void setUp() {
         wikiService = mock(WikiService.class);
-        searchIndex = new SearchIndex(mock(Logger.class), mock(RepositoryService.class), wikiService);
+        SearchIgnoreList searchIgnoreList = mock(SearchIgnoreList.class);
+        when(searchIgnoreList.isValidWord(anyString())).thenReturn(true);
+        when(searchIgnoreList.isValidWord("ignore1")).thenReturn(false);
+        searchIndex = new SearchIndex(mock(Logger.class), mock(RepositoryService.class), wikiService, searchIgnoreList);
     }
 
     @Test
-    public void testNormalizeUmlaute() {
-        assertEquals(SearchIndex.normalizeUmlaute(""), "");
-        assertEquals(SearchIndex.normalizeUmlaute("abc"), "abc");
-        assertEquals(SearchIndex.normalizeUmlaute("äöüÄÖÜ"), "aouaou");
-    }
-
-    @Test
-    public void testCutWordPrefixAndNormalize() {
-        // test length
-        assertEquals(SearchIndex.cutWordPrefixAndNormalize(""), "");
-        assertEquals(SearchIndex.cutWordPrefixAndNormalize("a"), "a");
-        assertEquals(SearchIndex.cutWordPrefixAndNormalize("abcd"), "abc");
-        assertEquals(SearchIndex.cutWordPrefixAndNormalize("漢語漢語"), "漢語漢");
-        // test normalization
-        assertEquals(SearchIndex.cutWordPrefixAndNormalize("ABC"), "abc");
-        assertEquals(SearchIndex.cutWordPrefixAndNormalize("Résumé"), "res");
-        assertEquals(SearchIndex.cutWordPrefixAndNormalize("äöü"), "aou");
+    public void testNormalizeWord() {
+        assertEquals(SearchIndex.normalizeWord(""), "");
+        assertEquals(SearchIndex.normalizeWord("abc"), "abc");
+        assertEquals(SearchIndex.normalizeWord("ABC"), "abc");
+        assertEquals(SearchIndex.normalizeWord("äöüÄÖÜ"), "aouaou");
+        assertEquals(SearchIndex.normalizeWord("Résumé"), "resume");
     }
 
     @Test
     public void testSplitStringToWords_Simple() {
         List<String> words = SearchIndex.splitStringToWords("a b c");
         assertEquals(words.size(), 3);
-        assertTrue(words.contains("a"));
-        assertTrue(words.contains("b"));
-        assertTrue(words.contains("c"));
+        assertContains(words, "a");
+        assertContains(words, "b");
+        assertContains(words, "c");
     }
 
     @Test
     public void testSplitStringToWords_Empty() {
         List<String> words = SearchIndex.splitStringToWords("");
-        assertTrue(words.isEmpty());
+        assertIsEmpty(words);
     }
 
     @Test
     public void testSplitStringToWords_NoSeparator() {
         List<String> words = SearchIndex.splitStringToWords("a");
         assertEquals(words.size(), 1);
-        assertTrue(words.contains("a"));
+        assertContains(words, "a");
     }
 
     @Test
     public void testSplitStringToWords_SingleSeparator() {
         List<String> words = SearchIndex.splitStringToWords("abc def ghi 123 jk45 6lmn");
         assertEquals(words.size(), 6);
-        assertTrue(words.contains("abc"));
-        assertTrue(words.contains("def"));
-        assertTrue(words.contains("ghi"));
-        assertTrue(words.contains("123"));
-        assertTrue(words.contains("jk45"));
-        assertTrue(words.contains("6lmn"));
+        assertContains(words, "abc");
+        assertContains(words, "def");
+        assertContains(words, "ghi");
+        assertContains(words, "123");
+        assertContains(words, "jk45");
+        assertContains(words, "6lmn");
     }
 
     @Test
     public void testSplitStringToWords_MultiSeparator() {
         List<String> words = SearchIndex.splitStringToWords("/*abc,-+def#'!\"§$%&/()=?ghi`'°^jkl<>| ,.-;:_123*");
         assertEquals(words.size(), 5);
-        assertTrue(words.contains("abc"));
-        assertTrue(words.contains("def"));
-        assertTrue(words.contains("ghi"));
-        assertTrue(words.contains("jkl"));
-        assertTrue(words.contains("123"));
+        assertContains(words, "abc");
+        assertContains(words, "def");
+        assertContains(words, "ghi");
+        assertContains(words, "jkl");
+        assertContains(words, "123");
     }
 
     @Test
     public void testSplitStringToWords_Unicode() {
         List<String> words = SearchIndex.splitStringToWords("abc,漢語;äöüÄÖÜß123");
         assertEquals(words.size(), 3);
-        assertTrue(words.contains("abc"));
-        assertTrue(words.contains("漢語"));
-        assertTrue(words.contains("äöüÄÖÜß123"));
-    }
-
-    @Test
-    public void testIsWordRelevant() {
-        assertFalse(SearchIndex.isWordRelevant(""));
-        assertFalse(SearchIndex.isWordRelevant("a"));
-        assertFalse(SearchIndex.isWordRelevant("abc"));
-        assertFalse(SearchIndex.isWordRelevant("A"));
-        assertFalse(SearchIndex.isWordRelevant("12"));
-        assertTrue(SearchIndex.isWordRelevant("ABC"));
-        assertTrue(SearchIndex.isWordRelevant("abcd"));
-        assertTrue(SearchIndex.isWordRelevant("123"));
-        assertTrue(SearchIndex.isWordRelevant("1234"));
-        assertTrue(SearchIndex.isWordRelevant("abc1"));
+        assertContains(words, "abc");
+        assertContains(words, "漢語");
+        assertContains(words, "äöüÄÖÜß123");
     }
 
     @Test
@@ -141,7 +120,7 @@ public class SearchIndexTest {
         assertEquals(searchIndex.getWord2WikiFilePathMap().keySet().size(), 1);
         Set<String> filePaths = searchIndex.getWord2WikiFilePathMap().get("a");
         assertEquals(filePaths.size(), 1);
-        assertTrue(filePaths.contains("/file/path"));
+        assertContains(filePaths, "/file/path");
     }
 
     @Test
@@ -153,13 +132,13 @@ public class SearchIndexTest {
         {
             Set<String> filePaths = searchIndex.getWord2WikiFilePathMap().get("a");
             assertEquals(filePaths.size(), 2);
-            assertTrue(filePaths.contains("/file/path1"));
-            assertTrue(filePaths.contains("/file/path2"));
+            assertContains(filePaths, "/file/path1");
+            assertContains(filePaths, "/file/path2");
         }
         {
             Set<String> filePaths = searchIndex.getWord2WikiFilePathMap().get("b");
             assertEquals(filePaths.size(), 1);
-            assertTrue(filePaths.contains("/file/path2"));
+            assertContains(filePaths, "/file/path2");
         }
     }
 
@@ -167,7 +146,7 @@ public class SearchIndexTest {
     public void testAddWordMapping_LongKey() {
         searchIndex.addWordMapping("abcd", "/file/path1");
         assertEquals(searchIndex.getWord2WikiFilePathMap().keySet().size(), 1);
-        assertTrue(searchIndex.getWord2WikiFilePathMap().containsKey("abc"));
+        assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "abcd");
     }
 
     @Test
@@ -175,64 +154,68 @@ public class SearchIndexTest {
         searchIndex.addWordMapping("Résumé", "/file/path1");
         searchIndex.addWordMapping("Säure", "/file/path2");
         assertEquals(searchIndex.getWord2WikiFilePathMap().keySet().size(), 2);
-        assertTrue(searchIndex.getWord2WikiFilePathMap().containsKey("res"));
-        assertTrue(searchIndex.getWord2WikiFilePathMap().containsKey("sau"));
+        assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "resume");
+        assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "saure");
     }
 
     @Test
     public void testAddWordMappings() {
-        searchIndex.addWordMappings("a bc def ghij klmno 12 123 4567", "/file/path");
-        assertEquals(searchIndex.getWord2WikiFilePathMap().keySet().size(), 4);
-        assertFalse(searchIndex.getWord2WikiFilePathMap().containsKey("a"));
-        assertFalse(searchIndex.getWord2WikiFilePathMap().containsKey("bc"));
-        assertFalse(searchIndex.getWord2WikiFilePathMap().containsKey("def"));
-        assertFalse(searchIndex.getWord2WikiFilePathMap().containsKey("12"));
-        assertTrue(searchIndex.getWord2WikiFilePathMap().containsKey("ghi"));
-        assertTrue(searchIndex.getWord2WikiFilePathMap().containsKey("klm"));
-        assertTrue(searchIndex.getWord2WikiFilePathMap().containsKey("123"));
-        assertTrue(searchIndex.getWord2WikiFilePathMap().containsKey("456"));
+        searchIndex.addWordMappings("a bc def ghij ignore1 12 123 4567", "/file/path");
+        assertEquals(searchIndex.getWord2WikiFilePathMap().keySet().size(), 7);
+        assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "a");
+        assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "bc");
+        assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "def");
+        assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "ghij");
+        assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "12");
+        assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "123");
+        assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "4567");
     }
 
     @Test
     public void testGetWordMapping() {
         searchIndex.addWordMapping("abe", "/file/path1");
-        assertFalse(searchIndex.getWordMapping("abet").isEmpty());
-        assertFalse(searchIndex.getWordMapping("abe").isEmpty());
-        assertFalse(searchIndex.getWordMapping("ABE").isEmpty());
-        assertFalse(searchIndex.getWordMapping("Äbé").isEmpty());
+        assertEquals(searchIndex.getWordMapping("abe").size(), 1);
+        assertEquals(searchIndex.getWordMapping("ABE").size(), 1);
+        assertEquals(searchIndex.getWordMapping("Äbé").size(), 1);
+        assertIsEmpty(searchIndex.getWordMapping("ab"));
+        assertIsEmpty(searchIndex.getWordMapping("abet"));
     }
 
     @Test
-    public void testSearchFilePathCandidates() {
-        searchIndex.addWordMapping("uncle", "/file/path1");
-        searchIndex.addWordMapping("uncut", "/file/path2");
-        searchIndex.addWordMapping("bob", "/file/path2");
-        searchIndex.addWordMapping("bob", "/file/path3");
-        searchIndex.addWordMapping("fred", "/file/path4");
+    public void testSearchFilePaths() {
+        searchIndex.addWordMapping("word1", "/file/path1");
+        searchIndex.addWordMapping("word1", "/file/path2");
+        searchIndex.addWordMapping("word2", "/file/path2");
+        searchIndex.addWordMapping("word3", "/file/path3");
         {
-            Set<String> words = Sets.newSet("uncle");
-            Set<String> filePaths = searchIndex.searchWikiFilePathCandidates(words);
+            Set<String> words = Sets.newSet("word1");
+            Set<String> filePaths = searchIndex.searchWikiFilePaths(words);
             assertEquals(filePaths.size(), 2);
-            assertTrue(filePaths.contains("/file/path1"));
-            assertTrue(filePaths.contains("/file/path2"));
+            assertContains(filePaths, "/file/path1");
+            assertContains(filePaths, "/file/path2");
         }
         {
-            Set<String> words = Sets.newSet("bob");
-            Set<String> filePaths = searchIndex.searchWikiFilePathCandidates(words);
-            assertEquals(filePaths.size(), 2);
-            assertTrue(filePaths.contains("/file/path2"));
-            assertTrue(filePaths.contains("/file/path3"));
-        }
-        {
-            Set<String> words = Sets.newSet("uncle", "bob");
-            Set<String> filePaths = searchIndex.searchWikiFilePathCandidates(words);
+            Set<String> words = Sets.newSet("word2");
+            Set<String> filePaths = searchIndex.searchWikiFilePaths(words);
             assertEquals(filePaths.size(), 1);
-            assertTrue(filePaths.contains("/file/path2"));
+            assertContains(filePaths, "/file/path2");
         }
         {
-            Set<String> words = Sets.newSet("bob", "fred");
-            Set<String> filePaths = searchIndex.searchWikiFilePathCandidates(words);
-            assertTrue(filePaths.isEmpty());
+            Set<String> words = Sets.newSet("word3");
+            Set<String> filePaths = searchIndex.searchWikiFilePaths(words);
+            assertEquals(filePaths.size(), 1);
+            assertContains(filePaths, "/file/path3");
+        }
+        {
+            Set<String> words = Sets.newSet("word1", "word2");
+            Set<String> filePaths = searchIndex.searchWikiFilePaths(words);
+            assertEquals(filePaths.size(), 1);
+            assertContains(filePaths, "/file/path2");
+        }
+        {
+            Set<String> words = Sets.newSet("word2", "word3");
+            Set<String> filePaths = searchIndex.searchWikiFilePaths(words);
+            assertIsEmpty(filePaths);
         }
     }
 
@@ -246,11 +229,11 @@ public class SearchIndexTest {
         {
             Set<String> filePaths = searchIndex.getWordMapping("a");
             assertEquals(filePaths.size(), 1);
-            assertTrue(filePaths.contains("/file/path1"));
+            assertContains(filePaths, "/file/path1");
         }
         {
             Set<String> filePaths = searchIndex.getWordMapping("b");
-            assertTrue(filePaths.isEmpty());
+            assertIsEmpty(filePaths);
         }
     }
 
@@ -268,15 +251,15 @@ public class SearchIndexTest {
         searchIndex.updateIndex();
         assertEquals(searchIndex.getLastUpdate().getTime(), 2000L);
         {
-            Set<String> filePaths = searchIndex.getWord2WikiFilePathMap().get("abc");
+            Set<String> filePaths = searchIndex.getWord2WikiFilePathMap().get("abcd");
             assertEquals(filePaths.size(), 1);
-            assertTrue(filePaths.contains("/file/path1"));
+            assertContains(filePaths, "/file/path1");
         }
         {
-            Set<String> filePaths = searchIndex.getWord2WikiFilePathMap().get("efg");
+            Set<String> filePaths = searchIndex.getWord2WikiFilePathMap().get("efgh");
             assertEquals(filePaths.size(), 2);
-            assertTrue(filePaths.contains("/file/path1"));
-            assertTrue(filePaths.contains("/file/path2"));
+            assertContains(filePaths, "/file/path1");
+            assertContains(filePaths, "/file/path2");
         }
     }
 

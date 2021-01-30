@@ -38,12 +38,9 @@ import java.util.stream.IntStream;
 
 /**
  * Search index to speed up full-text search in wiki pages.
- * As the index only stores the first 3 characters of a word,
- * it can only find matching <em>candidates</em>.
  *
  * Limitations:
  * <ul>
- *     <li>Supports only searching for the beginning of a word (3 characters).</li>
  *     <li>No support for regular expressions.</li>
  *     <li>No support for non-letter or non-digit characters.</li>
  * </ul>
@@ -51,6 +48,13 @@ import java.util.stream.IntStream;
 public class SearchIndex {
 
     private static final String SEARCH_INDEX_FILEPATH = "/search-index.cache";
+
+    /**
+     * File format mark in the first line of the cache file.
+     * If the mark doesn't match (e.g. after the implementation has changed)
+     * the cache file is ignored for reading.
+     */
+    private static final String SEARCH_INDEX_FORMAT_MARK = "Version 3";
 
     @NotNull
     private final Logger logger;
@@ -61,13 +65,14 @@ public class SearchIndex {
     @NotNull
     private final WikiService wikiService;
 
+    @NotNull
+    private final SearchIgnoreList searchIgnoreList;
+
     /**
-     * Map: Word prefix -> Set of wiki file paths.
-     *
-     * Word prefix: 1-3 characters
+     * Map: Word -> Set of wiki file paths.
      */
     @NotNull
-    private final Map<String, Set<String>> word2WikiFilePathMap = new HashMap<>();
+    private final Map<String, Set<String>> word2WikiFilePathMap;
 
     @Nullable
     private Date lastUpdate; // null -> unknown
@@ -75,14 +80,19 @@ public class SearchIndex {
     /**
      * Constructor.
      */
-    public SearchIndex(@NotNull Logger logger, @NotNull RepositoryService repositoryService, @NotNull WikiService wikiService) {
+    public SearchIndex(@NotNull Logger logger, @NotNull RepositoryService repositoryService,
+                       @NotNull WikiService wikiService, @NotNull SearchIgnoreList searchIgnoreList) {
         this.logger = logger;
         this.repositoryService = repositoryService;
         this.wikiService = wikiService;
+        this.searchIgnoreList = searchIgnoreList;
+        this.word2WikiFilePathMap = new HashMap<>();
     }
 
     /**
      * Reads the search index from a cache file.
+     *
+     * @return true --> cache file read successfully
      */
     public boolean readCacheFile() {
         try {
@@ -91,7 +101,13 @@ public class SearchIndex {
             String cacheContent = repositoryService.readTextFile(searchIndexCacheFile);
 
             try (BufferedReader reader = new BufferedReader(new StringReader(cacheContent))) {
-                // Read timestamp in first line
+                // Read format mark in first line
+                String signature = reader.readLine();
+                if (!SEARCH_INDEX_FORMAT_MARK.equals(signature)) {
+                    return false;
+                }
+
+                // Read timestamp in second line
                 String timestampStr = reader.readLine();
                 Date cacheFileTimestamp = DateUtils.parseUtcDate(timestampStr);
 
@@ -113,8 +129,12 @@ public class SearchIndex {
      * Writes the search index into a cache file.
      */
     private void writeCacheFile() {
-        // Write timestamp in first line
         StringBuilder sb = new StringBuilder();
+
+        // Write format mark as first line
+        sb.append(SEARCH_INDEX_FORMAT_MARK).append('\n');
+
+        // Write timestamp as second line
         String timestampStr = DateUtils.formatUtcDate(new Date());
         sb.append(timestampStr).append('\n');
 
@@ -185,14 +205,13 @@ public class SearchIndex {
 
     /**
      * Returns wiki file paths identified by the search index.
-     * These are only candidates for the final search result page.
      *
      * @param words Words that have to match all.
      * @return Wiki file paths that match the given words.
      */
     @Contract("_ -> new")
     @NotNull
-    public Set<String> searchWikiFilePathCandidates(@NotNull Set<String> words) {
+    public Set<String> searchWikiFilePaths(@NotNull Set<String> words) {
         Set<String> result = new HashSet<>();
         Iterator<String> it = words.iterator();
         boolean firstIteration = true;
@@ -205,7 +224,7 @@ public class SearchIndex {
                 result.retainAll(wikiFilePaths);
             }
         }
-        logger.write("Found " + result.size() + " wiki page candidates for detail search");
+        logger.write("Found " + result.size() + " wiki pages in search index");
         return result;
     }
 
@@ -224,8 +243,7 @@ public class SearchIndex {
     void addWordMappings(@NotNull String text, @NotNull String wikiFilePath) {
         List<String> words = splitStringToWords(text);
         for (String word : words) {
-            // ignore short words
-            if (isWordRelevant(word)) {
+            if (searchIgnoreList.isValidWord(word)) {
                 addWordMapping(word, wikiFilePath);
             }
         }
@@ -235,7 +253,7 @@ public class SearchIndex {
      * Adds a single word mapping to the index.
      */
     void addWordMapping(@NotNull String word, @NotNull String wikiFilePath) {
-        String wordPrefix = cutWordPrefixAndNormalize(word);
+        String wordPrefix = normalizeWord(word);
         Set<String> wikiFilePaths = word2WikiFilePathMap.computeIfAbsent(wordPrefix, k -> new HashSet<>());
         wikiFilePaths.add(wikiFilePath);
     }
@@ -246,7 +264,7 @@ public class SearchIndex {
     @Contract(pure = true)
     @NotNull
     Set<String> getWordMapping(@NotNull String word) {
-        String wordPrefix = cutWordPrefixAndNormalize(word);
+        String wordPrefix = normalizeWord(word);
         Set<String> wikiFilePaths = word2WikiFilePathMap.get(wordPrefix);
         if (wikiFilePaths == null) {
             wikiFilePaths = Collections.emptySet();
@@ -261,15 +279,6 @@ public class SearchIndex {
     @NotNull
     Map<String, Set<String>> getWord2WikiFilePathMap() {
         return word2WikiFilePathMap;
-    }
-
-    /**
-     * Check if the given word is relevant to be added to the search index.
-     */
-    @Contract(pure = true)
-    static boolean isWordRelevant(@NotNull String word) {
-        return word.length() >= 4
-                || (word.length() == 3 && !Character.isLowerCase(word.codePointAt(1)));
     }
 
     /**
@@ -306,49 +315,12 @@ public class SearchIndex {
     }
 
     /**
-     * Returns the first 3 unicode characters and normalizes them
-     * This method is used to keep the index smaller as there will be more word collisions.
+     * Normalizes a word.
      */
     @Contract(pure = true)
     @NotNull
-    static String cutWordPrefixAndNormalize(@NotNull String str) {
-        // cut first 3 characters
-        int codePointNum = Math.min(3, str.codePointCount(0, str.length()));
-        str = str.substring(0, str.offsetByCodePoints(0, codePointNum));
-        // normalize string
+    static String normalizeWord(@NotNull String str) {
         str = StringUtils.unicodeNormalize(str);
-        str = str.toLowerCase();
-        return normalizeUmlaute(str);
-    }
-
-    /**
-     * Normalizes German Umlaute: ä -> a, ö -> o, ü -> u.
-     */
-    @Contract(pure = true)
-    @NotNull
-    static String normalizeUmlaute(@NotNull String str) {
-        StringBuilder sb = new StringBuilder(str.length());
-        IntStream codePointStream = str.codePoints();
-        PrimitiveIterator.OfInt it = codePointStream.iterator();
-        while (it.hasNext()) {
-            int codePoint = it.nextInt();
-            switch (codePoint) {
-                case (int) 'ä':
-                case (int) 'Ä':
-                    sb.append('a');
-                    break;
-                case (int) 'ö':
-                case (int) 'Ö':
-                    sb.append('o');
-                    break;
-                case (int) 'ü':
-                case (int) 'Ü':
-                    sb.append('u');
-                    break;
-                default:
-                    sb.appendCodePoint(codePoint);
-            }
-        }
-        return sb.toString();
+        return str.toLowerCase();
     }
 }

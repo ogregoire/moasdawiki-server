@@ -20,41 +20,31 @@ package net.moasdawiki.service.search;
 
 import org.testng.annotations.Test;
 
+import java.util.Set;
+
+import static net.moasdawiki.AssertHelper.assertContains;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 public class SearchServiceTest {
 
     @Test
     public void testParseQueryString() {
         {
-            SearchQuery searchQuery = SearchService.parseQueryString("word");
-            assertEquals(searchQuery.getQueryString(), "word");
-            assertEquals(searchQuery.getIncluded().size(), 1);
-            assertTrue(searchQuery.getIncluded().contains("word"));
-            assertEquals(searchQuery.getExcluded().size(), 0);
+            Set<String> words = SearchService.parseQueryString("word");
+            assertEquals(words.size(), 1);
+            assertContains(words, "word");
         }
         {
             // ignore special characters
-            SearchQuery searchQuery = SearchService.parseQueryString(",.(\"word\") -=");
-            assertEquals(searchQuery.getIncluded().size(), 1);
-            assertTrue(searchQuery.getIncluded().contains("word"));
-            assertEquals(searchQuery.getExcluded().size(), 0);
+            Set<String> words = SearchService.parseQueryString(",.(\"word\") -=");
+            assertEquals(words.size(), 1);
+            assertContains(words, "word");
         }
         {
-            SearchQuery searchQuery = SearchService.parseQueryString("word1 word2");
-            assertEquals(searchQuery.getIncluded().size(), 2);
-            assertTrue(searchQuery.getIncluded().contains("word1"));
-            assertTrue(searchQuery.getIncluded().contains("word2"));
-            assertEquals(searchQuery.getExcluded().size(), 0);
-        }
-        {
-            SearchQuery searchQuery = SearchService.parseQueryString("word1 -word2 -word3");
-            assertEquals(searchQuery.getIncluded().size(), 1);
-            assertTrue(searchQuery.getIncluded().contains("word1"));
-            assertEquals(searchQuery.getExcluded().size(), 2);
-            assertTrue(searchQuery.getExcluded().contains("word2"));
-            assertTrue(searchQuery.getExcluded().contains("word3"));
+            Set<String> words = SearchService.parseQueryString("word1 word2");
+            assertEquals(words.size(), 2);
+            assertContains(words, "word1");
+            assertContains(words, "word2");
         }
     }
 

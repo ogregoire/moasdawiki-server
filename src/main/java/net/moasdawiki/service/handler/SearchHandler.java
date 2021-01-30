@@ -24,16 +24,15 @@ import net.moasdawiki.base.ServiceException;
 import net.moasdawiki.base.Settings;
 import net.moasdawiki.service.HttpResponse;
 import net.moasdawiki.service.render.HtmlService;
-import net.moasdawiki.service.search.SearchQuery;
-import net.moasdawiki.service.search.SearchResult;
-import net.moasdawiki.service.search.SearchResult.Marker;
-import net.moasdawiki.service.search.SearchResult.MatchingLine;
-import net.moasdawiki.service.search.SearchResult.PageDetails;
+import net.moasdawiki.service.search.PageDetails;
 import net.moasdawiki.service.search.SearchService;
 import net.moasdawiki.service.wiki.WikiHelper;
 import net.moasdawiki.service.wiki.WikiService;
 import net.moasdawiki.service.wiki.structure.*;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * Einfache Volltextsuche in allen Wikiseiten im Repository.
@@ -68,10 +67,10 @@ public class SearchHandler {
 
 	@NotNull
 	public HttpResponse handleSearchRequest(@NotNull String query) {
-		SearchQuery searchQuery = SearchService.parseQueryString(query);
+		Set<String> words = SearchService.parseQueryString(query);
 		try {
-			SearchResult searchResult = searchService.searchInRepository(searchQuery);
-			WikiPage wikiPage = generateSearchResultPage(searchResult);
+			List<PageDetails> searchResult = searchService.searchInRepository(words);
+			WikiPage wikiPage = generateSearchResultPage(searchResult, query);
 			wikiPage = WikiHelper.extendWikiPage(wikiPage, true, false, false,
 					logger, settings, wikiService);
 			return htmlService.convertPage(wikiPage);
@@ -81,15 +80,15 @@ public class SearchHandler {
 	}
 
 	@NotNull
-	private WikiPage generateSearchResultPage(@NotNull SearchResult searchResult) {
+	private WikiPage generateSearchResultPage(@NotNull List<PageDetails> searchResult, @NotNull String query) {
 		PageElementList pageContent = new PageElementList();
 
 		// Seitenname ausgeben
-		String pageTitle = messages.getMessage(TITLE_KEY, searchResult.getSearchQuery().getQueryString());
+		String pageTitle = messages.getMessage(TITLE_KEY, query);
 		pageContent.add(new Heading(1, new TextOnly(pageTitle), null, null));
 
 		// Anzahl Suchergebnisse ausgeben
-		int count = searchResult.getResultList().size();
+		int count = searchResult.size();
 		String countText;
 		if (count == 1) {
 			countText = messages.getMessage(SUMMARY_ONE_KEY);
@@ -99,7 +98,7 @@ public class SearchHandler {
 		pageContent.add(new TextOnly(countText));
 
 		// Suchergebnisse ausgeben
-		for (PageDetails pageDetails : searchResult.getResultList()) {
+		for (PageDetails pageDetails : searchResult) {
 			PageElementList formattedpageDetails = generate(pageDetails);
 			pageContent.add(new ListItem(1, false, formattedpageDetails, null, null));
 		}
@@ -121,7 +120,7 @@ public class SearchHandler {
 
 		// Treffer im Seitentext anzeigen
 		for (int i = 0; i < pageDetails.getTextLines().size() && i < 5; i++) {
-			MatchingLine matchingLine = pageDetails.getTextLines().get(i);
+			PageDetails.MatchingLine matchingLine = pageDetails.getTextLines().get(i);
 			PageElementList formattedLine = highlightMatching(matchingLine);
 			pageElementList.add(formattedLine);
 			pageElementList.add(new LineBreak());
@@ -133,11 +132,11 @@ public class SearchHandler {
 	/**
 	 * Hebt alle Fundstellen des Suchstrings einer Zeile hervor.
 	 */
-	private static PageElementList highlightMatching(@NotNull MatchingLine matchingLine) {
+	private static PageElementList highlightMatching(@NotNull PageDetails.MatchingLine matchingLine) {
 		PageElementList pageElementList = new PageElementList();
 
 		int lastIndex = 0;
-		for (Marker marker : matchingLine.getPositions()) {
+		for (PageDetails.Marker marker : matchingLine.getPositions()) {
 			// Text vor der Markierung übernehmen
 			String textBefore = matchingLine.getLine().substring(lastIndex, marker.getFrom());
 			pageElementList.add(new TextOnly(textBefore));

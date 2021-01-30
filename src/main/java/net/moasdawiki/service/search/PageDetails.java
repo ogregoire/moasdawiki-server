@@ -25,105 +25,67 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Search result.
- * The list is sorted ascending by relevance.
+ * Search result for a single wiki page.
+ * Contains the paragraphs with a matching word.
  */
-public class SearchResult {
+public class PageDetails {
 
 	/**
-	 * Search query.
+	 * Wiki page path.
 	 */
 	@NotNull
-	private final SearchQuery searchQuery;
+	private final String pagePath;
 
 	/**
-	 * Matching wiki pages.
+	 * Matching words in the page title.
 	 */
 	@NotNull
-	private final List<PageDetails> resultList;
+	private final MatchingLine titleLine;
+
+	/**
+	 * Matching paragraphs in the wiki page content.
+	 */
+	@NotNull
+	private final List<MatchingLine> textLines;
+
+	/**
+	 * Matching relevance. Positive integer.
+	 */
+	private final int relevance;
 
 	/**
 	 * Constructor.
 	 */
-	public SearchResult(@NotNull SearchQuery searchQuery) {
-		this.searchQuery = searchQuery;
-		this.resultList = new ArrayList<>();
+	public PageDetails(@NotNull String pagePath, @NotNull MatchingLine titleLine, @NotNull List<MatchingLine> textLines, int relevance) {
+		this.pagePath = pagePath;
+		this.titleLine = titleLine;
+		this.textLines = textLines;
+		this.relevance = relevance;
 	}
 
 	@Contract(pure = true)
 	@NotNull
-	public SearchQuery getSearchQuery() {
-		return searchQuery;
+	public String getPagePath() {
+		return pagePath;
 	}
 
 	@Contract(pure = true)
 	@NotNull
-	public List<PageDetails> getResultList() {
-		return resultList;
+	public MatchingLine getTitleLine() {
+		return titleLine;
 	}
 
-	/**
-	 * Search result for a single wiki page.
-	 * Contains the paragraphs with a matching word.
-	 */
-	public static class PageDetails {
-
-		/**
-		 * Wiki page path.
-		 */
-		@NotNull
-		private final String pagePath;
-
-		/**
-		 * Matching words in the page title.
-		 */
-		@NotNull
-		private final MatchingLine titleLine;
-
-		/**
-		 * Matching paragraphs in the wiki page content.
-		 */
-		@NotNull
-		private final List<MatchingLine> textLines;
-
-		/**
-		 * Matching relevance. Positive integer.
-		 */
-		private final int relevance;
-
-		/**
-		 * Constructor.
-		 */
-		public PageDetails(@NotNull String pagePath, @NotNull MatchingLine titleLine, @NotNull List<MatchingLine> textLines, int relevance) {
-			this.pagePath = pagePath;
-			this.titleLine = titleLine;
-			this.textLines = textLines;
-			this.relevance = relevance;
-		}
-
-		@Contract(pure = true)
-		@NotNull
-		public String getPagePath() {
-			return pagePath;
-		}
-
-		@Contract(pure = true)
-		@NotNull
-		public MatchingLine getTitleLine() {
-			return titleLine;
-		}
-
-		@Contract(pure = true)
-		@NotNull
-		public List<MatchingLine> getTextLines() {
-			return textLines;
-		}
-
-		@Contract(pure = true)
-		public int getRelevance() {
-			return relevance;
-		}
+	@Contract(pure = true)
+	@NotNull
+	public List<MatchingLine> getTextLines() {
+		return textLines;
 	}
+
+	@Contract(pure = true)
+	public int getRelevance() {
+		return relevance;
+	}
+
 
 	/**
 	 * Represents a single paragraph that matches.
@@ -174,7 +136,7 @@ public class SearchResult {
 		 * Index of first character.
 		 */
 		private final int from;
-		
+
 		/**
 		 * Index after last character.
 		 */
