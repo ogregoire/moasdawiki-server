@@ -21,9 +21,6 @@ package net.moasdawiki.service.search;
 import net.moasdawiki.base.Logger;
 import net.moasdawiki.base.ServiceException;
 import net.moasdawiki.service.repository.RepositoryService;
-import net.moasdawiki.service.search.SearchResult.Marker;
-import net.moasdawiki.service.search.SearchResult.MatchingLine;
-import net.moasdawiki.service.search.SearchResult.PageDetails;
 import net.moasdawiki.service.wiki.WikiFile;
 import net.moasdawiki.service.wiki.WikiService;
 import net.moasdawiki.util.PathUtils;
@@ -52,6 +49,9 @@ public class SearchService {
 	private final WikiService wikiService;
 
 	@NotNull
+	private final SearchIgnoreList searchIgnoreList;
+
+	@NotNull
 	private final SearchIndex searchIndex;
 
 	/**
@@ -68,7 +68,8 @@ public class SearchService {
 		super();
 		this.logger = logger;
 		this.wikiService = wikiService;
-		this.searchIndex = new SearchIndex(logger, repositoryService, wikiService);
+		this.searchIgnoreList = new SearchIgnoreList(logger, repositoryService);
+		this.searchIndex = new SearchIndex(logger, repositoryService, wikiService, searchIgnoreList);
 		this.scanRepository = scanRepository;
 		reset();
 	}
@@ -78,6 +79,7 @@ public class SearchService {
 	 * Is called in App environment after synchronization with server.
 	 */
 	public void reset() {
+		searchIgnoreList.reset();
 		if (!readCacheFile()) {
 			rebuildCache();
 		}
@@ -99,20 +101,17 @@ public class SearchService {
 	 * <ul>
 	 * <li><code>Word</code>: Search for a single word</li>
 	 * <li><code>Word1 word2</code>: Search for several words, all of them must match</li>
-	 * <li><code>Word1 -word2</code>: Search with excluded word that must not match</li>
 	 * </ul>
 	 * 
 	 * @param query Query string.
-	 * @return Parsed search query.
+	 * @return Word list.
 	 */
 	@Contract(pure = true)
 	@NotNull
-	public static SearchQuery parseQueryString(@NotNull String query) {
-		Set<String> included = new HashSet<>();
-		Set<String> excluded = new HashSet<>();
+	public static Set<String> parseQueryString(@NotNull String query) {
+		Set<String> result = new HashSet<>();
 
 		StringBuilder sb = new StringBuilder();
-		boolean excludeWord = false;
 		IntStream codePointStream = query.codePoints();
 		PrimitiveIterator.OfInt it = codePointStream.iterator();
 		while (it.hasNext()) {
@@ -123,79 +122,60 @@ public class SearchService {
 			} else {
 				// separator found -> end of word
 				if (sb.length() > 0) {
-					if (excludeWord) {
-						excluded.add(sb.toString());
-					} else {
-						included.add(sb.toString());
-					}
+					result.add(sb.toString());
 					sb.setLength(0);
 				}
-				// check for exclude character
-				excludeWord = (codePoint == (int) '-');
 			}
 		}
 
 		// add last word
 		if (sb.length() > 0) {
-			if (excludeWord) {
-				excluded.add(sb.toString());
-			} else {
-				included.add(sb.toString());
-			}
+			result.add(sb.toString());
 		}
 
-		return new SearchQuery(query, included, excluded);
+		return result;
 	}
 
 	/**
 	 * Find all wiki pages that match the search query.
 	 * The search query must have at least one "included" word.
 	 * The string match considers similar looking characters as identical, see {@link #generateNormalizedPattern(Set)}.
-	 *
-	 * @param searchQuery search query.
-	 * @return Search result
 	 */
 	@NotNull
-	public SearchResult searchInRepository(@NotNull SearchQuery searchQuery) throws ServiceException {
-		if (searchQuery.getIncluded().size() == 0) {
+	public List<PageDetails> searchInRepository(@NotNull Set<String> words) throws ServiceException {
+		if (words.isEmpty()) {
 			// No included word specified --> return empty result
-			return new SearchResult(searchQuery);
+			return Collections.emptyList();
 		}
-
-		Set<String> wikiFilePathCandidates = searchWikiFilePathCandidates(searchQuery.getIncluded());
-
-		return scanWikiPages(wikiFilePathCandidates, searchQuery);
+		Set<String> wikiFilePathCandidates = searchWikiFilePaths(words);
+		return scanWikiPages(wikiFilePathCandidates, words);
 	}
 
 	/**
-	 * Get wiki page candidates from search index.
+	 * Get wiki pages from search index.
 	 */
 	@NotNull
-	Set<String> searchWikiFilePathCandidates(@NotNull Set<String> words) {
+	Set<String> searchWikiFilePaths(@NotNull Set<String> words) {
 		rebuildCache();
-		return searchIndex.searchWikiFilePathCandidates(words);
+		return searchIndex.searchWikiFilePaths(words);
 	}
 
 	/**
 	 * Scans all wiki page candidates for the search query.
 	 */
 	@NotNull
-	SearchResult scanWikiPages(@NotNull Set<String> wikiFilePathCandidates, @NotNull SearchQuery searchQuery) throws ServiceException {
+	List<PageDetails> scanWikiPages(@NotNull Set<String> wikiFilePathCandidates, @NotNull Set<String> words) throws ServiceException {
 		// Normalize search string and combine to a single pattern
-		Pattern[] includedPatterns = new Pattern[searchQuery.getIncluded().size()];
+		Pattern[] includedPatterns = new Pattern[words.size()];
 		int i = 0;
-		for (String findStr : searchQuery.getIncluded()) {
+		for (String findStr : words) {
 			includedPatterns[i] = generateNormalizedPattern(Collections.singleton(findStr));
 			i++;
 		}
-		Pattern includedPattern = generateNormalizedPattern(searchQuery.getIncluded());
-		Pattern excludedPattern = null;
-		if (searchQuery.getExcluded().size() >= 1) {
-			excludedPattern = generateNormalizedPattern(searchQuery.getExcluded());
-		}
+		Pattern includedPattern = generateNormalizedPattern(words);
 
 		// scan wiki pages
-		SearchResult searchResult = new SearchResult(searchQuery);
+		List<PageDetails> pageDetailsList = new ArrayList<>();
 		for (String wikiFilePath : wikiService.getWikiFilePaths()) {
 			// scan wiki page content only if page is in candidates list
 			String wikiText;
@@ -206,30 +186,29 @@ public class SearchService {
 			} else {
 				wikiText = ""; // nothing to find in page body
 			}
-			if (isPageMatching(wikiFilePath, wikiText, includedPatterns, excludedPattern)) {
+			if (isPageMatching(wikiFilePath, wikiText, includedPatterns)) {
 				PageDetails pageDetails = scanPage(wikiFilePath, wikiText, includedPattern);
-				searchResult.getResultList().add(pageDetails);
+				pageDetailsList.add(pageDetails);
 			}
 		}
 
 		// Sort matches by descending relevance
-		searchResult.getResultList().sort((p1, p2) -> {
-			@SuppressWarnings("EqualsWithItself")
-			int cmp = Integer.compare(p1.getRelevance(), p1.getRelevance());
+		pageDetailsList.sort((p1, p2) -> {
+			int cmp = Integer.compare(p1.getRelevance(), p2.getRelevance());
 			if (cmp != 0) {
 				return -cmp; // descending
 			} else {
 				return String.CASE_INSENSITIVE_ORDER.compare(p1.getPagePath(), p2.getPagePath());
 			}
 		});
-		logger.write("Search result contains " + searchResult.getResultList().size() + " wiki pages");
-		return searchResult;
+		logger.write("Search result contains " + pageDetailsList.size() + " wiki pages");
+		return pageDetailsList;
 	}
 
 	/**
 	 * Checks if a wiki page matches the search conditions.
 	 */
-	private boolean isPageMatching(@NotNull String pagePath, @NotNull String wikiText, @NotNull Pattern[] includedPatterns, @Nullable Pattern excludedPattern) {
+	private boolean isPageMatching(@NotNull String pagePath, @NotNull String wikiText, @NotNull Pattern[] includedPatterns) {
 		// Wikiseite normalisieren
 		String pagePathNorm = StringUtils.unicodeNormalize(pagePath);
 		String wikiTextNorm = StringUtils.unicodeNormalize(wikiText);
@@ -241,9 +220,7 @@ public class SearchService {
 				return false;
 			}
 		}
-
-		// the "excluded" words must not match
-		return excludedPattern == null || (!excludedPattern.matcher(pagePathNorm).find() && !excludedPattern.matcher(wikiTextNorm).find());
+		return true;
 	}
 
 	/**
@@ -253,10 +230,10 @@ public class SearchService {
 	private PageDetails scanPage(@NotNull String pagePath, @NotNull String wikiText, @NotNull Pattern includedPattern) throws ServiceException {
 		// Collect matches in page name
 		MatchingCategories mc = new MatchingCategories();
-		MatchingLine titleLine = scanPageTitle(pagePath, includedPattern, mc);
+		PageDetails.MatchingLine titleLine = scanPageTitle(pagePath, includedPattern, mc);
 
 		// Collect matches in page content
-		List<MatchingLine> textLines = scanPageText(pagePath, wikiText, includedPattern, mc);
+		List<PageDetails.MatchingLine> textLines = scanPageText(pagePath, wikiText, includedPattern, mc);
 
 		// Calculate relevance
 		int relevance = calculateRelevance(mc);
@@ -267,8 +244,8 @@ public class SearchService {
 	}
 
 	@NotNull
-	private MatchingLine scanPageTitle(@NotNull String pagePath, @NotNull Pattern includedPattern, @NotNull MatchingCategories mc) {
-		MatchingLine result = new MatchingLine(pagePath);
+	private PageDetails.MatchingLine scanPageTitle(@NotNull String pagePath, @NotNull Pattern includedPattern, @NotNull MatchingCategories mc) {
+		PageDetails.MatchingLine result = new PageDetails.MatchingLine(pagePath);
 
 		// Normalize wiki page
 		String pagePathNorm = StringUtils.unicodeNormalize(pagePath);
@@ -282,7 +259,7 @@ public class SearchService {
 			mc.titleComplete = true;
 			mc.titleWord++;
 			if (mPath.start() < mPath.end()) {
-				result.getPositions().add(new Marker(mPath.start(), mPath.end()));
+				result.getPositions().add(new PageDetails.Marker(mPath.start(), mPath.end()));
 			}
 
 		} else if (mName.matches()) {
@@ -291,7 +268,7 @@ public class SearchService {
 			mc.titleWord++;
 			int prefixLen = pagePath.length() - pageName.length();
 			if (mName.start() < mName.end()) {
-				result.getPositions().add(new Marker(prefixLen + mName.start(), prefixLen + mName.end()));
+				result.getPositions().add(new PageDetails.Marker(prefixLen + mName.start(), prefixLen + mName.end()));
 			}
 
 		} else {
@@ -304,7 +281,7 @@ public class SearchService {
 					mc.titleSubstring++;
 				}
 				if (mPath.start() < mPath.end()) {
-					result.getPositions().add(new Marker(mPath.start(), mPath.end()));
+					result.getPositions().add(new PageDetails.Marker(mPath.start(), mPath.end()));
 				}
 			}
 		}
@@ -312,13 +289,13 @@ public class SearchService {
 	}
 
 	@NotNull
-	private List<MatchingLine> scanPageText(@NotNull String pagePath, @NotNull String wikiText, @NotNull Pattern includedPattern, @NotNull MatchingCategories mc) throws ServiceException {
+	private List<PageDetails.MatchingLine> scanPageText(@NotNull String pagePath, @NotNull String wikiText, @NotNull Pattern includedPattern, @NotNull MatchingCategories mc) throws ServiceException {
 		try {
-			List<MatchingLine> textLines = new ArrayList<>();
+			List<PageDetails.MatchingLine> textLines = new ArrayList<>();
 			BufferedReader reader = new BufferedReader(new StringReader(wikiText));
 			String line = reader.readLine();
 			while (line != null) {
-				MatchingLine matchingLine = null;
+				PageDetails.MatchingLine matchingLine = null;
 				String lineNorm = StringUtils.unicodeNormalize(line);
 				Matcher m = includedPattern.matcher(lineNorm);
 				while (m.find()) {
@@ -340,11 +317,11 @@ public class SearchService {
 						}
 
 						if (matchingLine == null) {
-							matchingLine = new MatchingLine(line);
+							matchingLine = new PageDetails.MatchingLine(line);
 							textLines.add(matchingLine);
 						}
 						if (m.start() < m.end()) {
-							matchingLine.getPositions().add(new Marker(m.start(), m.end()));
+							matchingLine.getPositions().add(new PageDetails.Marker(m.start(), m.end()));
 						}
 					}
 				}
