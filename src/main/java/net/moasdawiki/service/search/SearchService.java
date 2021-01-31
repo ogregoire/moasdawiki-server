@@ -27,7 +27,6 @@ import net.moasdawiki.util.PathUtils;
 import net.moasdawiki.util.StringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -175,7 +174,7 @@ public class SearchService {
 	/**
 	 * Collects all matching positions in a wiki page.
 	 */
-	@Nullable
+	@NotNull
 	private PageDetails scanPage(@NotNull String pagePath, @NotNull String wikiText, @NotNull Pattern searchPattern) throws ServiceException {
 		// Collect matches in page name
 		MatchingCategories mc = new MatchingCategories();
@@ -186,9 +185,6 @@ public class SearchService {
 
 		// Calculate relevance
 		int relevance = calculateRelevance(mc);
-		if (relevance == 0) {
-			return null; // Page content does not match
-		}
 		return new PageDetails(pagePath, titleLine, textLines, relevance);
 	}
 
