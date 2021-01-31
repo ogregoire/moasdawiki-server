@@ -46,11 +46,14 @@ public class SearchIgnoreListTest {
     public void testReset() throws Exception {
         // load word list
         searchIgnoreList.isValidWord("abc");
-        verify(repositoryService, times(1)).readTextFile(any());
+        verify(repositoryService, times(1))
+                .readTextFile(argThat(anyFile -> anyFile.getFilePath().equals(SearchIgnoreList.SEARCH_IGNORE_LIST_FILEPATH)));
         // reset list
         searchIgnoreList.reset();
         searchIgnoreList.isValidWord("abc");
-        verify(repositoryService, times(2)).readTextFile(any()); // second call
+        // verify second call
+        verify(repositoryService, times(2))
+                .readTextFile(argThat(anyFile -> anyFile.getFilePath().equals(SearchIgnoreList.SEARCH_IGNORE_LIST_FILEPATH)));
     }
 
     @Test

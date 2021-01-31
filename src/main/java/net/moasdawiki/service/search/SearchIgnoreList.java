@@ -36,7 +36,7 @@ import java.util.Set;
  */
 public class SearchIgnoreList {
 
-    private static final String SEARCH_IGNORE_LIST_FILEPATH = "/search-ignore-list.config";
+    static final String SEARCH_IGNORE_LIST_FILEPATH = "/search-ignore-list.text";
 
     @NotNull
     private final Logger logger;
@@ -61,6 +61,30 @@ public class SearchIgnoreList {
     }
 
     /**
+     * Drop the cache content and reread the ignore list on next access.
+     * Is called in App environment after synchronization with server.
+     */
+    public void reset() {
+        ignoreList.clear();
+    }
+
+    /**
+     * Check if the given word is not on the ignore list.
+     */
+    @Contract(pure = true)
+    public boolean isValidWord(@NotNull String word) {
+        if (word.length() <= 1) {
+            return false;
+        }
+
+        // lazy load list
+        if (ignoreList.isEmpty()) {
+            readList();
+        }
+        return !ignoreList.contains(word);
+    }
+
+    /**
      * Reads the ignore list.
      * Every line contains one word.
      */
@@ -81,28 +105,5 @@ public class SearchIgnoreList {
         } catch (ServiceException | IOException e) {
             logger.write("Error reading ignore list file");
         }
-    }
-
-    /**
-     * Rereads the ignore list on next access.
-     */
-    public void reset() {
-        ignoreList.clear();
-    }
-
-    /**
-     * Check if the given word is not on the ignore list.
-     */
-    @Contract(pure = true)
-    public boolean isValidWord(@NotNull String word) {
-        if (word.length() <= 1) {
-            return false;
-        }
-
-        // lazy load list
-        if (ignoreList.isEmpty()) {
-            readList();
-        }
-        return !ignoreList.contains(word);
     }
 }
