@@ -4,22 +4,16 @@ plugins {
 }
 
 group 'net.moasdawiki'
-version '2.4.4'
-
-sourceSets {
-    buildtime {
-        java {
-            srcDirs sourceSets.main.allSource
-        }
-    }
-}
+version '2.5.0'
 
 repositories {
     mavenCentral()
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 dependencies {
     compileOnly "org.jetbrains:annotations:20.1.0"
