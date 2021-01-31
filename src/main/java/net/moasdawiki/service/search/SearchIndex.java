@@ -47,7 +47,7 @@ import java.util.stream.IntStream;
  */
 public class SearchIndex {
 
-    private static final String SEARCH_INDEX_FILEPATH = "/search-index.cache";
+    static final String SEARCH_INDEX_FILEPATH = "/search-index.cache";
 
     /**
      * File format mark in the first line of the cache file.
@@ -74,114 +74,86 @@ public class SearchIndex {
     @NotNull
     private final Map<String, Set<String>> word2WikiFilePathMap;
 
+    /**
+     * Last update of the search index in {@link #word2WikiFilePathMap}.
+     * null -> cache not loaded yet.
+     */
     @Nullable
-    private Date lastUpdate; // null -> unknown
+    private Date lastUpdate;
+
+    /**
+     * Is repository scanning allowed to update the cache content?
+     * Is set to false for the App as the cache file is updated by synchronization.
+     */
+    private final boolean repositoryScanAllowed;
 
     /**
      * Constructor.
      */
     public SearchIndex(@NotNull Logger logger, @NotNull RepositoryService repositoryService,
-                       @NotNull WikiService wikiService, @NotNull SearchIgnoreList searchIgnoreList) {
+                       @NotNull WikiService wikiService, @NotNull SearchIgnoreList searchIgnoreList,
+                       boolean repositoryScanAllowed) {
         this.logger = logger;
         this.repositoryService = repositoryService;
         this.wikiService = wikiService;
         this.searchIgnoreList = searchIgnoreList;
         this.word2WikiFilePathMap = new HashMap<>();
+        this.repositoryScanAllowed = repositoryScanAllowed;
     }
 
     /**
-     * Reads the search index from a cache file.
+     * Drop the cache content and reread/rebuild the search index on next access.
+     * Is called in App environment after synchronization with server.
+     */
+    public void reset() {
+        word2WikiFilePathMap.clear();
+        lastUpdate = null;
+    }
+
+    /**
+     * Returns wiki file paths identified by the search index.
      *
-     * @return true --> cache file read successfully
+     * @param words Words that have to match all.
+     * @return Wiki file paths that match the given words.
      */
-    public boolean readCacheFile() {
-        try {
-            // Read cache file content
-            AnyFile searchIndexCacheFile = new AnyFile(SEARCH_INDEX_FILEPATH);
-            String cacheContent = repositoryService.readTextFile(searchIndexCacheFile);
+    @Contract("_ -> new")
+    @NotNull
+    public Set<String> searchWikiFilePaths(@NotNull Set<String> words) {
+        ensureCacheUpdated();
 
-            try (BufferedReader reader = new BufferedReader(new StringReader(cacheContent))) {
-                // Read format mark in first line
-                String signature = reader.readLine();
-                if (!SEARCH_INDEX_FORMAT_MARK.equals(signature)) {
-                    return false;
-                }
-
-                // Read timestamp in second line
-                String timestampStr = reader.readLine();
-                Date cacheFileTimestamp = DateUtils.parseUtcDate(timestampStr);
-
-                // Parse search index from cache file
-                Map<String, Set<String>> parsedMap = StringUtils.parseMap(reader);
-
-                word2WikiFilePathMap.putAll(parsedMap);
-                lastUpdate = cacheFileTimestamp;
-                logger.write(parsedMap.size() + " keys read from search index cache file");
+        Set<String> result = new HashSet<>();
+        Iterator<String> it = words.iterator();
+        boolean firstIteration = true;
+        while (it.hasNext()) {
+            Set<String> wikiFilePaths = getWordMapping(it.next());
+            if (firstIteration) {
+                result.addAll(wikiFilePaths);
+                firstIteration = false;
+            } else {
+                result.retainAll(wikiFilePaths);
             }
-            return true;
-        } catch (ServiceException | IOException e) {
-            logger.write("Error reading search index cache file");
-            return false;
         }
+        logger.write("Found " + result.size() + " wiki pages in search index");
+        return result;
     }
 
     /**
-     * Writes the search index into a cache file.
+     * Lazy loads and updates the cache content.
      */
-    private void writeCacheFile() {
-        StringBuilder sb = new StringBuilder();
-
-        // Write format mark as first line
-        sb.append(SEARCH_INDEX_FORMAT_MARK).append('\n');
-
-        // Write timestamp as second line
-        String timestampStr = DateUtils.formatUtcDate(new Date());
-        sb.append(timestampStr).append('\n');
-
-        // Serialize list
-        String mapStr = StringUtils.serializeMap(word2WikiFilePathMap);
-        sb.append(mapStr);
-
-        // Write cache file
-        AnyFile searchIndexCacheFile = new AnyFile(SEARCH_INDEX_FILEPATH);
-        try {
-            repositoryService.writeTextFile(searchIndexCacheFile, sb.toString());
-        } catch (ServiceException e) {
-            // in case of error only log error
-            logger.write("Error writing cache file " + searchIndexCacheFile.getFilePath(), e);
+    private void ensureCacheUpdated() {
+        if (lastUpdate == null) {
+            readCacheFile();
         }
-    }
-
-    /**
-     * Updates the search index.
-     */
-    public void updateIndex() {
-        cleanMap();
-
-        Set<String> wikiFilePaths = wikiService.getModifiedAfter(lastUpdate);
-        logger.write("Scanning " + wikiFilePaths.size() + " files to rebuild search index");
-        for (String wikiFilePath : wikiFilePaths) {
-            try {
-                WikiFile wikiFile = wikiService.getWikiFile(wikiFilePath);
-                addWordMappings(wikiFile.getWikiText(), wikiFile.getWikiFilePath());
-                if (lastUpdate == null || lastUpdate.before(wikiFile.getRepositoryFile().getContentTimestamp())) {
-                    lastUpdate = wikiFile.getRepositoryFile().getContentTimestamp();
-                }
-            }
-            catch (ServiceException e) {
-                // ignore file not found error
-            }
-        }
-        if (!wikiFilePaths.isEmpty()) {
-            logger.write("Added " + wikiFilePaths.size() + " wiki pages to search index, contains now " + word2WikiFilePathMap.size() + " words");
-            writeCacheFile();
+        if (repositoryScanAllowed) {
+            cleanOldEntries();
+            updateIndex();
         }
     }
 
     /**
      * Removes all dangling wiki file references.
      */
-    void cleanMap() {
+    void cleanOldEntries() {
         Iterator<String> keyIt = word2WikiFilePathMap.keySet().iterator();
         while (keyIt.hasNext()) {
             // remove dangling references
@@ -204,37 +176,31 @@ public class SearchIndex {
     }
 
     /**
-     * Returns wiki file paths identified by the search index.
-     *
-     * @param words Words that have to match all.
-     * @return Wiki file paths that match the given words.
+     * Updates the search index.
      */
-    @Contract("_ -> new")
-    @NotNull
-    public Set<String> searchWikiFilePaths(@NotNull Set<String> words) {
-        Set<String> result = new HashSet<>();
-        Iterator<String> it = words.iterator();
-        boolean firstIteration = true;
-        while (it.hasNext()) {
-            Set<String> wikiFilePaths = getWordMapping(it.next());
-            if (firstIteration) {
-                result.addAll(wikiFilePaths);
-                firstIteration = false;
-            } else {
-                result.retainAll(wikiFilePaths);
+    void updateIndex() {
+        Set<String> wikiFilePaths = wikiService.getModifiedAfter(lastUpdate);
+        logger.write("Scanning " + wikiFilePaths.size() + " files to rebuild search index");
+        for (String wikiFilePath : wikiFilePaths) {
+            try {
+                WikiFile wikiFile = wikiService.getWikiFile(wikiFilePath);
+                addWordMappings(wikiFile.getWikiText(), wikiFile.getWikiFilePath());
+                if (lastUpdate == null || lastUpdate.before(wikiFile.getRepositoryFile().getContentTimestamp())) {
+                    lastUpdate = wikiFile.getRepositoryFile().getContentTimestamp();
+                }
+            }
+            catch (ServiceException e) {
+                // ignore file not found error
             }
         }
-        logger.write("Found " + result.size() + " wiki pages in search index");
-        return result;
-    }
-
-    /**
-     * For testing purpose only.
-     */
-    @Contract(pure = true)
-    @Nullable
-    Date getLastUpdate() {
-        return lastUpdate;
+        if (lastUpdate == null) {
+            // ensure that lastUpdate is not null when calling writeCacheFile()
+            lastUpdate = new Date();
+        }
+        if (!wikiFilePaths.isEmpty()) {
+            logger.write("Added " + wikiFilePaths.size() + " wiki pages to search index, contains now " + word2WikiFilePathMap.size() + " words");
+            writeCacheFile();
+        }
     }
 
     /**
@@ -322,5 +288,82 @@ public class SearchIndex {
     static String normalizeWord(@NotNull String str) {
         str = StringUtils.unicodeNormalize(str);
         return str.toLowerCase();
+    }
+
+    /**
+     * For testing purpose only.
+     */
+    @Contract(pure = true)
+    @Nullable
+    Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    /**
+     * For testing purpose only.
+     */
+    void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    /**
+     * Reads the search index from a cache file.
+     */
+    void readCacheFile() {
+        try {
+            // Read cache file content
+            AnyFile searchIndexCacheFile = new AnyFile(SEARCH_INDEX_FILEPATH);
+            String cacheContent = repositoryService.readTextFile(searchIndexCacheFile);
+
+            try (BufferedReader reader = new BufferedReader(new StringReader(cacheContent))) {
+                // Read format mark in first line
+                String mark = reader.readLine();
+                if (!SEARCH_INDEX_FORMAT_MARK.equals(mark)) {
+                    logger.write("Search index cache file has wrong format, expected mark '"
+                            + SEARCH_INDEX_FORMAT_MARK + "' but has mark '" + mark + "'");
+                    return;
+                }
+
+                // Read timestamp in second line
+                String timestampStr = reader.readLine();
+                Date cacheFileTimestamp = DateUtils.parseUtcDate(timestampStr);
+
+                // Parse search index from cache file
+                Map<String, Set<String>> parsedMap = StringUtils.parseMap(reader);
+
+                word2WikiFilePathMap.putAll(parsedMap);
+                lastUpdate = cacheFileTimestamp;
+                logger.write(parsedMap.size() + " keys read from search index cache file");
+            }
+        } catch (ServiceException | IOException e) {
+            logger.write("Error reading search index cache file");
+        }
+    }
+
+    /**
+     * Writes the search index into a cache file.
+     */
+    void writeCacheFile() {
+        StringBuilder sb = new StringBuilder();
+
+        // Write format mark as first line
+        sb.append(SEARCH_INDEX_FORMAT_MARK).append('\n');
+
+        // Write timestamp as second line
+        String timestampStr = DateUtils.formatUtcDate(lastUpdate);
+        sb.append(timestampStr).append('\n');
+
+        // Serialize list
+        String mapStr = StringUtils.serializeMap(word2WikiFilePathMap);
+        sb.append(mapStr);
+
+        // Write cache file
+        AnyFile searchIndexCacheFile = new AnyFile(SEARCH_INDEX_FILEPATH);
+        try {
+            repositoryService.writeTextFile(searchIndexCacheFile, sb.toString());
+        } catch (ServiceException e) {
+            // in case of error only log error
+            logger.write("Error writing cache file " + searchIndexCacheFile.getFilePath(), e);
+        }
     }
 }

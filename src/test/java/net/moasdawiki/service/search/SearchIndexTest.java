@@ -25,30 +25,40 @@ import net.moasdawiki.service.wiki.WikiFile;
 import net.moasdawiki.service.wiki.WikiService;
 import net.moasdawiki.service.wiki.structure.TextOnly;
 import net.moasdawiki.service.wiki.structure.WikiPage;
+import net.moasdawiki.util.DateUtils;
 import org.mockito.internal.util.collections.Sets;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import static net.moasdawiki.AssertHelper.*;
-import static org.testng.Assert.*;
 import static org.mockito.Mockito.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 public class SearchIndexTest {
 
+    private RepositoryService repositoryService;
     private WikiService wikiService;
+    private SearchIgnoreList searchIgnoreList;
     private SearchIndex searchIndex;
 
     @BeforeMethod
-    public void setUp() {
+    public void setUp() throws Exception {
+        repositoryService = mock(RepositoryService.class);
+        when(repositoryService.readTextFile(any())).thenReturn("");
+
         wikiService = mock(WikiService.class);
-        SearchIgnoreList searchIgnoreList = mock(SearchIgnoreList.class);
+
+        searchIgnoreList = mock(SearchIgnoreList.class);
         when(searchIgnoreList.isValidWord(anyString())).thenReturn(true);
         when(searchIgnoreList.isValidWord("ignore1")).thenReturn(false);
-        searchIndex = new SearchIndex(mock(Logger.class), mock(RepositoryService.class), wikiService, searchIgnoreList);
+
+        searchIndex = new SearchIndex(mock(Logger.class), repositoryService, wikiService, searchIgnoreList, false);
     }
 
     @Test
@@ -182,7 +192,7 @@ public class SearchIndexTest {
     }
 
     @Test
-    public void testSearchFilePaths() {
+    public void testSearchWikiFilePaths() {
         searchIndex.addWordMapping("word1", "/file/path1");
         searchIndex.addWordMapping("word1", "/file/path2");
         searchIndex.addWordMapping("word2", "/file/path2");
@@ -217,15 +227,60 @@ public class SearchIndexTest {
             Set<String> filePaths = searchIndex.searchWikiFilePaths(words);
             assertIsEmpty(filePaths);
         }
+        {
+            Set<String> words = Collections.emptySet();
+            Set<String> filePaths = searchIndex.searchWikiFilePaths(words);
+            assertIsEmpty(filePaths);
+        }
     }
 
     @Test
-    public void testCleanMap() {
+    public void testEnsureCacheUpdated_CacheEmpty() throws Exception {
+        // call ensureCacheUpdated()
+        searchIndex.searchWikiFilePaths(Collections.emptySet());
+        // check if readCacheFile() is called
+        verify(repositoryService, times(1)).readTextFile(any());
+    }
+
+    @Test
+    public void testEnsureCacheUpdated_CacheFilled() throws Exception {
+        // simulate filled cache
+        searchIndex.setLastUpdate(new Date());
+        // call ensureCacheUpdated()
+        searchIndex.searchWikiFilePaths(Collections.emptySet());
+        // check that readCacheFile() is NOT called
+        verify(repositoryService, never()).readTextFile(any());
+    }
+
+    @Test
+    public void testEnsureCacheUpdated_CleanOldEntries() {
+        // set repositoryScanAllowed = true
+        searchIndex = new SearchIndex(mock(Logger.class), repositoryService, wikiService, searchIgnoreList, true);
+        // add "old" content
+        searchIndex.addWordMapping("word1", "/file/path1");
+        // call ensureCacheUpdated()
+        searchIndex.searchWikiFilePaths(Collections.emptySet());
+        // check that old content is removed
+        assertIsEmpty(searchIndex.getWord2WikiFilePathMap());
+    }
+
+    @Test
+    public void testEnsureCacheUpdated_UpdateIndex() {
+        // set repositoryScanAllowed = true
+        searchIndex = new SearchIndex(mock(Logger.class), repositoryService, wikiService, searchIgnoreList, true);
+        // call ensureCacheUpdated()
+        searchIndex.searchWikiFilePaths(Collections.emptySet());
+        // check if updateIndex() is called
+        verify(wikiService, times(1)).getModifiedAfter(any());
+    }
+
+    @Test
+    public void testCleanOldEntries() {
         searchIndex.addWordMapping("a", "/file/path1");
         searchIndex.addWordMapping("a", "/file/path2");
         searchIndex.addWordMapping("b", "/file/path2");
         when(wikiService.existsWikiFile("/file/path1")).thenReturn(true);
-        searchIndex.cleanMap();
+        searchIndex.cleanOldEntries();
         {
             Set<String> filePaths = searchIndex.getWordMapping("a");
             assertEquals(filePaths.size(), 1);
@@ -267,5 +322,34 @@ public class SearchIndexTest {
         WikiPage wikiPage = new WikiPage(wikiFilePath, new TextOnly(""), 0, 0);
         AnyFile anyFile = new AnyFile(wikiFilePath + ".txt", contentTimestamp);
         return new WikiFile(wikiFilePath, content, wikiPage, anyFile);
+    }
+
+    @Test
+    public void testReadCacheFile() throws Exception {
+        String cacheFileContent = "Version 3\n"
+                + "2020-01-30T01:02:03.000Z\n"
+                + "word1\t/file/path1\t/file/path2";
+        when(repositoryService.readTextFile(any())).thenReturn(cacheFileContent);
+        searchIndex.readCacheFile();
+        assertEquals(DateUtils.formatUtcDate(searchIndex.getLastUpdate()), "2020-01-30T01:02:03.000Z");
+        assertEquals(searchIndex.getWord2WikiFilePathMap().size(), 1);
+        Set<String> filePaths = searchIndex.getWord2WikiFilePathMap().get("word1");
+        assertEquals(filePaths.size(), 2);
+        assertContains(filePaths, "/file/path1");
+        assertContains(filePaths, "/file/path2");
+    }
+
+    @Test
+    public void testWriteCacheFile() throws Exception {
+        searchIndex.addWordMapping("word1", "/file/path1");
+        searchIndex.addWordMapping("word1", "/file/path2");
+        searchIndex.setLastUpdate(DateUtils.parseUtcDate("2020-01-30T01:02:03.000Z"));
+        searchIndex.writeCacheFile();
+        String cacheFileContent = "Version 3\n"
+                + "2020-01-30T01:02:03.000Z\n"
+                + "word1\t/file/path1\t/file/path2\n";
+        verify(repositoryService, times(1)).writeTextFile(
+                argThat(anyFile -> anyFile.getFilePath().equals(SearchIndex.SEARCH_INDEX_FILEPATH)),
+                eq(cacheFileContent));
     }
 }

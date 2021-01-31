@@ -58,41 +58,28 @@ public class SearchService {
 	 * Is repository scanning allowed to update the cache content?
 	 * Is set to false for the App as the cache file is updated by synchronization.
 	 */
-	private final boolean scanRepository;
+	private final boolean repositoryScanAllowed;
 
 	/**
 	 * Constructor.
 	 */
 	public SearchService(@NotNull Logger logger, @NotNull RepositoryService repositoryService,
-						 @NotNull WikiService wikiService, boolean scanRepository) {
+						 @NotNull WikiService wikiService, boolean repositoryScanAllowed) {
 		super();
 		this.logger = logger;
 		this.wikiService = wikiService;
 		this.searchIgnoreList = new SearchIgnoreList(logger, repositoryService);
-		this.searchIndex = new SearchIndex(logger, repositoryService, wikiService, searchIgnoreList);
-		this.scanRepository = scanRepository;
-		reset();
+		this.searchIndex = new SearchIndex(logger, repositoryService, wikiService, searchIgnoreList, repositoryScanAllowed);
+		this.repositoryScanAllowed = repositoryScanAllowed;
 	}
 
 	/**
-	 * Rereads the cache file.
+	 * Drops the cache content.
 	 * Is called in App environment after synchronization with server.
 	 */
 	public void reset() {
 		searchIgnoreList.reset();
-		if (!readCacheFile()) {
-			rebuildCache();
-		}
-	}
-
-	private boolean readCacheFile() {
-		return searchIndex.readCacheFile();
-	}
-
-	private void rebuildCache() {
-		if (scanRepository) {
-			searchIndex.updateIndex();
-		}
+		searchIndex.reset();
 	}
 
 	/**
@@ -138,58 +125,38 @@ public class SearchService {
 
 	/**
 	 * Find all wiki pages that match the search query.
-	 * The search query must have at least one "included" word.
 	 * The string match considers similar looking characters as identical, see {@link #generateNormalizedPattern(Set)}.
 	 */
 	@NotNull
 	public List<PageDetails> searchInRepository(@NotNull Set<String> words) throws ServiceException {
 		if (words.isEmpty()) {
-			// No included word specified --> return empty result
+			// No words specified --> return empty result
 			return Collections.emptyList();
 		}
-		Set<String> wikiFilePathCandidates = searchWikiFilePaths(words);
-		return scanWikiPages(wikiFilePathCandidates, words);
+		Set<String> wikiFilePaths = searchIndex.searchWikiFilePaths(words);
+		return scanWikiPages(wikiFilePaths, words);
 	}
 
 	/**
-	 * Get wiki pages from search index.
+	 * Highlight the search words in the given wiki pages.
 	 */
 	@NotNull
-	Set<String> searchWikiFilePaths(@NotNull Set<String> words) {
-		rebuildCache();
-		return searchIndex.searchWikiFilePaths(words);
-	}
-
-	/**
-	 * Scans all wiki page candidates for the search query.
-	 */
-	@NotNull
-	List<PageDetails> scanWikiPages(@NotNull Set<String> wikiFilePathCandidates, @NotNull Set<String> words) throws ServiceException {
-		// Normalize search string and combine to a single pattern
-		Pattern[] includedPatterns = new Pattern[words.size()];
-		int i = 0;
-		for (String findStr : words) {
-			includedPatterns[i] = generateNormalizedPattern(Collections.singleton(findStr));
-			i++;
-		}
-		Pattern includedPattern = generateNormalizedPattern(words);
+	List<PageDetails> scanWikiPages(@NotNull Set<String> wikiFilePaths, @NotNull Set<String> words) throws ServiceException {
+		// Normalize search words and combine to a single pattern
+		Pattern searchPattern = generateNormalizedPattern(words);
 
 		// scan wiki pages
 		List<PageDetails> pageDetailsList = new ArrayList<>();
-		for (String wikiFilePath : wikiService.getWikiFilePaths()) {
-			// scan wiki page content only if page is in candidates list
+		for (String wikiFilePath : wikiFilePaths) {
 			String wikiText;
-			if (wikiFilePathCandidates.contains(wikiFilePath) && scanRepository) {
-				// loads wiki file if not in cache yet, might be time consuming
+			if (repositoryScanAllowed) {
 				WikiFile wikiFile = wikiService.getWikiFile(wikiFilePath);
 				wikiText = wikiFile.getWikiText();
 			} else {
-				wikiText = ""; // nothing to find in page body
+				wikiText = ""; // don't highlight content matches
 			}
-			if (isPageMatching(wikiFilePath, wikiText, includedPatterns)) {
-				PageDetails pageDetails = scanPage(wikiFilePath, wikiText, includedPattern);
-				pageDetailsList.add(pageDetails);
-			}
+			PageDetails pageDetails = scanPage(wikiFilePath, wikiText, searchPattern);
+			pageDetailsList.add(pageDetails);
 		}
 
 		// Sort matches by descending relevance
@@ -206,34 +173,16 @@ public class SearchService {
 	}
 
 	/**
-	 * Checks if a wiki page matches the search conditions.
-	 */
-	private boolean isPageMatching(@NotNull String pagePath, @NotNull String wikiText, @NotNull Pattern[] includedPatterns) {
-		// Wikiseite normalisieren
-		String pagePathNorm = StringUtils.unicodeNormalize(pagePath);
-		String wikiTextNorm = StringUtils.unicodeNormalize(wikiText);
-
-		// all "included" words must match
-		for (Pattern pattern : includedPatterns) {
-			if (!pattern.matcher(pagePathNorm).find() && !pattern.matcher(wikiTextNorm).find()) {
-				// does not match
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
 	 * Collects all matching positions in a wiki page.
 	 */
 	@Nullable
-	private PageDetails scanPage(@NotNull String pagePath, @NotNull String wikiText, @NotNull Pattern includedPattern) throws ServiceException {
+	private PageDetails scanPage(@NotNull String pagePath, @NotNull String wikiText, @NotNull Pattern searchPattern) throws ServiceException {
 		// Collect matches in page name
 		MatchingCategories mc = new MatchingCategories();
-		PageDetails.MatchingLine titleLine = scanPageTitle(pagePath, includedPattern, mc);
+		PageDetails.MatchingLine titleLine = scanPageTitle(pagePath, searchPattern, mc);
 
 		// Collect matches in page content
-		List<PageDetails.MatchingLine> textLines = scanPageText(pagePath, wikiText, includedPattern, mc);
+		List<PageDetails.MatchingLine> textLines = scanPageText(pagePath, wikiText, searchPattern, mc);
 
 		// Calculate relevance
 		int relevance = calculateRelevance(mc);
@@ -244,7 +193,7 @@ public class SearchService {
 	}
 
 	@NotNull
-	private PageDetails.MatchingLine scanPageTitle(@NotNull String pagePath, @NotNull Pattern includedPattern, @NotNull MatchingCategories mc) {
+	private PageDetails.MatchingLine scanPageTitle(@NotNull String pagePath, @NotNull Pattern searchPattern, @NotNull MatchingCategories mc) {
 		PageDetails.MatchingLine result = new PageDetails.MatchingLine(pagePath);
 
 		// Normalize wiki page
@@ -252,8 +201,8 @@ public class SearchService {
 		String pageName = PathUtils.extractWebName(pagePath);
 		String pageNameNorm = StringUtils.unicodeNormalize(pageName);
 
-		Matcher mPath = includedPattern.matcher(pagePathNorm);
-		Matcher mName = includedPattern.matcher(pageNameNorm);
+		Matcher mPath = searchPattern.matcher(pagePathNorm);
+		Matcher mName = searchPattern.matcher(pageNameNorm);
 		if (mPath.matches()) {
 			// Page name including path matches
 			mc.titleComplete = true;
@@ -289,7 +238,8 @@ public class SearchService {
 	}
 
 	@NotNull
-	private List<PageDetails.MatchingLine> scanPageText(@NotNull String pagePath, @NotNull String wikiText, @NotNull Pattern includedPattern, @NotNull MatchingCategories mc) throws ServiceException {
+	private List<PageDetails.MatchingLine> scanPageText(@NotNull String pagePath, @NotNull String wikiText,
+														@NotNull Pattern searchPattern, @NotNull MatchingCategories mc) throws ServiceException {
 		try {
 			List<PageDetails.MatchingLine> textLines = new ArrayList<>();
 			BufferedReader reader = new BufferedReader(new StringReader(wikiText));
@@ -297,7 +247,7 @@ public class SearchService {
 			while (line != null) {
 				PageDetails.MatchingLine matchingLine = null;
 				String lineNorm = StringUtils.unicodeNormalize(line);
-				Matcher m = includedPattern.matcher(lineNorm);
+				Matcher m = searchPattern.matcher(lineNorm);
 				while (m.find()) {
 					if (m.start() < m.end()) {
 						if (isHeading(lineNorm)) {
@@ -341,14 +291,11 @@ public class SearchService {
 	 * Similar looking characters are considered to be identical,
 	 * diacritical characters and upper/lower case are ignored.
 	 * Example: ä=ae, ö=oe, ü=ue, ß=ss, a=à=á=â=A=À=Á=Â, etc.
-	 * 
-	 * @param findStrings Search strings, must not be empty.
-	 * @return Pattern object.
 	 */
 	@NotNull
-	private Pattern generateNormalizedPattern(@NotNull Set<String> findStrings) throws ServiceException {
+	private Pattern generateNormalizedPattern(@NotNull Set<String> words) throws ServiceException {
 		StringBuilder combined = new StringBuilder();
-		for (String findStr : findStrings) {
+		for (String findStr : words) {
 			// Umlaute and ß/ss to be similar
 			findStr = expandUmlaute(findStr);
 
