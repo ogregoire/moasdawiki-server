@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.5.0 (2021-01-31)
+
+- Enhance search index to full words
+- Lazy load search index
+- Introduce search ignore list
+- Increase file upload size to 10 MB
+- Add support for SVG images
+- Refactoring
+
 ## 2.4.4 (2021-01-18)
 
 - Search results: Don't scan wiki page content in App to speed up search
