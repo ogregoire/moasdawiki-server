@@ -139,6 +139,8 @@ public class FileDownloadHandler {
 			return "image/gif";
 		} else if (filename.endsWith(".png")) {
 			return "image/png";
+		} else if (filename.endsWith(".svg")) {
+			return "image/svg+xml";
 		} else if (filename.endsWith(".ico")) {
 			return "image/x-icon";
 		} else if (filename.endsWith(".zip")) {
