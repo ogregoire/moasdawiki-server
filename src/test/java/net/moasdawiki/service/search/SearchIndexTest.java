@@ -321,6 +321,11 @@ public class SearchIndexTest {
         searchIndex.updateIndex();
         assertEquals(searchIndex.getLastUpdate().getTime(), 2000L);
         {
+            Set<String> filePaths = searchIndex.getWord2WikiFilePathMap().get("path1");
+            assertEquals(filePaths.size(), 1);
+            assertContains(filePaths, "/file/path1");
+        }
+        {
             Set<String> filePaths = searchIndex.getWord2WikiFilePathMap().get("abcd");
             assertEquals(filePaths.size(), 1);
             assertContains(filePaths, "/file/path1");

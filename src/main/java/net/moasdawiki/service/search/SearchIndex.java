@@ -187,7 +187,8 @@ public class SearchIndex {
         for (String wikiFilePath : wikiFilePaths) {
             try {
                 WikiFile wikiFile = wikiService.getWikiFile(wikiFilePath);
-                addNormalizedWordMappings(wikiFile.getWikiText(), wikiFile.getWikiFilePath());
+                String text = wikiFile.getWikiFilePath() + " " + wikiFile.getWikiText();
+                addNormalizedWordMappings(text, wikiFile.getWikiFilePath());
                 if (lastUpdate == null || lastUpdate.before(wikiFile.getRepositoryFile().getContentTimestamp())) {
                     lastUpdate = wikiFile.getRepositoryFile().getContentTimestamp();
                 }
