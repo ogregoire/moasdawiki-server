@@ -28,8 +28,12 @@ import net.moasdawiki.service.wiki.structure.WikiPage;
 import net.moasdawiki.util.DateUtils;
 import org.mockito.internal.util.collections.Sets;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -351,5 +355,22 @@ public class SearchIndexTest {
         verify(repositoryService, times(1)).writeTextFile(
                 argThat(anyFile -> anyFile.getFilePath().equals(SearchIndex.SEARCH_INDEX_FILEPATH)),
                 eq(cacheFileContent));
+    }
+
+    /**
+     * Convenience method to identify ignore words.
+     */
+    @Ignore
+    @Test
+    public void printLongLines() throws Exception {
+        File file = new File(".../search-index.cache");
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (line.length() > 4000) {
+                int pos = line.indexOf('\t');
+                System.out.println(line.substring(0, pos));
+            }
+        }
     }
 }
