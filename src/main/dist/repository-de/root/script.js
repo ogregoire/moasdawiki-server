@@ -186,7 +186,7 @@ handleFileDrop = function(event) {
 		alert(uploadMultipleFilesMsg);
 		return;
 	}
-	if (files[0].size > 1000000) {
+	if (files[0].size > 10000000) { // 10 MB
 		alert(uploadTooBigMsg);
 		return;
 	}
@@ -205,7 +205,7 @@ handleFileSelect = function(event) {
 	} else if (files.length > 1) {
 		alert(uploadMultipleFilesMsg);
 		files = null;
-	} else if (files[0].size > 1000000) {
+	} else if (files[0].size > 10000000) { // 10 MB
 		alert(uploadTooBigMsg);
 		files = null;
 	}

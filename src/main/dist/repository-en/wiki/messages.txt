@@ -45,7 +45,7 @@ EditorHandler.upload.invalidName = File couldn''t be uploaded, because its name 
 EditorHandler.upload.parentNavigation = File ''{0}'' couldn''t be uploaded, because the file name contains a illegal parent navigation!
 EditorHandler.upload.no-file-selected = No file selected!
 EditorHandler.upload.multiple-files-selected = Only select one file, please!
-EditorHandler.upload.file-too-big = File size must not exceed 1 MB!
+EditorHandler.upload.file-too-big = File size must not exceed 10 MB!
 EditorHandler.url.invalid = Invalid URL ''{0}''
 EditorHandler.error = General error: {0}
 

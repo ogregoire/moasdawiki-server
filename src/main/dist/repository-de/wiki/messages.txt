@@ -45,7 +45,7 @@ EditorHandler.upload.invalidName = Die Datei konnte nicht hochgeladen werden, we
 EditorHandler.upload.parentNavigation = Die Datei ''{0}'' konnte nicht hochgeladen werden, weil der Dateipfad eine unerlaubte Rückwärtsnavigation enthält!
 EditorHandler.upload.no-file-selected = Keine Datei ausgewählt!
 EditorHandler.upload.multiple-files-selected = Bitte nur eine Datei auswählen!
-EditorHandler.upload.file-too-big = Datei darf nicht größer als 1 MB sein!
+EditorHandler.upload.file-too-big = Datei darf nicht größer als 10 MB sein!
 EditorHandler.url.invalid = Ungültige URL ''{0}''
 EditorHandler.error = Allgemeiner Fehler: {0}
 
