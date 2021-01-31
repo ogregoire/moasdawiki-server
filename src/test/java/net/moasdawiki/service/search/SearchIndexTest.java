@@ -340,6 +340,15 @@ public class SearchIndexTest {
     }
 
     @Test
+    public void testReset() {
+        searchIndex.addWordMapping("word1", "/file/path1");
+        searchIndex.setLastUpdate(new Date());
+        searchIndex.reset();
+        assertIsEmpty(searchIndex.getWord2WikiFilePathMap());
+        assertNull(searchIndex.getLastUpdate());
+    }
+
+    @Test
     public void testReadCacheFile() throws Exception {
         String cacheFileContent = "Version 3\n"
                 + "2020-01-30T01:02:03.000Z\n"
