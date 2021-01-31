@@ -201,12 +201,15 @@ public class RepositoryServiceTest {
         frs.deleteFile(anyFile);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void testCreateFolders() throws Exception {
         File file = new File("folder1/subfolder1/file.txt");
         frs.createFolders(file);
         assertTrue(new File("folder1/subfolder1").exists());
-        new File("folder1").deleteOnExit();
+        // remove test folders
+        new File("folder1/subfolder1").delete();
+        new File("folder1").delete();
     }
 
     @Test
