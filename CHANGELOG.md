@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.1 (2021-01-31)
+
+- Bugfix: Add wiki page name to search index
+
 ## 2.5.0 (2021-01-31)
 
 - Enhance search index to full words
