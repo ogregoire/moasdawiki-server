@@ -122,13 +122,16 @@ public class SearchIndex {
         ensureCacheUpdated();
 
         Set<String> result = new HashSet<>();
-        Iterator<String> it = words.iterator();
-        boolean firstIteration = true;
-        while (it.hasNext()) {
-            Set<String> wikiFilePaths = getWordMapping(it.next());
-            if (firstIteration) {
+        boolean firstMatch = true;
+        for (String word : words) {
+            if (!searchIgnoreList.isValidWord(word)) {
+                continue;
+            }
+
+            Set<String> wikiFilePaths = getWordMapping(word);
+            if (firstMatch) {
                 result.addAll(wikiFilePaths);
-                firstIteration = false;
+                firstMatch = false;
             } else {
                 result.retainAll(wikiFilePaths);
             }
@@ -184,7 +187,7 @@ public class SearchIndex {
         for (String wikiFilePath : wikiFilePaths) {
             try {
                 WikiFile wikiFile = wikiService.getWikiFile(wikiFilePath);
-                addWordMappings(wikiFile.getWikiText(), wikiFile.getWikiFilePath());
+                addNormalizedWordMappings(wikiFile.getWikiText(), wikiFile.getWikiFilePath());
                 if (lastUpdate == null || lastUpdate.before(wikiFile.getRepositoryFile().getContentTimestamp())) {
                     lastUpdate = wikiFile.getRepositoryFile().getContentTimestamp();
                 }
@@ -205,12 +208,14 @@ public class SearchIndex {
 
     /**
      * Scans the wiki file and adds the word mappings to the search index.
+     * Normalizes the word.
      */
-    void addWordMappings(@NotNull String text, @NotNull String wikiFilePath) {
+    void addNormalizedWordMappings(@NotNull String text, @NotNull String wikiFilePath) {
         List<String> words = splitStringToWords(text);
         for (String word : words) {
-            if (searchIgnoreList.isValidWord(word)) {
-                addWordMapping(word, wikiFilePath);
+            String normalizedWord = normalizeWord(word);
+            if (searchIgnoreList.isValidWord(normalizedWord)) {
+                addWordMapping(normalizedWord, wikiFilePath);
             }
         }
     }
@@ -219,8 +224,7 @@ public class SearchIndex {
      * Adds a single word mapping to the index.
      */
     void addWordMapping(@NotNull String word, @NotNull String wikiFilePath) {
-        String wordPrefix = normalizeWord(word);
-        Set<String> wikiFilePaths = word2WikiFilePathMap.computeIfAbsent(wordPrefix, k -> new HashSet<>());
+        Set<String> wikiFilePaths = word2WikiFilePathMap.computeIfAbsent(word, k -> new HashSet<>());
         wikiFilePaths.add(wikiFilePath);
     }
 
@@ -230,8 +234,8 @@ public class SearchIndex {
     @Contract(pure = true)
     @NotNull
     Set<String> getWordMapping(@NotNull String word) {
-        String wordPrefix = normalizeWord(word);
-        Set<String> wikiFilePaths = word2WikiFilePathMap.get(wordPrefix);
+        String normalizedWord = normalizeWord(word);
+        Set<String> wikiFilePaths = word2WikiFilePathMap.get(normalizedWord);
         if (wikiFilePaths == null) {
             wikiFilePaths = Collections.emptySet();
         }
@@ -302,7 +306,7 @@ public class SearchIndex {
     /**
      * For testing purpose only.
      */
-    void setLastUpdate(Date lastUpdate) {
+    void setLastUpdate(@Nullable Date lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
 

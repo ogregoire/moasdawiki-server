@@ -164,25 +164,19 @@ public class SearchIndexTest {
     }
 
     @Test
-    public void testAddWordMapping_Normalization() {
-        searchIndex.addWordMapping("Résumé", "/file/path1");
-        searchIndex.addWordMapping("Säure", "/file/path2");
-        assertEquals(searchIndex.getWord2WikiFilePathMap().keySet().size(), 2);
-        assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "resume");
-        assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "saure");
-    }
-
-    @Test
     public void testAddWordMappings() {
-        searchIndex.addWordMappings("a bc def ghij ignore1 12 123 4567", "/file/path");
-        assertEquals(searchIndex.getWord2WikiFilePathMap().keySet().size(), 7);
+        searchIndex.addNormalizedWordMappings("a ä bc BC def Def ghij Résumé Säure ignore1 IgNore1 12 123 4567", "/file/path");
+        assertEquals(searchIndex.getWord2WikiFilePathMap().keySet().size(), 9);
         assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "a");
         assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "bc");
         assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "def");
         assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "ghij");
+        assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "resume");
+        assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "saure");
         assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "12");
         assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "123");
         assertContainsKey(searchIndex.getWord2WikiFilePathMap(), "4567");
+        assertContainsKeyNot(searchIndex.getWord2WikiFilePathMap(), "ignore1");
     }
 
     @Test
@@ -235,6 +229,23 @@ public class SearchIndexTest {
             Set<String> words = Collections.emptySet();
             Set<String> filePaths = searchIndex.searchWikiFilePaths(words);
             assertIsEmpty(filePaths);
+        }
+    }
+
+    @Test
+    public void testSearchWikiFilePaths_IgnoreList() {
+        searchIndex.addWordMapping("word1", "/file/path1");
+        searchIndex.addWordMapping("ignore1", "/file/path2");
+        {
+            Set<String> words = Sets.newSet("ignore1");
+            Set<String> filePaths = searchIndex.searchWikiFilePaths(words);
+            assertIsEmpty(filePaths);
+        }
+        {
+            Set<String> words = Sets.newSet("ignore1", "word1");
+            Set<String> filePaths = searchIndex.searchWikiFilePaths(words);
+            assertEquals(filePaths.size(), 1);
+            assertContains(filePaths, "/file/path1");
         }
     }
 

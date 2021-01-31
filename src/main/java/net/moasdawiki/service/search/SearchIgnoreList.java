@@ -70,6 +70,7 @@ public class SearchIgnoreList {
 
     /**
      * Check if the given word is not on the ignore list.
+     * The word is not normalized.
      */
     @Contract(pure = true)
     public boolean isValidWord(@NotNull String word) {
