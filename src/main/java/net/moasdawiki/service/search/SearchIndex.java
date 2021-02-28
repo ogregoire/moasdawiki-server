@@ -236,9 +236,11 @@ public class SearchIndex {
     @NotNull
     Set<String> getWordMapping(@NotNull String word) {
         String normalizedWord = normalizeWord(word);
-        Set<String> wikiFilePaths = word2WikiFilePathMap.get(normalizedWord);
-        if (wikiFilePaths == null) {
-            wikiFilePaths = Collections.emptySet();
+        Set<String> wikiFilePaths = new HashSet<>();
+        for (String key : word2WikiFilePathMap.keySet()) {
+            if (key.startsWith(normalizedWord)) {
+                wikiFilePaths.addAll(word2WikiFilePathMap.get(key));
+            }
         }
         return wikiFilePaths;
     }

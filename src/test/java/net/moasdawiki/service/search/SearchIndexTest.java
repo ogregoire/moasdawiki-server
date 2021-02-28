@@ -185,7 +185,7 @@ public class SearchIndexTest {
         assertEquals(searchIndex.getWordMapping("abe").size(), 1);
         assertEquals(searchIndex.getWordMapping("ABE").size(), 1);
         assertEquals(searchIndex.getWordMapping("Äbé").size(), 1);
-        assertIsEmpty(searchIndex.getWordMapping("ab"));
+        assertEquals(searchIndex.getWordMapping("ab").size(), 1);
         assertIsEmpty(searchIndex.getWordMapping("abet"));
     }
 
