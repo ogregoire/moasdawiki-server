@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.2 (2021-02-28)
+
+- Find also words that start with the search string
+
 ## 2.5.1 (2021-01-31)
 
 - Bugfix: Add wiki page name to search index
