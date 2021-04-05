@@ -12,8 +12,7 @@ For documentation see https://moasdawiki.net/.
 
 - Easy usability
 - No installation required, can be unzipped and run on a USB stick
-- No special system requirements like database or application server
-- Runs on any system with a Java VM 1.8 or higher
+- Runs on any OS with a Java VM 1.8 or higher
 - [MoasdaWiki App](https://gitlab.com/moasdawiki/moasdawiki-app) available,
   always have a copy of the Wiki content on your mobile device
 - Data privacy by design: Stores content only on the local computer, never
@@ -36,6 +35,12 @@ For documentation see https://moasdawiki.net/.
 - Built-in lightweight web server, no external web server required
 - Stores pages as text files in a folder in the local file system;
   for backups just make a copy of that folder.
+
+## Screenshots
+
+<img src="images/Screenshot1.png" width="300" height="256" />
+<img src="images/Screenshot2.png" width="300" height="256" />
+<img src="images/Screenshot3.png" width="300" height="256" />
 
 ## Download / Build
 
