@@ -311,7 +311,7 @@ public class SearchService {
 		try {
 			return Pattern.compile(combined.toString());
 		} catch (Exception e) {
-			throw new ServiceException("Syntax error in regular search expression: " + combined.toString(), e);
+			throw new ServiceException("Syntax error in regular search expression: " + combined, e);
 		}
 	}
 

@@ -526,7 +526,7 @@ public class EditorHandler {
         writer.setContinueInNewLine();
         writer.openTag("script", "type=\"text/javascript\"");
         writer.htmlText("\n");
-        writer.htmlText("var templates = " + sb.toString() + ";\n");
+        writer.htmlText("var templates = " + sb + ";\n");
         writer.closeTag(); // script
     }
 
