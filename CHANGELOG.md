@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.5.3 (2021-05-11)
+
+- More strict XML parsing
+- Small code improvements
+
 ## 2.5.2 (2021-02-28)
 
 - Find also words that start with the search string
