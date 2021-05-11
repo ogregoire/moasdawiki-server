@@ -818,7 +818,11 @@ public class WikiParser {
 			return parseLink();
 		} else if (line.startsWith("{{", charsReadLine)) {
 			return parseWikiTag();
-		} else if (line.startsWith("<", charsReadLine) && !line.startsWith("< ", charsReadLine)) {
+		} else if (line.startsWith("<", charsReadLine)
+				&& line.length() - charsReadLine >= 2
+				&& (line.charAt(charsReadLine + 1) == '/'
+					|| Character.isLetter(line.charAt(charsReadLine + 1)))
+				&& line.indexOf('>', charsReadLine) >= 0) {
 			return parseXmlTag();
 		} else if (line.length() <= charsReadLine) {
 			// möglicher Zeilenumbruch
@@ -1316,11 +1320,16 @@ public class WikiParser {
 	}
 
 	/**
-	 * Liest ein XML-Tag ein.
+	 * Read an XML tag.
 	 * 
-	 * Ein XmlTag hat stets ein schließendes Tag und umschließt so einen
-	 * Textbereich. Abkürzend kann das Tag auch direkt geschlossen werden, wenn
-	 * es keinen Inhalt hat, z.B. &lt;tag /&gt;.
+	 * An XmlTag has an opening tag "&lt;tagname&gt;" and closing tag
+	 * "&lt;/tagname&gt;". It surrounds a text or XML content.
+	 * As a short hand notation a tag can be closed immediately:
+	 * &lt;tagname/&gt;
+	 *
+	 * XML tags are parsed strictly, i.e. the "&lt;" character must be followed
+	 * by a letter (no space or special character allowed). The "&gt;"
+	 * character must be in the same text line.
 	 */
 	@Nullable
 	private XmlTag parseXmlTag() throws IOException {
@@ -1609,7 +1618,7 @@ public class WikiParser {
 						|| (c == '%' && c2 == '%')
 						|| (c == '{' && c2 == '{')
 						|| (c == '[' && c2 == '[')
-						|| (c == '<' && c2 != ' ')) {
+						|| (c == '<' && endpos > charsReadLine)) {
 					break;
 				}
 			}

@@ -874,5 +874,29 @@ public class WikiParserTestInlineElements {
             assertEquals(xmlTag.getOptions().size(), 1);
             assertEquals(xmlTag.getOptions().get("attr1"), "value1");
         }
+        {
+            // not accepted XML syntax: no letter after "<"
+            String text = "< tag>";
+            PageElementList pel = new WikiParser(new StringReader(text)).parse();
+            Paragraph paragraph = (Paragraph) pel.get(0);
+            PageElementList paragraphChild = (PageElementList) paragraph.getChild();
+            assertTrue(paragraphChild.get(0) instanceof TextOnly);
+        }
+        {
+            // not accepted XML syntax: no letter after "<"
+            String text = "<-tag>";
+            PageElementList pel = new WikiParser(new StringReader(text)).parse();
+            Paragraph paragraph = (Paragraph) pel.get(0);
+            PageElementList paragraphChild = (PageElementList) paragraph.getChild();
+            assertTrue(paragraphChild.get(0) instanceof TextOnly);
+        }
+        {
+            // not accepted XML syntax: missing close tag
+            String text = "<tag";
+            PageElementList pel = new WikiParser(new StringReader(text)).parse();
+            Paragraph paragraph = (Paragraph) pel.get(0);
+            PageElementList paragraphChild = (PageElementList) paragraph.getChild();
+            assertTrue(paragraphChild.get(0) instanceof TextOnly);
+        }
     }
 }
