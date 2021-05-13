@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.0 (2021-05-13)
+
+- Make GPL-3.0-only licensing more clear
+
 ## 2.5.3 (2021-05-11)
 
 - More strict XML parsing
