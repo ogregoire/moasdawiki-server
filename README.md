@@ -144,7 +144,7 @@ If you have questions or any problems you can contact me via [support@moasdawiki
 
 ## License
 
-MoasdaWiki server is licensed under GPL-3.0-only &ndash; see the
+MoasdaWiki server is licensed under AGPL-3.0-only &ndash; see the
 [LICENSE](LICENSE) file for details.
 
 Copyright (C) Herbert Reiter
