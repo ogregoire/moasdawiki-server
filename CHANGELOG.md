@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.1 (2021-05-22)
+
+- Change License to AGPL-3.0-only
+
 ## 2.6.0 (2021-05-13)
 
 - Make GPL-3.0-only licensing more clear
