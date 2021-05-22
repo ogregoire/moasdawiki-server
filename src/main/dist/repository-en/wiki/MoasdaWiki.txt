@@ -61,4 +61,4 @@ The latest version is available at [[https://moasdawiki.net/]].
 
 {{version}}
 Copyright (c) 2008 - 2021 [[https://www.linkedin.com/in/herbert-reiter | Herbert Reiter]]
-''MoasdaWiki'' is under [[License | GNU General Public License]].
+''MoasdaWiki'' is under [[License | AGPL-3.0-only license]].
