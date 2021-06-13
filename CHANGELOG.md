@@ -3,6 +3,7 @@
 ## 2.6.2 (2021-06-13)
 
 - Syntax highlighting for ini code
+- Upgrade build dependencies
 
 ## 2.6.1 (2021-05-22)
 
