@@ -316,19 +316,21 @@ div.wikipage div.code span.code-xml-escaped-character {
 	color: #2A00FF;
 }
 
-div.wikipage div.code span.code-properties-comment {
+div.wikipage div.code span.code-properties-comment, div.wikipage div.code span.code-ini-comment {
 	color: #3F7F5F;
 }
 
-div.wikipage div.code span.code-properties-key {
-	
+div.wikipage div.code span.code-ini-section-bracket, div.wikipage div.code span.code-ini-section-name {
+	font-weight: bold;
 }
 
-div.wikipage div.code span.code-properties-delimiter {
-	
+div.wikipage div.code span.code-properties-key, div.wikipage div.code span.code-ini-key {
 }
 
-div.wikipage div.code span.code-properties-value {
+div.wikipage div.code span.code-properties-delimiter, div.wikipage div.code span.code-ini-delimiter {
+}
+
+div.wikipage div.code span.code-properties-value, div.wikipage div.code span.code-ini-value {
 	color: #2A00FF;
 }
 

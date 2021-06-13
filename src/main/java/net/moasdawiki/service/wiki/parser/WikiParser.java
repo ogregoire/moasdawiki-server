@@ -456,12 +456,14 @@ public class WikiParser {
 		}
 		int charsReadLine = lineReader.getCharsReadLine();
 
-		// Parameter aus Blockanfang auslesen
-		String language = null;
+		// Read content type parameter
+		Code.ContentType contentType = Code.ContentType.NONE;
 		if (line.startsWith("@@|", charsReadLine)) {
-			language = line.substring(charsReadLine + 3).trim(); // Rest der Zeile
-			if (language.isEmpty()) {
-				language = null; // keine Syntaxhervorhebung
+			String contentTypeStr = line.substring(charsReadLine + 3).trim(); // rest of line
+			try {
+				contentType = Code.ContentType.valueOf(contentTypeStr.toUpperCase());
+			} catch (IllegalArgumentException e) {
+				// ignore invalid value
 			}
 		}
 		lineReader.nextLine(); // Zeile mit "@@" konsumieren
@@ -492,7 +494,7 @@ public class WikiParser {
 		}
 		int toPos = lineReader.getCharsReadTotal();
 
-		return new Code(language, s.toString(), fromPos, toPos);
+		return new Code(contentType, s.toString(), fromPos, toPos);
 	}
 
 	/**

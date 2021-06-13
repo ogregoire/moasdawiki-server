@@ -258,35 +258,41 @@ public class WikiPage2HtmlTest {
     @Test
     public void testGenerateCode() {
         {
-            PageElement contentPage = new Code(null, "final", null, null);
+            PageElement contentPage = new Code(Code.ContentType.NONE, "final", null, null);
             String html = convertPageElement(contentPage);
             assertEquals(html, "<div class=\"code\">final</div>");
         }
         {
-            PageElement contentPage = new Code(null, "text&with<special\nchars\tetc", null, null);
+            PageElement contentPage = new Code(Code.ContentType.NONE, "text&with<special\nchars\tetc", null, null);
             String html = convertPageElement(contentPage);
             assertEquals(html, "<div class=\"code\">text&amp;with&lt;special<br>\n" +
                     "chars&nbsp;etc</div>");
         }
         {
-            PageElement contentPage = new Code("java", "final", null, null);
+            PageElement contentPage = new Code(Code.ContentType.HTML, "<tag>", null, null);
+            String html = convertPageElement(contentPage);
+            assertEquals(html, "<div class=\"code\"><span class=\"code-xml-tag\">&lt;tag&gt;</span></div>");
+        }
+        {
+            PageElement contentPage = new Code(Code.ContentType.INI, "[section]\na=b", null, null);
+            String html = convertPageElement(contentPage);
+            assertEquals(html, "<div class=\"code\"><span class=\"code-ini-section-bracket\">[</span><span class=\"code-ini-section-name\">section</span><span class=\"code-ini-section-bracket\">]</span><br>\n" +
+                    "<span class=\"code-ini-key\">a</span><span class=\"code-ini-delimiter\">=</span><span class=\"code-ini-value\">b</span></div>");
+        }
+        {
+            PageElement contentPage = new Code(Code.ContentType.JAVA, "final", null, null);
             String html = convertPageElement(contentPage);
             assertEquals(html, "<div class=\"code\"><span class=\"code-java-keyword\">final</span></div>");
         }
         {
-            PageElement contentPage = new Code("html", "<tag>", null, null);
-            String html = convertPageElement(contentPage);
-            assertEquals(html, "<div class=\"code\"><span class=\"code-xml-tag\">&lt;tag&gt;</span></div>");
-        }
-        {
-            PageElement contentPage = new Code("xml", "<tag>", null, null);
-            String html = convertPageElement(contentPage);
-            assertEquals(html, "<div class=\"code\"><span class=\"code-xml-tag\">&lt;tag&gt;</span></div>");
-        }
-        {
-            PageElement contentPage = new Code("properties", "a=b", null, null);
+            PageElement contentPage = new Code(Code.ContentType.PROPERTIES, "a=b", null, null);
             String html = convertPageElement(contentPage);
             assertEquals(html, "<div class=\"code\"><span class=\"code-properties-key\">a</span><span class=\"code-properties-delimiter\">=</span><span class=\"code-properties-value\">b</span></div>");
+        }
+        {
+            PageElement contentPage = new Code(Code.ContentType.XML, "<tag>", null, null);
+            String html = convertPageElement(contentPage);
+            assertEquals(html, "<div class=\"code\"><span class=\"code-xml-tag\">&lt;tag&gt;</span></div>");
         }
     }
 

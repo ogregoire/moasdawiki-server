@@ -445,17 +445,26 @@ public class WikiPage2Html {
 		}
 
 		String formattedCode;
-		if ("Java".equalsIgnoreCase(code.getLanguage())) {
-			JavaFormatter javaFormatter = new JavaFormatter(code.getText());
-			formattedCode = javaFormatter.format();
-		} else if ("HTML".equalsIgnoreCase(code.getLanguage()) || "XML".equalsIgnoreCase(code.getLanguage())) {
-			XmlFormatter xmlFormatter = new XmlFormatter(code.getText());
-			formattedCode = xmlFormatter.format();
-		} else if ("properties".equalsIgnoreCase(code.getLanguage())) {
-			PropertiesFormatter propertiesFormatter = new PropertiesFormatter(code.getText());
-			formattedCode = propertiesFormatter.format();
-		} else {
-			formattedCode = formatCode(code.getText());
+		switch (code.getContentType()) {
+			case JAVA:
+				JavaFormatter javaFormatter = new JavaFormatter(code.getText());
+				formattedCode = javaFormatter.format();
+				break;
+			case HTML:
+			case XML:
+				XmlFormatter xmlFormatter = new XmlFormatter(code.getText());
+				formattedCode = xmlFormatter.format();
+				break;
+			case PROPERTIES:
+				PropertiesFormatter propertiesFormatter = new PropertiesFormatter(code.getText());
+				formattedCode = propertiesFormatter.format();
+				break;
+			case INI:
+				IniFormatter iniFormatter = new IniFormatter(code.getText());
+				formattedCode = iniFormatter.format();
+				break;
+			default:
+				formattedCode = formatCode(code.getText());
 		}
 		writer.htmlText(formattedCode);
 

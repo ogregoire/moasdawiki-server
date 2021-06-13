@@ -199,7 +199,7 @@ public class WikiParserTestBlockElements {
             assertEquals(pel.size(), 1);
             assertTrue(pel.get(0) instanceof Code);
             Code code = (Code) pel.get(0);
-            assertNull(code.getLanguage());
+            assertEquals(code.getContentType(), Code.ContentType.NONE);
             assertEquals(code.getText(), "code line");
         }
         {
@@ -212,7 +212,7 @@ public class WikiParserTestBlockElements {
             assertEquals(pel.size(), 1);
             assertTrue(pel.get(0) instanceof Code);
             Code code = (Code) pel.get(0);
-            assertNull(code.getLanguage());
+            assertEquals(code.getContentType(), Code.ContentType.NONE);
             assertEquals(code.getText(), "code line 1\ncode line 2");
         }
         {
@@ -224,7 +224,7 @@ public class WikiParserTestBlockElements {
             assertEquals(pel.size(), 1);
             assertTrue(pel.get(0) instanceof Code);
             Code code = (Code) pel.get(0);
-            assertEquals(code.getLanguage(), "java");
+            assertEquals(code.getContentType(), Code.ContentType.JAVA);
             assertEquals(code.getText(), "code line");
         }
     }

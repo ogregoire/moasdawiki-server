@@ -23,53 +23,42 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Enthält Programmcode einer Programmiersprache oder beliebigen anderen
- * vorformatierten Text.<br>
- * <br>
- * Wenn der Name der Programmiersprache angegeben wurde und für diese die
- * Hervorhebungsregeln bekannt sind, werden bestimmte Schlüsselwörter und
- * Sprachelemente beim Rendern automatisch formatiert. Die Darstellung erfolgt
- * stets mit dicktengleicher Schrift, Zeilenumbrüche werden beibehalten.<br>
- * <br>
- * Der anzuzeigende Text wird grundsätzlich voll escaped, d.h. Wikikommandos
- * oder HTML werden keinesfalls interpretiert. Wenn Wikikommandos benutzt werden
- * sollen, muss stattdessen die Inlinevariante <code>@@...@@</code> verwendet
- * werden.
+ * Contains a programming language code snippet or any other preformatted text.
+ *
+ * The text is displayed with a monospaced font, line breaks are retained.
+ * For some content types there is also syntax highlighting.
+ *
+ * The content will be fully escaped, wiki commands or HTML tags are NOT
+ * interpreted.
  */
 public class Code extends PageElement {
 	/**
-	 * Name der Programmiersprache.
-	 * <code>null</code> --> keine Syntaxhervorhebung.
+	 * Name of the programming language or content type for syntax
+	 * highlighting.
 	 */
-	@Nullable
-	private final String language;
+	private final ContentType contentType;
 
 	/**
-	 * Programmcode, der dargestellt werden soll.
+	 * Content text.
 	 */
 	@NotNull
 	private final String text;
 
-	public Code(@Nullable String language, @NotNull String text, @Nullable Integer fromPos, @Nullable Integer toPos) {
+	/**
+	 * Constructor.
+	 */
+	public Code(ContentType contentType, @NotNull String text, @Nullable Integer fromPos, @Nullable Integer toPos) {
 		super();
-		this.language = language;
+		this.contentType = contentType;
 		this.text = text;
 		this.fromPos = fromPos;
 		this.toPos = toPos;
 	}
 
-	/**
-	 * Gibt den Namen der Programmiersprache zurück.
-	 * <code>null</code> --> keine Syntaxhervorhebung.
-	 */
-	@Nullable
-	public String getLanguage() {
-		return language;
+	public ContentType getContentType() {
+		return contentType;
 	}
 
-	/**
-	 * Gibt den Programmcode zurück.
-	 */
 	@NotNull
 	public String getText() {
 		return text;
@@ -81,6 +70,13 @@ public class Code extends PageElement {
 
 	@NotNull
 	public PageElement clonePageElement() {
-		return new Code(language, text, fromPos, toPos);
+		return new Code(contentType, text, fromPos, toPos);
+	}
+
+	/**
+	 * Supported content types for syntax highlighting.
+	 */
+	public enum ContentType {
+		NONE, HTML, INI, JAVA, PROPERTIES, XML
 	}
 }
