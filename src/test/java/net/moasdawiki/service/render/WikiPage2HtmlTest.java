@@ -274,10 +274,9 @@ public class WikiPage2HtmlTest {
             assertEquals(html, "<div class=\"code\"><span class=\"code-xml-tag\">&lt;tag&gt;</span></div>");
         }
         {
-            PageElement contentPage = new Code(Code.ContentType.INI, "[section]\na=b", null, null);
+            PageElement contentPage = new Code(Code.ContentType.INI, "a=b", null, null);
             String html = convertPageElement(contentPage);
-            assertEquals(html, "<div class=\"code\"><span class=\"code-ini-section-bracket\">[</span><span class=\"code-ini-section-name\">section</span><span class=\"code-ini-section-bracket\">]</span><br>\n" +
-                    "<span class=\"code-ini-key\">a</span><span class=\"code-ini-delimiter\">=</span><span class=\"code-ini-value\">b</span></div>");
+            assertEquals(html, "<div class=\"code\"><span class=\"code-ini-key\">a</span><span class=\"code-ini-delimiter\">=</span><span class=\"code-ini-value\">b</span></div>");
         }
         {
             PageElement contentPage = new Code(Code.ContentType.JAVA, "final", null, null);

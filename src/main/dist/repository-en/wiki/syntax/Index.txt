@@ -96,7 +96,7 @@ Programming language code can also be formatted.
 </root>
 @@
 
-Syntax highlighting currently available for: XML, HTML, Java, Properties
+Syntax highlighting currently available for: XML, HTML, Java, Properties, Ini
 |@@%%@@%%
 Programming language code can also be formatted.
 {{html}}&nbsp;&nbsp;{{/html}}Indentions
@@ -111,7 +111,7 @@ Programming language code can also be formatted.
 %%</root>%%
 %%@@%%@@
 
-Syntax highlighting currently available for: XML, HTML, Java, Properties
+Syntax highlighting currently available for: XML, HTML, Java, Properties, Ini
 |-
 |}
 

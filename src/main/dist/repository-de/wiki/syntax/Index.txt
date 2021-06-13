@@ -96,7 +96,7 @@ Programmcode kann auch angegeben werden.
 </wurzel>
 @@
 
-Syntaxhervorhebung derzeit verfügbar für: XML, HTML, Java, Properties
+Syntaxhervorhebung derzeit verfügbar für: XML, HTML, Java, Properties, Ini
 |@@%%@@%%
 Programmcode kann auch angegeben werden.
 {{html}}&nbsp;&nbsp;{{/html}}Einzüge
@@ -111,7 +111,7 @@ Programmcode kann auch angegeben werden.
 %%</wurzel>%%
 %%@@%%@@
 
-Syntaxhervorhebung derzeit verfügbar für: XML, HTML, Java, Properties
+Syntaxhervorhebung derzeit verfügbar für: XML, HTML, Java, Properties, Ini
 |-
 |}
 
