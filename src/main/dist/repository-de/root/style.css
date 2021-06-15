@@ -282,56 +282,36 @@ div.wikipage div.code {
 	padding: 3px;
 }
 
-div.wikipage div.code span.code-java-comment {
-	color: #3F7F5F;
-}
-
-div.wikipage div.code span.code-java-keyword {
-	color: #7F0055;
-	font-weight: bold;
-}
-
-div.wikipage div.code span.code-java-string {
-	color: #0000FF;
-}
-
-div.wikipage div.code span.code-xml-comment {
-	color: #3F5FBF;
-}
-
-div.wikipage div.code span.code-xml-tag {
-	color: #3F7F7F;
-}
-
-div.wikipage div.code span.code-xml-attribute-name {
-	color: #7F007F;
-}
-
-div.wikipage div.code span.code-xml-attribute-value {
-	color: #2A00FF;
+div.wikipage div.code span.code-java-comment, div.wikipage div.code span.code-xml-comment,
+div.wikipage div.code span.code-properties-comment, div.wikipage div.code span.code-ini-comment,
+div.wikipage div.code span.code-yaml-comment {
+	color: #8C8C8C;
 	font-style: italic;
 }
 
+div.wikipage div.code span.code-java-keyword,
+div.wikipage div.code span.code-xml-tag, div.wikipage div.code span.code-xml-attribute-name,
+div.wikipage div.code span.code-ini-key,
+div.wikipage div.code span.code-properties-key,
+div.wikipage div.code span.code-yaml-key {
+	color: #0033B3;
+}
+
+div.wikipage div.code span.code-java-string,
+div.wikipage div.code span.code-xml-attribute-value,
+div.wikipage div.code span.code-ini-value,
+div.wikipage div.code span.code-properties-value,
+div.wikipage div.code span.code-yaml-value {
+	color: #067D17;
+}
+
 div.wikipage div.code span.code-xml-escaped-character {
-	color: #2A00FF;
+	color: #174BE6;
 }
 
-div.wikipage div.code span.code-properties-comment, div.wikipage div.code span.code-ini-comment {
-	color: #3F7F5F;
-}
-
-div.wikipage div.code span.code-ini-section-bracket, div.wikipage div.code span.code-ini-section-name {
+div.wikipage div.code span.code-ini-section-bracket, div.wikipage div.code span.code-ini-section-name,
+div.wikipage div.code span.code-yaml-document-separator {
 	font-weight: bold;
-}
-
-div.wikipage div.code span.code-properties-key, div.wikipage div.code span.code-ini-key {
-}
-
-div.wikipage div.code span.code-properties-delimiter, div.wikipage div.code span.code-ini-delimiter {
-}
-
-div.wikipage div.code span.code-properties-value, div.wikipage div.code span.code-ini-value {
-	color: #2A00FF;
 }
 
 @media print {
@@ -356,10 +336,6 @@ div.wikipage .directory2 {
 
 div.wikipage .directory3 {
 	margin-left: 60px;
-}
-
-div.wikipage .paragraph0 {
-	
 }
 
 div.wikipage .paragraph1 {

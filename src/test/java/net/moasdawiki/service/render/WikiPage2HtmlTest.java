@@ -293,6 +293,11 @@ public class WikiPage2HtmlTest {
             String html = convertPageElement(contentPage);
             assertEquals(html, "<div class=\"code\"><span class=\"code-xml-tag\">&lt;tag&gt;</span></div>");
         }
+        {
+            PageElement contentPage = new Code(Code.ContentType.YAML, "name", null, null);
+            String html = convertPageElement(contentPage);
+            assertEquals(html, "<div class=\"code\"><span class=\"code-yaml-key\">name</span></div>");
+        }
     }
 
     @Test

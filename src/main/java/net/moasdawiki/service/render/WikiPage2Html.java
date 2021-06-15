@@ -463,6 +463,10 @@ public class WikiPage2Html {
 				IniFormatter iniFormatter = new IniFormatter(code.getText());
 				formattedCode = iniFormatter.format();
 				break;
+			case YAML:
+				YamlFormatter yamlFormatter = new YamlFormatter(code.getText());
+				formattedCode = yamlFormatter.format();
+				break;
 			default:
 				formattedCode = formatCode(code.getText());
 		}

@@ -77,6 +77,6 @@ public class Code extends PageElement {
 	 * Supported content types for syntax highlighting.
 	 */
 	public enum ContentType {
-		NONE, HTML, INI, JAVA, PROPERTIES, XML
+		NONE, HTML, INI, JAVA, PROPERTIES, XML, YAML
 	}
 }
