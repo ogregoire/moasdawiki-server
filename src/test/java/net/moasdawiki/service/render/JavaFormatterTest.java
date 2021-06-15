@@ -98,4 +98,10 @@ public class JavaFormatterTest {
         String formatted = new JavaFormatter("'c'").format();
         assertEquals(formatted, "<span class=\"code-java-string\">&apos;c&apos;</span>");
     }
+
+    @Test
+    public void testFormatAnnotation() {
+        String formatted = new JavaFormatter("@Annotation()").format();
+        assertEquals(formatted, "<span class=\"code-java-annotation\">@Annotation</span>()");
+    }
 }

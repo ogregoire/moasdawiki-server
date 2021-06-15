@@ -84,6 +84,11 @@ public class JavaFormatter {
                     sb.append(escapeAndFormatHtml(token.tokenStr));
                     sb.append("</span>");
                     break;
+                case ANNOTATION:
+                    sb.append("<span class=\"code-java-annotation\">");
+                    sb.append(escapeAndFormatHtml(token.tokenStr));
+                    sb.append("</span>");
+                    break;
                 default:
                     sb.append(escapeAndFormatHtml(token.tokenStr));
             }
@@ -114,6 +119,7 @@ public class JavaFormatter {
         StringBuilder identifier = null;
         StringBuilder comment = null;
         StringBuilder string = null;
+        StringBuilder annotation = null;
         char stringQuote = '\0'; // '"' only if string != null
 
         while (readCount < codeText.length()) {
@@ -141,15 +147,28 @@ public class JavaFormatter {
                 // String stops at line end
                 readCount--; // don't consume line break yet
                 return new Token(string.toString(), TokenType.STRING);
-            } else if (string != null && ch == stringQuote) {
+            }
+            else if (string != null && ch == stringQuote) {
                 // end of String
                 string.append(ch);
                 return new Token(string.toString(), TokenType.STRING);
-            } else if (string != null) {
+            }
+            else if (string != null) {
                 string.append(ch);
                 if (ch == '\\' && chLookahead != '\0') {
                     string.append(chLookahead);
                     readCount++; // consume also next character
+                }
+            }
+
+            // inside annotation
+            else if (annotation != null) {
+                if (!Character.isJavaIdentifierPart(ch)) {
+                    // end of annotation
+                    readCount--; // don't consume line break yet
+                    return new Token(annotation.toString(), TokenType.ANNOTATION);
+                } else {
+                    annotation.append(ch);
                 }
             }
 
@@ -163,21 +182,25 @@ public class JavaFormatter {
                 readCount++; // consume also second character
                 insideMultilineComment = false;
                 return new Token(comment.toString(), TokenType.COMMENT);
-            } else if (insideMultilineComment && comment != null && ch == '\n') {
+            }
+            else if (insideMultilineComment && comment != null && ch == '\n') {
                 // end of line
                 readCount--; // don't consume line break yet
                 return new Token(comment.toString(), TokenType.COMMENT);
-            } else if (insideMultilineComment && ch != '\n') {
+            }
+            else if (insideMultilineComment && ch != '\n') {
                 // multi-line comment continues
                 if (comment == null) {
                     comment = new StringBuilder();
                 }
                 comment.append(ch);
-            } else if (!insideMultilineComment && comment != null && ch == '\n') {
+            }
+            else if (!insideMultilineComment && comment != null && ch == '\n') {
                 // end of single-line comment
                 readCount--; // don't consume line break yet
                 return new Token(comment.toString(), TokenType.COMMENT);
-            } else if (!insideMultilineComment && comment != null) {
+            }
+            else if (!insideMultilineComment && comment != null) {
                 // single-line comment continues
                 comment.append(ch);
             }
@@ -185,19 +208,14 @@ public class JavaFormatter {
             // begin of comment
             else if (ch == '/' && chLookahead == '*') {
                 // begin of multi-line comment
-                //noinspection ConstantConditions
-                if (comment == null) {
-                    comment = new StringBuilder();
-                }
+                comment = new StringBuilder();
                 comment.append("/*");
                 readCount++; // consume also second character
                 insideMultilineComment = true;
-            } else if (ch == '/' && chLookahead == '/') {
+            }
+            else if (ch == '/' && chLookahead == '/') {
                 // begin of single-line comment
-                //noinspection ConstantConditions
-                if (comment == null) {
-                    comment = new StringBuilder();
-                }
+                comment = new StringBuilder();
                 comment.append(ch);
             }
 
@@ -211,12 +229,15 @@ public class JavaFormatter {
 
             // begin of Java String
             else if (ch == '\"' || ch == '\'') {
-                //noinspection ConstantConditions
-                if (string == null) {
-                    string = new StringBuilder();
-                    stringQuote = ch;
-                }
+                string = new StringBuilder();
                 string.append(ch);
+                stringQuote = ch;
+            }
+
+            // begin of annotation
+            else if (ch == '@') {
+                annotation = new StringBuilder();
+                annotation.append(ch);
             }
 
             // other characters
@@ -245,7 +266,7 @@ public class JavaFormatter {
      * Token type
      */
     private enum TokenType {
-        COMMENT, IDENTIFIER, STRING, LINE_BREAK, ANY
+        COMMENT, IDENTIFIER, STRING, LINE_BREAK, ANNOTATION, ANY
     }
 
     /**

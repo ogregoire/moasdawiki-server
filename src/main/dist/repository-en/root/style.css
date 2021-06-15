@@ -314,6 +314,10 @@ div.wikipage div.code span.code-yaml-document-separator {
 	font-weight: bold;
 }
 
+div.wikipage div.code span.code-java-annotation {
+    color: #9E880D;
+}
+
 @media print {
 	div.wikipage div.code {
 		border: 1px dotted black;
