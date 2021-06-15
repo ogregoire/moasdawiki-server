@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.6.3 (2021-06-15)
+
+- Syntax highlighting for YAML code
+- Extend Java syntax highlighting for annotations
+- Improve XML and HTML syntax highlighting
+
 ## 2.6.2 (2021-06-13)
 
 - Syntax highlighting for ini code
