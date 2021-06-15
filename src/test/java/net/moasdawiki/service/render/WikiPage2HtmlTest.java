@@ -271,7 +271,7 @@ public class WikiPage2HtmlTest {
         {
             PageElement contentPage = new Code(Code.ContentType.HTML, "<tag>", null, null);
             String html = convertPageElement(contentPage);
-            assertEquals(html, "<div class=\"code\"><span class=\"code-xml-tag\">&lt;tag&gt;</span></div>");
+            assertEquals(html, "<div class=\"code\"><span class=\"code-xml-special-character\">&lt;</span><span class=\"code-xml-tag\">tag</span><span class=\"code-xml-special-character\">&gt;</span></div>");
         }
         {
             PageElement contentPage = new Code(Code.ContentType.INI, "a=b", null, null);
@@ -291,7 +291,7 @@ public class WikiPage2HtmlTest {
         {
             PageElement contentPage = new Code(Code.ContentType.XML, "<tag>", null, null);
             String html = convertPageElement(contentPage);
-            assertEquals(html, "<div class=\"code\"><span class=\"code-xml-tag\">&lt;tag&gt;</span></div>");
+            assertEquals(html, "<div class=\"code\"><span class=\"code-xml-special-character\">&lt;</span><span class=\"code-xml-tag\">tag</span><span class=\"code-xml-special-character\">&gt;</span></div>");
         }
         {
             PageElement contentPage = new Code(Code.ContentType.YAML, "name", null, null);

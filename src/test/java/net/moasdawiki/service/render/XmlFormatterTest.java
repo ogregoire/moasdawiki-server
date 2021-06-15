@@ -65,12 +65,12 @@ public class XmlFormatterTest {
         {
             String xml = "<tag>";
             String result = new XmlFormatter(xml).format();
-            assertEquals(result, "<span class=\"code-xml-tag\">&lt;tag&gt;</span>");
+            assertEquals(result, "<span class=\"code-xml-special-character\">&lt;</span><span class=\"code-xml-tag\">tag</span><span class=\"code-xml-special-character\">&gt;</span>");
         }
         {
             String xml = "</tag>";
             String result = new XmlFormatter(xml).format();
-            assertEquals(result, "<span class=\"code-xml-tag\">&lt;/tag&gt;</span>");
+            assertEquals(result, "<span class=\"code-xml-special-character\">&lt;</span><span class=\"code-xml-special-character\">/</span><span class=\"code-xml-tag\">tag</span><span class=\"code-xml-special-character\">&gt;</span>");
         }
     }
 
@@ -79,17 +79,17 @@ public class XmlFormatterTest {
         {
             String xml = "<tag attr=value>";
             String result = new XmlFormatter(xml).format();
-            assertEquals(result, "<span class=\"code-xml-tag\">&lt;tag</span>&nbsp;<span class=\"code-xml-attribute-name\">attr</span>=<span class=\"code-xml-attribute-value\">value</span><span class=\"code-xml-tag\">&gt;</span>");
+            assertEquals(result, "<span class=\"code-xml-special-character\">&lt;</span><span class=\"code-xml-tag\">tag</span>&nbsp;<span class=\"code-xml-attribute-name\">attr</span><span class=\"code-xml-special-character\">=</span><span class=\"code-xml-attribute-value\">value</span><span class=\"code-xml-special-character\">&gt;</span>");
         }
         {
             String xml = "<tag attr>";
             String result = new XmlFormatter(xml).format();
-            assertEquals(result, "<span class=\"code-xml-tag\">&lt;tag</span>&nbsp;<span class=\"code-xml-attribute-name\">attr</span><span class=\"code-xml-tag\">&gt;</span>");
+            assertEquals(result, "<span class=\"code-xml-special-character\">&lt;</span><span class=\"code-xml-tag\">tag</span>&nbsp;<span class=\"code-xml-attribute-name\">attr</span><span class=\"code-xml-special-character\">&gt;</span>");
         }
         {
             String xml = "<tag attr1=\"value1\" attr2='value2'>";
             String result = new XmlFormatter(xml).format();
-            assertEquals(result, "<span class=\"code-xml-tag\">&lt;tag</span>&nbsp;<span class=\"code-xml-attribute-name\">attr1</span>=<span class=\"code-xml-attribute-value\">&quot;value1&quot;</span>&nbsp;<span class=\"code-xml-attribute-name\">attr2</span>=<span class=\"code-xml-attribute-value\">&apos;value2&apos;</span><span class=\"code-xml-tag\">&gt;</span>");
+            assertEquals(result, "<span class=\"code-xml-special-character\">&lt;</span><span class=\"code-xml-tag\">tag</span>&nbsp;<span class=\"code-xml-attribute-name\">attr1</span><span class=\"code-xml-special-character\">=</span><span class=\"code-xml-attribute-value\">&quot;value1&quot;</span>&nbsp;<span class=\"code-xml-attribute-name\">attr2</span><span class=\"code-xml-special-character\">=</span><span class=\"code-xml-attribute-value\">&apos;value2&apos;</span><span class=\"code-xml-special-character\">&gt;</span>");
         }
     }
 
@@ -112,19 +112,17 @@ public class XmlFormatterTest {
         {
             String xml = "<!DOCTYPE xml>";
             String result = new XmlFormatter(xml).format();
-            assertEquals(result, "<span class=\"code-xml-tag\">&lt;!DOCTYPE&nbsp;xml&gt;</span>");
+            assertEquals(result, "<span class=\"code-xml-special-character\">&lt;</span><span class=\"code-xml-special-character\">!</span><span class=\"code-xml-tag\">DOCTYPE</span>&nbsp;<span class=\"code-xml-attribute-name\">xml</span><span class=\"code-xml-special-character\">&gt;</span>");
         }
         {
-            String xml = "<!DOCTYPE\n"
-                    + "xml>";
+            String xml = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">";
             String result = new XmlFormatter(xml).format();
-            assertEquals(result, "<span class=\"code-xml-tag\">&lt;!DOCTYPE</span><br>\n"
-                    + "<span class=\"code-xml-tag\">xml&gt;</span>");
+            assertEquals(result, "<span class=\"code-xml-special-character\">&lt;</span><span class=\"code-xml-special-character\">!</span><span class=\"code-xml-tag\">DOCTYPE</span>&nbsp;<span class=\"code-xml-attribute-name\">HTML</span>&nbsp;<span class=\"code-xml-attribute-name\">PUBLIC</span>&nbsp;<span class=\"code-xml-attribute-value\">&quot;-//W3C//DTD&nbsp;HTML&nbsp;4.01&nbsp;Transitional//EN&quot;</span><span class=\"code-xml-special-character\">&gt;</span>");
         }
         {
             String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
             String result = new XmlFormatter(xml).format();
-            assertEquals(result, "<span class=\"code-xml-tag\">&lt;?xml</span>&nbsp;<span class=\"code-xml-attribute-name\">version</span>=<span class=\"code-xml-attribute-value\">&quot;1.0&quot;</span>&nbsp;<span class=\"code-xml-attribute-name\">encoding</span>=<span class=\"code-xml-attribute-value\">&quot;UTF-8&quot;</span><span class=\"code-xml-tag\">?&gt;</span>");
+            assertEquals(result, "<span class=\"code-xml-special-character\">&lt;</span><span class=\"code-xml-special-character\">?</span><span class=\"code-xml-tag\">xml</span>&nbsp;<span class=\"code-xml-attribute-name\">version</span><span class=\"code-xml-special-character\">=</span><span class=\"code-xml-attribute-value\">&quot;1.0&quot;</span>&nbsp;<span class=\"code-xml-attribute-name\">encoding</span><span class=\"code-xml-special-character\">=</span><span class=\"code-xml-attribute-value\">&quot;UTF-8&quot;</span><span class=\"code-xml-special-character\">?</span><span class=\"code-xml-special-character\">&gt;</span>");
         }
     }
 
