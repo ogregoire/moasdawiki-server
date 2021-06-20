@@ -2,7 +2,7 @@ Source: moasdawiki
 Section: utils
 Priority: optional
 Maintainer: Herbert Reiter <support@moasdawiki.net>
-Build-Depends: debhelper (= 13)
+Build-Depends: debhelper (>= 13~)
 Standards-Version: 4.5.0
 Homepage: https://moasdawiki.net/
 Vcs-Browser: https://gitlab.com/moasdawiki/moasdawiki-server
