@@ -1,0 +1,3 @@
+build/libs/moasdawiki*.jar /usr/lib/moasdawiki
+installer/linux/moasdawiki.sh /usr/lib/moasdawiki
+src/main/dist/* /usr/lib/moasdawiki

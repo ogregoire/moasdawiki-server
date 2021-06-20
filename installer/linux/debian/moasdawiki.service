@@ -4,8 +4,8 @@ Description=MoasdaWiki
 [Service]
 Type=forking
 TimeoutStartSec=0
-ExecStart=/path/to/moasdawiki.sh start
-ExecStop=/path/to/moasdawiki.sh stop
+ExecStart=/usr/lib/moasdawiki/moasdawiki.sh start
+ExecStop=/usr/lib/moasdawiki/moasdawiki.sh stop
 PIDFile=/var/run/moasdawiki.pid
 
 [Install]

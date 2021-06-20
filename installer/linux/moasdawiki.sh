@@ -2,9 +2,6 @@
 #
 # MoasdaWiki Server
 #
-# Script to run MoasdaWiki server as Linux daemon.
-# See README.md for installation tutorial.
-#
 # Copyright (C) 2008 - 2021 Herbert Reiter (herbert@moasdawiki.net)
 #
 # This program is free software: you can redistribute it and/or modify it
@@ -21,15 +18,12 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 #
 
-MOASDAWIKI_USER=youruser
-MOASDAWIKI_HOME=/home/$MOASDAWIKI_USER/moasdawiki            # folder containing MoasdaWiki.jar
-MOASDAWIKI_REPOSITORY=$MOASDAWIKI_HOME/repository-en         # repository folder, change language on demand
-MOASDAWIKI_JAR=$MOASDAWIKI_HOME/moasdawiki-server-2.x.y.jar  # JAR file name, replace version string
-JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre              # binary folder of JRE
-JSVC_HOME=/usr/bin                                           # binary folder of jsvc
-COMMONS_DAEMON_JAR=/usr/share/java/commons-daemon.jar        # path to commons-daemon.jar
-CLASSPATH=$COMMONS_DAEMON_JAR:$MOASDAWIKI_JAR
+MOASDAWIKI_USER=masdawiki
+JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+COMMONS_DAEMON_JAR=/usr/share/java/commons-daemon.jar
+MOASDAWIKI_JAR=/usr/lib/moasdawiki/moasdawiki-server-${version}.jar
 PID_FILE=/var/run/moasdawiki.pid
+MOASDAWIKI_REPOSITORY=/srv/moasdawiki/repository
 
 export LANG=de_DE.UTF-8
 export LC_ALL=de_DE.UTF-8
@@ -38,13 +32,13 @@ case "$1" in
   start)
     echo Starting MoasdaWiki server ...
 
-    $JSVC_HOME/jsvc \
+    /usr/bin/jsvc \
     -user $MOASDAWIKI_USER \
     -home $JAVA_HOME \
-    -cp $CLASSPATH \
+    -cp $COMMONS_DAEMON_JAR:$MOASDAWIKI_JAR \
     -pidfile $PID_FILE \
-    -outfile $MOASDAWIKI_HOME/outfile \
-    -errfile $MOASDAWIKI_HOME/errfile \
+    -outfile /var/log/moasdawiki/outfile.log \
+    -errfile /var/log/moasdawiki/errfile.log \
     -Duser.country=DE -Duser.language=de -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 \
     net.moasdawiki.MainService $MOASDAWIKI_REPOSITORY
 
@@ -54,7 +48,7 @@ case "$1" in
   stop)
     echo Shutdown MoasdaWiki server ...
 
-    $JSVC_HOME/jsvc \
+    /usr/bin/jsvc \
     -stop \
     -pidfile $PID_FILE \
     net.moasdawiki.MainService

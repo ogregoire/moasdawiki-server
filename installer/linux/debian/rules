@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+# see FEATURE AREAS in dpkg-buildflags(1)
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@ --no-parallel
+
+# Avoid dwz warning
+override_dh_dwz:

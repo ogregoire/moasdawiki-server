@@ -1,0 +1,17 @@
+Source: moasdawiki
+Section: utils
+Priority: optional
+Maintainer: Herbert Reiter <support@moasdawiki.net>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.5.0
+Homepage: https://moasdawiki.net/
+Vcs-Browser: https://gitlab.com/moasdawiki/moasdawiki-server
+Vcs-Git: https://gitlab.com/moasdawiki/moasdawiki-server.git
+Rules-Requires-Root: no
+
+Package: moasdawiki
+Architecture: any
+Depends: adduser, jsvc, openjdk-11-jre-headless, ${shlibs:Depends}, ${misc:Depends}
+Description: Privacy-Friendly Knowledge Management Tool
+ Privacy-friendly and interactive knowledge management tool. It provides a
+ browser-based GUI to search, create, and modify content in Wiki style.
