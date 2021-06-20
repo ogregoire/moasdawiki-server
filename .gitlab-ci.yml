@@ -1,25 +1,28 @@
-image: java:8-jdk
-
 include:
   - template: Dependency-Scanning.gitlab-ci.yml
 
-before_script:
-  - echo `pwd`
-  - export GRADLE_USER_HOME=`pwd`/.gradle
-  - chmod +x ./gradlew
-
-after_script:
-  - echo "CI finished"
-
 stages:
-  - build
   - test
+  - release
 
-build:
+release:
   stage: build
+  image: debian:buster
   script:
+    - apt-get -y update
+    - apt-get -y install curl gnupg2 software-properties-common fakeroot
+    - curl https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key add -
+    - add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
+    - apt-get update
+    - apt-get -y install adoptopenjdk-8-hotspot
+    - add-apt-repository "deb http://deb.debian.org/debian buster-backports main"
+    - apt-get update
+    - apt-get install debhelper/buster-backports
+    - export LC_ALL=C.UTF-8
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+    - chmod +x ./gradlew
     - ./gradlew --no-daemon assemble
-    - sed -i -- 's/${version}/$CI_COMMIT_TAG/g' installer/linux/moasdawiki.sh
+    - sed -i -- "s/\${version}/$CI_COMMIT_TAG/g" installer/linux/moasdawiki.sh
     - cd installer/linux
     - fakeroot debian/rules binary
   artifacts:
@@ -32,7 +35,10 @@ build:
 
 test:
   stage: test
+  image: java:8-jdk
   script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+    - chmod +x ./gradlew
     - ./gradlew --no-daemon check
   artifacts:
     expire_in: 1 week
