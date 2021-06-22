@@ -1,6 +1,0 @@
-#!/bin/sh
-set -e
-
-# Server will run as user "moasdawiki"
-adduser --system --disabled-login --disabled-password  --no-create-home moasdawiki
-chown --recursive moasdawiki /srv/moasdawiki
