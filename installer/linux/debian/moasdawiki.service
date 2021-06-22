@@ -3,6 +3,7 @@ Description=MoasdaWiki
 
 [Service]
 Type=forking
+User=moasdawiki
 TimeoutStartSec=0
 ExecStart=/usr/lib/moasdawiki/moasdawiki.sh start
 ExecStop=/usr/lib/moasdawiki/moasdawiki.sh stop
