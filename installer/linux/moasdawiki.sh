@@ -23,7 +23,7 @@ JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 COMMONS_DAEMON_JAR=/usr/share/java/commons-daemon.jar
 MOASDAWIKI_JAR=/usr/lib/moasdawiki/moasdawiki-server-${version}.jar
 PID_FILE=/var/run/moasdawiki.pid
-MOASDAWIKI_REPOSITORY=/var/moasdawiki/repository
+MOASDAWIKI_REPOSITORY=/var/lib/moasdawiki/repository
 
 export LANG=de_DE.UTF-8
 export LC_ALL=de_DE.UTF-8
