@@ -4,7 +4,7 @@
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 %:
-	dh $@ --no-parallel
+	dh $@ --no-parallel --with sysuser
 
 # Avoid dwz warning
 override_dh_dwz:
