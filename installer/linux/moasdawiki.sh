@@ -18,11 +18,11 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 #
 
-MOASDAWIKI_USER=masdawiki
+MOASDAWIKI_USER=moasdawiki
 JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 COMMONS_DAEMON_JAR=/usr/share/java/commons-daemon.jar
 MOASDAWIKI_JAR=/usr/lib/moasdawiki/moasdawiki-server-${version}.jar
-PID_FILE=/var/run/moasdawiki.pid
+PID_FILE=/run/moasdawiki.pid
 MOASDAWIKI_REPOSITORY=/var/lib/moasdawiki/repository
 
 export LANG=de_DE.UTF-8
