@@ -7,17 +7,14 @@ stages:
 
 release:
   stage: build
-  image: debian:buster
+  image: debian:bullseye
   script:
     - apt-get -y update
-    - apt-get -y install curl gnupg2 software-properties-common fakeroot
+    - apt-get -y install curl gnupg2 software-properties-common debhelper fakeroot
     - curl https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key add -
     - add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
     - apt-get update
     - apt-get -y install adoptopenjdk-8-hotspot
-    - add-apt-repository "deb http://deb.debian.org/debian buster-backports main"
-    - apt-get update
-    - apt-get install debhelper/buster-backports
     - export LC_ALL=C.UTF-8
     - export GRADLE_USER_HOME=`pwd`/.gradle
     - chmod +x ./gradlew
