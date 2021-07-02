@@ -1,8 +1,0 @@
-{{parent:Index}}
-Die Kindseiten dieser Wiki-Seite dienen als Inhaltsvorlagen für neue Wiki-Seiten. Diese können im Wiki-Editor ausgewählt werden. Der Text wird dann in den Editor kopiert.
-
-Um eine neue Vorlage zu erstellen, muss diese das Tag
-@@
-{{parent:/wiki/Templates}}
-@@
-in der ersten Zeile enthalten.

@@ -23,7 +23,8 @@ JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 COMMONS_DAEMON_JAR=/usr/share/java/commons-daemon.jar
 MOASDAWIKI_JAR=/usr/lib/moasdawiki/moasdawiki-server-${version}.jar
 PID_FILE=/run/moasdawiki.pid
-MOASDAWIKI_REPOSITORY=/var/lib/moasdawiki/repository
+MOASDAWIKI_USER_REPOSITORY=/var/lib/moasdawiki/repository
+MOASDAWIKI_SHADOW_REPOSITORIES=/usr/lib/moasdawiki/shadow-repositories
 
 export LANG=de_DE.UTF-8
 export LC_ALL=de_DE.UTF-8
@@ -40,7 +41,7 @@ case "$1" in
     -outfile /var/log/moasdawiki/outfile.log \
     -errfile /var/log/moasdawiki/errfile.log \
     -Duser.country=DE -Duser.language=de -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 \
-    net.moasdawiki.MainService $MOASDAWIKI_REPOSITORY
+    net.moasdawiki.MainService $MOASDAWIKI_USER_REPOSITORY $MOASDAWIKI_SHADOW_REPOSITORIES
 
     exit $?
     ;;

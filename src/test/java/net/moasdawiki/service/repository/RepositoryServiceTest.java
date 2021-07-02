@@ -40,15 +40,18 @@ import static net.moasdawiki.AssertHelper.assertContainsNot;
 import static net.moasdawiki.service.repository.RepositoryService.FILELIST_CACHE_FILEPATH;
 import static org.testng.Assert.*;
 
+@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 public class RepositoryServiceTest {
 
-    private static final String REPOSITORY_BASE_PATH = "src/test/resources/repository-with-cache";
+    private static final String CHACHED_REPOSITORY_BASE_PATH = "src/test/resources/repository-with-cache";
+    private static final String NO_CHACHE_REPOSITORY_BASE_PATH = "src/test/resources/repository-without-cache";
+    private static final String SHADOW_REPOSITORY_BASE_PATH = "src/test/resources/repository-shadow";
 
     private RepositoryService frs;
 
     @BeforeMethod
     public void setUp() {
-        frs = new RepositoryService(new Logger(null), new File(REPOSITORY_BASE_PATH), true);
+        frs = new RepositoryService(new Logger(null), new File(CHACHED_REPOSITORY_BASE_PATH), null, true);
     }
 
     @Test
@@ -57,10 +60,12 @@ public class RepositoryServiceTest {
         //noinspection ResultOfMethodCallIgnored
         new File("src/test/resources/repository-without-cache" + FILELIST_CACHE_FILEPATH).delete();
         // Start service, it will create the cache file automatically
-        RepositoryService frsWithoutCache = new RepositoryService(new Logger(null), new File("src/test/resources/repository-without-cache"), true);
-        assertEquals(frsWithoutCache.getFiles().size(), 2);
+        RepositoryService rsWithoutCache = new RepositoryService(new Logger(null), new File(NO_CHACHE_REPOSITORY_BASE_PATH), null, true);
+        assertEquals(rsWithoutCache.getFiles().size(), 2);
         // Check if cache file was generated
-        assertNotNull(frsWithoutCache.getFile(FILELIST_CACHE_FILEPATH));
+        assertNotNull(rsWithoutCache.getFile(FILELIST_CACHE_FILEPATH));
+        // Remove cache file
+        new File("src/test/resources/repository-without-cache" + FILELIST_CACHE_FILEPATH).delete();
     }
 
     @Test
@@ -135,7 +140,7 @@ public class RepositoryServiceTest {
     @Test
     public void testReadTextFile() throws Exception {
         String content = frs.readTextFile(new AnyFile("/file-2020-01-01.txt"));
-        assertEquals(content, "testcontent");
+        assertEquals(content, "content in repository-with-cache");
     }
 
     @Test(expectedExceptions = ServiceException.class)
@@ -161,7 +166,7 @@ public class RepositoryServiceTest {
     @Test
     public void testReadBinaryFile() throws Exception {
         byte[] contentBytes = frs.readBinaryFile(new AnyFile("/file-2020-01-01.txt"));
-        assertEquals(contentBytes, "testcontent".getBytes(StandardCharsets.UTF_8));
+        assertEquals(contentBytes, "content in repository-with-cache".getBytes(StandardCharsets.UTF_8));
     }
 
     @Test
@@ -202,7 +207,6 @@ public class RepositoryServiceTest {
         frs.deleteFile(anyFile);
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void testCreateFolders() throws Exception {
         File file = new File("folder1/subfolder1/file.txt");
@@ -215,15 +219,14 @@ public class RepositoryServiceTest {
 
     @Test
     public void testRepository2FilesystemPath() {
-        //noinspection ConstantConditions
-        assertNull(frs.repository2FilesystemPath(null));
-        assertEquals(frs.repository2FilesystemPath(""), new File(REPOSITORY_BASE_PATH).getAbsolutePath() + File.separator);
-        assertEquals(frs.repository2FilesystemPath("/"), new File(REPOSITORY_BASE_PATH).getAbsolutePath() + File.separator);
-        assertEquals(frs.repository2FilesystemPath("/a"), new File(REPOSITORY_BASE_PATH, "a").getAbsolutePath());
-        assertEquals(frs.repository2FilesystemPath("/a/b"), new File(REPOSITORY_BASE_PATH, "a/b").getAbsolutePath());
-        assertEquals(frs.repository2FilesystemPath("/forbidden\"%*:<>?\\|characters"), new File(REPOSITORY_BASE_PATH, "forbidden%0022%0025%002a%003a%003c%003e%003f%005c%007ccharacters").getAbsolutePath());
-        assertEquals(frs.repository2FilesystemPath("/a/./b"), new File(REPOSITORY_BASE_PATH, "a/%002e/b").getAbsolutePath());
-        assertEquals(frs.repository2FilesystemPath("/a/../b"), new File(REPOSITORY_BASE_PATH, "a/%002e%002e/b").getAbsolutePath());
+        assertNull(frs.repository2FilesystemPath(null, false));
+        assertEquals(frs.repository2FilesystemPath("", false), new File(CHACHED_REPOSITORY_BASE_PATH).getAbsolutePath() + File.separator);
+        assertEquals(frs.repository2FilesystemPath("/", false), new File(CHACHED_REPOSITORY_BASE_PATH).getAbsolutePath() + File.separator);
+        assertEquals(frs.repository2FilesystemPath("/a", false), new File(CHACHED_REPOSITORY_BASE_PATH, "a").getAbsolutePath());
+        assertEquals(frs.repository2FilesystemPath("/a/b", false), new File(CHACHED_REPOSITORY_BASE_PATH, "a/b").getAbsolutePath());
+        assertEquals(frs.repository2FilesystemPath("/forbidden\"%*:<>?\\|characters", false), new File(CHACHED_REPOSITORY_BASE_PATH, "forbidden%0022%0025%002a%003a%003c%003e%003f%005c%007ccharacters").getAbsolutePath());
+        assertEquals(frs.repository2FilesystemPath("/a/./b", false), new File(CHACHED_REPOSITORY_BASE_PATH, "a/%002e/b").getAbsolutePath());
+        assertEquals(frs.repository2FilesystemPath("/a/../b", false), new File(CHACHED_REPOSITORY_BASE_PATH, "a/%002e%002e/b").getAbsolutePath());
     }
 
     @Test
@@ -231,10 +234,28 @@ public class RepositoryServiceTest {
         //noinspection ConstantConditions
         assertNull(frs.filesystem2RepositoryPath(null));
         assertNull(frs.filesystem2RepositoryPath("/outside-repository"));
-        assertEquals(frs.filesystem2RepositoryPath(new File(REPOSITORY_BASE_PATH).getAbsolutePath()), "/");
-        assertEquals(frs.filesystem2RepositoryPath(new File(REPOSITORY_BASE_PATH, "a").getAbsolutePath()), "/a");
-        assertEquals(frs.filesystem2RepositoryPath(new File(REPOSITORY_BASE_PATH, "a/b").getAbsolutePath()), "/a/b");
-        assertEquals(frs.filesystem2RepositoryPath(new File(REPOSITORY_BASE_PATH, "forbidden%0022%0025%002a%003a%003c%003e%003f%005c%007ccharacters").getAbsolutePath()), "/forbidden\"%*:<>?\\|characters");
-        assertNull(frs.filesystem2RepositoryPath(new File(REPOSITORY_BASE_PATH, "invalid%klmncharacters").getAbsolutePath()));
+        assertEquals(frs.filesystem2RepositoryPath(new File(CHACHED_REPOSITORY_BASE_PATH).getAbsolutePath()), "/");
+        assertEquals(frs.filesystem2RepositoryPath(new File(CHACHED_REPOSITORY_BASE_PATH, "a").getAbsolutePath()), "/a");
+        assertEquals(frs.filesystem2RepositoryPath(new File(CHACHED_REPOSITORY_BASE_PATH, "a/b").getAbsolutePath()), "/a/b");
+        assertEquals(frs.filesystem2RepositoryPath(new File(CHACHED_REPOSITORY_BASE_PATH, "forbidden%0022%0025%002a%003a%003c%003e%003f%005c%007ccharacters").getAbsolutePath()), "/forbidden\"%*:<>?\\|characters");
+        assertNull(frs.filesystem2RepositoryPath(new File(CHACHED_REPOSITORY_BASE_PATH, "invalid%klmncharacters").getAbsolutePath()));
+    }
+
+    @Test
+    public void testShadowRepository() throws Exception {
+        // Delete cache file if it exists
+        new File("src/test/resources/repository-without-cache" + FILELIST_CACHE_FILEPATH).delete();
+        // Start service, it will create the cache file automatically
+        RepositoryService rsShadow = new RepositoryService(new Logger(null), new File(NO_CHACHE_REPOSITORY_BASE_PATH),
+                new File(SHADOW_REPOSITORY_BASE_PATH), true);
+        assertEquals(rsShadow.getFiles().size(), 3);
+        assertNotNull(rsShadow.getFile("/file-2020-01-01.txt"));
+        assertNotNull(rsShadow.getFile("/file-only-in-shadow.txt"));
+        assertEquals(rsShadow.readTextFile(new AnyFile("/file-2020-01-01.txt")), "content in repository-without-cache");
+        assertEquals(rsShadow.readTextFile(new AnyFile("/file-only-in-shadow.txt")), "file-only-in-shadow");
+        assertEquals(rsShadow.repository2FilesystemPath("/a", false), new File(NO_CHACHE_REPOSITORY_BASE_PATH, "a").getAbsolutePath());
+        assertEquals(rsShadow.repository2FilesystemPath("/a", true), new File(SHADOW_REPOSITORY_BASE_PATH, "a").getAbsolutePath());
+        // Remove cache file
+        new File("src/test/resources/repository-without-cache" + FILELIST_CACHE_FILEPATH).delete();
     }
 }

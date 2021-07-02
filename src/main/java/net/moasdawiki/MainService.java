@@ -36,6 +36,7 @@ import net.moasdawiki.service.transform.*;
 import net.moasdawiki.service.wiki.WikiService;
 
 import java.io.File;
+import java.util.Locale;
 
 /**
  * Main control of the wiki server.
@@ -66,8 +67,19 @@ public class MainService {
 			repositoryRoot = new File(REPOSITORY_ROOT_PATH_DEFAULT);
 		}
 
+		// determine shadow repository base folder
+		File shadowRepositoryRoot = null;
+		if (args != null && args.length >= 2) {
+			String language = Locale.getDefault().getLanguage();
+			logger.write("Detected language: " + language);
+			shadowRepositoryRoot = new File(args[1], language);
+			if (!shadowRepositoryRoot.exists()) {
+				shadowRepositoryRoot = new File(args[1], "en");
+			}
+		}
+
 		// basic services
-		RepositoryService repositoryService = new RepositoryService(logger, repositoryRoot, true);
+		RepositoryService repositoryService = new RepositoryService(logger, repositoryRoot, shadowRepositoryRoot, true);
 		settings = new Settings(logger, repositoryService, Settings.getConfigFileServer());
 		messages = new Messages(logger, settings, repositoryService);
 		WikiService wikiService = new WikiService(logger, repositoryService, true);

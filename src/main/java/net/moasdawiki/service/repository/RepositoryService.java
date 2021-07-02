@@ -40,7 +40,8 @@ public class RepositoryService {
 	/**
 	 * Path of the file list cache file.
 	 *
-	 * Row format: File path in repository '\t' modification timestamp in ISO 8601 format "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+	 * Row format:
+	 * File path in repository '\t' modification timestamp in ISO 8601 format "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 	 */
 	public static final String FILELIST_CACHE_FILEPATH = "/filelist.cache";
 
@@ -48,16 +49,30 @@ public class RepositoryService {
 	protected final Logger logger;
 
 	/**
-	 * Repository base folder {@link File}.
+	 * User repository base folder.
 	 */
 	@NotNull
 	protected final File repositoryBase;
 
 	/**
-	 * Repository base folder path.
+	 * User repository base folder path.
 	 */
 	@NotNull
 	protected final String repositoryBasePath;
+
+	/**
+	 * Shadow repository base folder.
+	 * null -> none.
+	 */
+	@Nullable
+	private final File shadowRepositoryBase;
+
+	/**
+	 * Shadow repository base folder path.
+	 * null -> none.
+	 */
+	@Nullable
+	protected final String shadowRepositoryBasePath;
 
 	/**
 	 * Metadata cache for all files in the repository.
@@ -75,14 +90,22 @@ public class RepositoryService {
 	/**
 	 * Constructor.
 	 */
-	public RepositoryService(@NotNull Logger logger, @NotNull File repositoryBase, boolean scanRepository) {
+	public RepositoryService(@NotNull Logger logger, @NotNull File repositoryBase,
+							 @Nullable File shadowRepositoryBase, boolean scanRepository) {
 		super();
 		this.logger = logger;
 		this.repositoryBase = repositoryBase;
 		this.repositoryBasePath = repositoryBase.getAbsolutePath();
+		this.shadowRepositoryBase = shadowRepositoryBase;
+		if (shadowRepositoryBase != null) {
+			this.shadowRepositoryBasePath = shadowRepositoryBase.getAbsolutePath();
+		} else {
+			this.shadowRepositoryBasePath = null;
+		}
 		this.fileMap = new HashMap<>();
 		this.scanRepository = scanRepository;
 		logger.write("Repository base path: " + this.repositoryBasePath);
+		logger.write("Shadow repository base path: " + this.shadowRepositoryBasePath);
 		reset();
 	}
 
@@ -196,8 +219,13 @@ public class RepositoryService {
 		}
 
 		List<File> files = new ArrayList<>();
+		if (shadowRepositoryBase != null) {
+			// scan shadow repository before the user repository
+			// to give user file higher priority in case of duplicate paths
+			listFilesInFilesystem(shadowRepositoryBase, files);
+		}
 		listFilesInFilesystem(repositoryBase, files);
-		logger.write("Rebuilding repository cache, found " + files.size() + " files in repository folder");
+		logger.write("Rebuilding repository cache, found " + files.size() + " files in repository");
 
 		Map<String, AnyFile> newFileMap = new HashMap<>();
 		for (File file : files) {
@@ -300,7 +328,7 @@ public class RepositoryService {
 	public synchronized void deleteFile(@NotNull AnyFile anyFile) throws ServiceException {
 		String filePath = anyFile.getFilePath();
 		try {
-			String filename = repository2FilesystemPath(filePath);
+			String filename = repository2FilesystemPath(filePath, false);
 			File file = new File(filename);
 			if (!file.delete()) {
 				String message = "Error deleting file '" + filePath + "', because the file system denied the action";
@@ -339,17 +367,29 @@ public class RepositoryService {
 	}
 
 	/**
-	 * Read the content of a binary file.
+	 * Read the content of a binary file from the user or the shadow repository.
 	 * Throws an exception if the file doesn't exist.
 	 */
 	public synchronized byte @NotNull [] readBinaryFile(@NotNull AnyFile anyFile) throws ServiceException {
 		String filePath = anyFile.getFilePath();
 		filePath = PathUtils.makeWebPathAbsolute(filePath, null);
-		String filename = repository2FilesystemPath(filePath);
+		String filename = repository2FilesystemPath(filePath, false);
 		File file = new File(filename);
+		if (!file.exists() && shadowRepositoryBase != null) {
+			// use shadow repository as fallback
+			filename = repository2FilesystemPath(filePath, true);
+			if (filename != null) {
+				file = new File(filename);
+			}
+		}
+		if (!file.exists()) {
+			String message = "File not found in repository: " + file.getAbsolutePath();
+			logger.write(message);
+			throw new ServiceException(message);
+		}
 
 		// update cache
-		if (!fileMap.containsKey(filePath) && file.exists()) {
+		if (!fileMap.containsKey(filePath)) {
 			logger.write("Detected new file '" + filePath + "' in repository, adding to cache");
 			Date fileTimestamp = new Date(file.lastModified());
 			AnyFile newAnyFile = new AnyFile(filePath, fileTimestamp);
@@ -376,14 +416,14 @@ public class RepositoryService {
 	}
 
 	/**
-	 * Write the content of a binary file.
+	 * Write the content of a binary file to the user repository.
 	 * If the file already exists it will be overwritten.
 	 */
 	@NotNull
 	public synchronized AnyFile writeBinaryFile(@NotNull AnyFile anyFile, byte @NotNull [] content, @Nullable Date contentTimestamp) throws ServiceException {
 		String filePath = anyFile.getFilePath();
 		filePath = PathUtils.makeWebPathAbsolute(filePath, null);
-		String filename = repository2FilesystemPath(filePath);
+		String filename = repository2FilesystemPath(filePath, false);
 		File file = new File(filename);
 
 		createFolders(file);
@@ -433,9 +473,9 @@ public class RepositoryService {
 	 * Repository path:  <tt>/path/to/file</tt><br>
 	 * File system path: <tt>/path/to/repository/path/to/file</tt>
 	 */
-	@Contract(value = "null -> null; !null -> !null", pure = true)
+	@Contract(value = "null,_ -> null; !null,false -> !null", pure = true)
 	@Nullable
-	protected String repository2FilesystemPath(@Nullable String repositoryPath) {
+	protected String repository2FilesystemPath(@Nullable String repositoryPath, boolean useShadowRepository) {
 		if (repositoryPath == null) {
 			return null;
 		}
@@ -466,7 +506,11 @@ public class RepositoryService {
 		}
 
 		String filePath = PathUtils.convertWebPath2FilePath(sb.toString());
-		return PathUtils.concatFilePaths(repositoryBasePath, filePath);
+		if (useShadowRepository) {
+			return PathUtils.concatFilePaths(shadowRepositoryBasePath, filePath);
+		} else {
+			return PathUtils.concatFilePaths(repositoryBasePath, filePath);
+		}
 	}
 
 	/**
@@ -487,14 +531,16 @@ public class RepositoryService {
 			return null;
 		}
 
-		if (!filesystemPath.startsWith(repositoryBasePath)) {
+		// cut off path to repository root
+		StringBuilder sb = new StringBuilder(filesystemPath);
+		if (filesystemPath.startsWith(repositoryBasePath)) {
+			sb.delete(0, repositoryBasePath.length());
+		} else if (shadowRepositoryBasePath != null && filesystemPath.startsWith(shadowRepositoryBasePath)) {
+			sb.delete(0, shadowRepositoryBasePath.length());
+		} else {
 			logger.write("filePath2PagePath: Invalid file name '" + filesystemPath + "', doesn't exist in repository '" + repositoryBasePath + "'");
 			return null;
 		}
-
-		// cut off path to repository root
-		StringBuilder sb = new StringBuilder(filesystemPath);
-		sb.delete(0, repositoryBasePath.length());
 		if (sb.length() == 0 || sb.charAt(0) != File.separatorChar) {
 			sb.insert(0, File.separatorChar);
 		}
