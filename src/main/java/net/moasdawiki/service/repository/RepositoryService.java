@@ -373,19 +373,26 @@ public class RepositoryService {
 	public synchronized byte @NotNull [] readBinaryFile(@NotNull AnyFile anyFile) throws ServiceException {
 		String filePath = anyFile.getFilePath();
 		filePath = PathUtils.makeWebPathAbsolute(filePath, null);
-		String filename = repository2FilesystemPath(filePath, false);
-		File file = new File(filename);
-		if (!file.exists() && shadowRepositoryBase != null) {
-			// use shadow repository as fallback
-			filename = repository2FilesystemPath(filePath, true);
-			if (filename != null) {
-				file = new File(filename);
-			}
+		String filename1 = repository2FilesystemPath(filePath, false);
+		String filename2 = null;
+		if (shadowRepositoryBase != null) {
+			filename2 = repository2FilesystemPath(filePath, true);
 		}
+		File file = new File(filename1);
 		if (!file.exists()) {
-			String message = "File not found in repository: " + file.getAbsolutePath();
-			logger.write(message);
-			throw new ServiceException(message);
+			if (filename2 != null) {
+				// use shadow repository as fallback
+				file = new File(filename2);
+				if (!file.exists()) {
+					String message = "File not found in user repository '" + filename1 + "' and shadow repository '" + filename2 + "'";
+					logger.write(message);
+					throw new ServiceException(message);
+				}
+			} else {
+				String message = "File not found in repository: " + file.getAbsolutePath();
+				logger.write(message);
+				throw new ServiceException(message);
+			}
 		}
 
 		// update cache
