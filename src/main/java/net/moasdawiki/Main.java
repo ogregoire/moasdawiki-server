@@ -22,12 +22,11 @@ package net.moasdawiki;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Hauptklasse mit main()-Methode. Wird verwendet, wenn MoasdaWiki von der
- * Kommandozeile aufgerufen wird.
+ * Main class with static main() method.
+ * Is used to start MoasdaWiki from command line.
  */
 public class Main {
 
-	// Service-Schnittstelle des Servers
 	@NotNull
 	private final MainService mainService;
 
@@ -55,15 +54,10 @@ public class Main {
 		}
 	}
 
-	/**
-	 * main-Methode, um die Anwendung zu starten.
-	 */
 	public static void main(String[] args) {
 		final Main main = new Main();
 
-		// wenn die VM heruntergefahren werden soll, dann rechtzeitig den Server
-		// beenden; das Event wird durch Strg+C in der Konsole und durch das
-		// Ende der main()-Methode ausgelöst
+		// Stop server on JVM shutdown; this is triggered by Ctrl+C in the terminal.
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			System.out.println("Received Java VM STOP signal, shutting down server");
 			main.mainService.stop();
