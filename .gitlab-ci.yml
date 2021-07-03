@@ -7,7 +7,7 @@ stages:
 
 release:
   stage: build
-  image: debian:bullseye
+  image: debian:bullseye # for debhelper 13
   script:
     - apt-get -y update
     - apt-get -y install curl gnupg2 software-properties-common debhelper fakeroot
