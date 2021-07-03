@@ -6,7 +6,7 @@ stages:
   - release
 
 release:
-  stage: build
+  stage: release
   image: debian:bullseye # for debhelper 13
   script:
     - apt-get -y update
