@@ -5,7 +5,7 @@ if [ "$1" = "configure" ] ; then
   adduser --system --home /var/lib/moasdawiki --disabled-login moasdawiki
 fi
 
-# Workaround for JSVC bug that doesn't find the JVM
+# Workaround for JSVC 1.0.x bug that doesn't find the JVM
 if [ ! -d "/usr/lib/jvm/java-11-openjdk-amd64/lib/amd64/server" ]
 then
   mkdir /usr/lib/jvm/java-11-openjdk-amd64/lib/amd64
