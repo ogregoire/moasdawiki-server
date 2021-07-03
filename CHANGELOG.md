@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0 (2021-07-03)
+
+- Create Debian package (DEB) for easier installation and update
+- Implement shadow repository to separate shipped repository files from user files
+
 ## 2.6.3 (2021-06-15)
 
 - Syntax highlighting for YAML code
