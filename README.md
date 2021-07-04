@@ -13,6 +13,7 @@ For documentation see https://moasdawiki.net/.
 - Easy usability
 - No installation required, can be unzipped and run on a USB stick
 - Runs on any OS with a Java VM 1.8 or higher
+- Debian package for easy installation available
 - [MoasdaWiki App](https://gitlab.com/moasdawiki/moasdawiki-app) available,
   always have a copy of the Wiki content on your mobile device
 - Data privacy by design: Stores content only on the local computer, never
@@ -42,95 +43,42 @@ For documentation see https://moasdawiki.net/.
 <img src="images/Screenshot2.png" width="300" height="256" />
 <img src="images/Screenshot3.png" width="300" height="256" />
 
-## Download / Build
+## Download and Run
+### For Debian/Ubuntu
 
-**Download** MoasdaWiki server from the
-[releases page](https://gitlab.com/moasdawiki/moasdawiki-server/-/releases).
-Unzip the file `moasdawiki-server-x.y.z.zip` in any folder.
-No special installation steps necessary.
+1. Download the latest DEB package file from the
+   [releases page](https://gitlab.com/moasdawiki/moasdawiki-server/-/releases).
+2. Install the package.
+3. Open the URL http://localhost:11080/ in your web browser.
 
-Alternatively, you can clone the GitLab repository and **build** the project locally:
+MoasdaWiki stores the repository files in the folder
+`/var/lib/moasdawiki/repository`. I recommend adding that folder to your backup
+tool. The log files are in the folder `/var/log/moasdawiki/`.
+
+### Other environments
+
+1. Ensure that Java 1.8 or higher is installed.
+2. Download the latest ZIP bundle from the
+   [releases page](https://gitlab.com/moasdawiki/moasdawiki-server/-/releases).
+3. Unzip the file `moasdawiki-server-x.y.z.zip` in a new folder.
+4. Open a Terminal.
+5. Go to the folder that contains the file `moasdawiki-server-x.y.z.jar`.
+6. Run the server: `java -jar moasdawiki-server-x.y.z.jar shadow-repository/en`
+7. Open the URL http://localhost:11080/ in your web browser.
+
+If the Wiki server runs on a different host, use the host name or its IP address
+instead of `localhost`. The default port is 11080. You can change it in the file
+`shadow-repository/en/config.txt`.
+
+## Build
+
+Clone the GitLab repository and run:
 
 ```
 gradle build
 ```
 
-Afterwards, you will find the target ZIP file in the folder ```build/distributions/```.
-
-## Run from Terminal (Linux/Windows)
-
-MoasdaWiki server requires Java 1.8 or higher and is running on several
-operating systems and platforms.
-
-1. Open a Terminal
-2. Go to folder that contains `moasdawiki-server-x.y.z.jar`
-3. `java -jar moasdawiki-server-x.y.z.jar repository-en`
-
-After starting the Wiki server it can be accessed by any web browser, open the URL:
-http://localhost:11080/
-
-If the Wiki server runs on a different host, use the host name or its IP address
-instead of `localhost`. The default port is 11080. It can be changed in the file
-`repository/config.txt`.
-
-## Run as a Linux daemon
-### Using systemd (since Ubuntu 15.10)
-
-1. Check if systemd is running
-   ```
-   $ cat /proc/1/comm
-   systemd
-   ```
-
-2. Install required packages
-   - `openjdk-8-jre` (any Java VM 1.8 or higher)
-   - `jsvc` (see https://commons.apache.org/proper/commons-daemon/)
-   - `libcommons-daemon-java`
-
-3. Edit the files `moasdawiki.sh` and `moasdawiki.service` and adjust the paths.
-
-4. Mark the files as executable
-   ```
-   chmod a+x moasdawiki.service
-   chmod a+x moasdawiki.sh
-   ```
-
-5. Create a systemd service
-   ```
-   sudo cp /path/to/moasdawiki.service /etc/systemd/system
-   ```
-
-6. Activate und start the systemd service
-   ```
-   sudo systemctl enable moasdawiki.service
-   sudo systemctl start moasdawiki.service
-   ```
-
-### Using SysVinit
-
-1. Install required packages
-   - `openjdk-8-jre` (any Java VM 1.8 or higher)
-   - `jsvc` (see https://commons.apache.org/proper/commons-daemon/)
-   - `libcommons-daemon-java`
-
-2. Edit the file `moasdawiki.sh` and adjust the paths.
-
-3. Mark the file as executable
-   ```
-   chmod a+x moasdawiki.sh
-   ```
-
-4. Create a symbolic link in `/etc/init.d`
-   ```
-   sudo ln -s /path/to/moasdawiki.sh /etc/init.d/moasdawiki
-   ```
-
-5. Create symbolic links for daemon start up and daemon shut down in runlevel 2:
-   ```
-   cd /etc/rc2.d
-   sudo ln -s ../init.d/moasdawiki S95moasdawiki
-   sudo ln -s ../init.d/moasdawiki K05moasdawiki
-   ```
+Afterwards, you will find a ZIP file in the folder ```build/distributions/```.
 
 ## User guide
 
